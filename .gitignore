@@ -1,0 +1,24 @@
+# colcon build output
+build/
+install/
+log/
+
+# python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# recordings and media are large; keep the folder, not the contents
+bags/*
+!bags/.gitkeep
+*.mcap
+*.webm
+
+# editor tool worktrees - these hold stale copies of the notes below
+.kilo/
+
+# internal working notes, kept local and out of the repo
+/CLAUDE.md
+/PROPOSAL.md
+/lab2/PLAN.md
