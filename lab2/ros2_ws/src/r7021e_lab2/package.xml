@@ -4,7 +4,7 @@
   <name>r7021e_lab2</name>
   <version>1.0.0</version>
   <description>Lab 2: nonlinear MPC for the TurtleBot3 Burger, built with do-mpc.</description>
-  <maintainer email="domadd-2@student.ltu.se">dominiques-laptop</maintainer>
+  <maintainer email="domadd-2@student.ltu.se">Dominic Addo</maintainer>
   <license>MIT</license>
 
   <exec_depend>rclpy</exec_depend>

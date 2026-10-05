@@ -9,10 +9,12 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', ['launch/lab2_launch.py']),
+        ('share/' + package_name + '/rviz', ['rviz/lab2.rviz']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='dominiques-laptop',
+    maintainer='Dominic Addo',
     maintainer_email='domadd-2@student.ltu.se',
     description='Lab 2: nonlinear MPC for the TurtleBot3 Burger, built with do-mpc.',
     license='MIT',
