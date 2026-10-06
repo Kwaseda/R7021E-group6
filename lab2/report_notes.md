@@ -38,10 +38,34 @@ Final position x = 1.061 with the box at +/-1.0. We had added a 0.05 m margin be
 commanded box and the solver's box, and 61 mm of overshoot ate straight through it. Same class
 of problem again.
 
-## Task 3 actually worked
+## Task 3 worked, but not the way the task intended
 
-`task3-final`: 2.229 m of path, closest approach 0.2629 m against a 0.255 m constraint. Both
-obstacle constraints active and respected, 8 mm to spare. This is the run to show.
+`task3-final` on the robot: 2.229 m of path, both constraints respected, first obstacle cleared
+by 7.9 mm. Technically a pass.
+
+But we published the goal as roughly (1.8, 0.5) instead of (1.8, 0.0), so the robot went up and
+over the first obstacle and never entered the gap between the two. The second obstacle was
+cleared by 545 mm, which is another way of saying it was never relevant. Only one of the two
+constraints did any work.
+
+Simulated with the goal the task actually calls for, same bounds and same obstacles:
+
+| | real robot, goal (1.8, 0.5) | simulation, goal (1.8, 0.0) |
+|---|---|---|
+| path length | 2.229 m | 1.848 m |
+| time | 41.1 s | 8.3 s |
+| y extent | 0.000 to 0.763 m | -0.117 to 0.124 m |
+| obstacle 1 closest | 0.2629 m, clear by 7.9 mm | 0.2541 m, 0.9 mm of soft slack |
+| obstacle 2 closest | 0.8005 m, clear by 545 mm | 0.2549 m, 0.1 mm of soft slack |
+
+In simulation it weaves between them, stays within 0.124 m of the axis, and both constraints
+ride their boundary to within a millimetre. That is what task 3 is meant to look like. Compare
+`plots/task3_simulation.png` against `plots/task3-final_task3.png`.
+
+The sub-millimetre figures are the soft constraint doing its job, not a near miss. The slack is
+spent against the 105 mm inflation we added for the robot's own footprint, so 0.9 mm of slack
+still leaves about 104 mm between the robot and the physical object. Both scripts now report it
+that way rather than printing a violation warning.
 
 ## What the instructor saw, and was right about
 
@@ -143,41 +167,6 @@ a violation against the wrong circle. It now reads the table out of the node, an
 
 Two copies of the same constants is the bug. We have made that mistake before, in Lab 1, with
 five YAML files.
-
-## Task 5, driving between two obstacles
-
-Added as task 5, since the lab only asks for at least two obstacle constraints and a gate
-demonstrates them better than a slalom: both constraints are active at the same moment rather
-than one after the other.
-
-Two obstacles at (1.00, +/-0.40), radius 0.15, keep-out 0.255 m, so a 0.290 m corridor between
-the keep-out edges. Goal (2.0, 0.0) from a start at the origin.
-
-```
-reached goal in 8.8 s, 0 solver failures
-closest approach 0.4001 m and 0.4001 m against a 0.255 m keep-out
-max |y| through the gate 0.0000 m
-```
-
-It goes straight down the middle and never touches either constraint. The symmetry works for us
-here, unlike the single-obstacle case: with the gap on the start-to-goal axis, straight through
-is the unique optimum, so there is no tie for the solver to fail to break.
-
-Narrowing the gate, same geometry, goal reached every time with zero failures:
-
-| gate offset | corridor | closest approach | constraints respected |
-|---|---|---|---|
-| 0.28 m | 0.050 m | 0.2802 m | yes |
-| 0.30 m | 0.090 m | 0.3002 m | yes |
-| 0.40 m | 0.290 m | 0.4001 m | yes |
-| 0.55 m | 0.590 m | 0.5501 m | yes |
-
-Even a 50 mm corridor works, because the model is a point and the obstacles are already
-inflated by the robot's 0.105 m half-diagonal. That inflation is conservative, so 50 mm of
-further clearance is real. We use 0.290 m for the demo because it is visibly tight without
-looking like a stunt.
-
-`plots/task5_gate_simulation.png`.
 
 ## What we would do differently in labs 1 to 3
 

@@ -24,7 +24,7 @@ def generate_launch_description():
     use_sim_time = ParameterValue(sim, value_type=bool)
 
     return LaunchDescription([
-        DeclareLaunchArgument('task', default_value='1', choices=['1', '2', '3', '4', '5']),
+        DeclareLaunchArgument('task', default_value='1', choices=['1', '2', '3', '4']),
         DeclareLaunchArgument('sim', default_value='false', choices=['true', 'false']),
         DeclareLaunchArgument('rviz', default_value='true', choices=['true', 'false']),
         DeclareLaunchArgument('t_step', default_value='0.1'),

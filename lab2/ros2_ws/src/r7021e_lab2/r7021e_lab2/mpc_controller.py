@@ -41,7 +41,6 @@ TASKS = {
     2: dict(bound=4.0, obstacles=[(2.0, 0.50, 1.0)],                        soft=True, goal='topic'),
     3: dict(bound=2.0, obstacles=[(0.70, 0.15, 0.15), (1.30, -0.15, 0.15)],   soft=True, goal='topic'),
     4: dict(bound=2.5, obstacles=[(0.00, 0.62, 0.12)],                        soft=True,  goal='circle'),
-    5: dict(bound=2.5, obstacles=[(1.00, 0.40, 0.15), (1.00, -0.40, 0.15)],   soft=True,  goal='topic'),
 }
 
 CIRCLE = dict(radius=0.8, centre_x=0.0, centre_y=0.0,

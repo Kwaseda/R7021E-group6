@@ -131,8 +131,15 @@ def report(t, xy, goals, obstacles, task):
     for i, (ox, oy, r) in enumerate(obstacles, start=1):
         d = np.linalg.norm(xy - np.array([ox, oy]), axis=1)
         inflated = r + ROBOT_INFLATION
+        if d.min() < r:
+            note = '   *** HIT THE OBSTACLE ***'
+        elif d.min() < inflated:
+            note = '   soft slack used %.1f mm of the %.0f mm inflation' % (
+                (inflated - d.min()) * 1000.0, ROBOT_INFLATION * 1000.0)
+        else:
+            note = '   clear by %.1f mm' % ((d.min() - inflated) * 1000.0)
         print('obstacle %d         closest approach %.4f m against a %.3f m constraint radius%s'
-              % (i, d.min(), inflated, '   *** VIOLATED ***' if d.min() < inflated else ''))
+              % (i, d.min(), inflated, note))
 
     if task == 4:
         rad = np.linalg.norm(xy - np.array([CIRCLE['centre_x'], CIRCLE['centre_y']]), axis=1)
