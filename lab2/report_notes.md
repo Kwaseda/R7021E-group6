@@ -111,24 +111,6 @@ Fixed by holding the last command for up to three ticks before falling back to z
 transient failure now coasts instead of braking, and a real failure still stops the robot
 within 0.3 s.
 
-## Task 4 fixed, in simulation
-
-Two laps, closed loop, at a desk:
-
-```
-solver failures      0
-mean radius error    0.0023 m   max 0.0458 m
-omega sign flips     8 over 1200 steps
-v range              0.056 to 0.107 m/s, never stalled
-closest approach     0.2251 m against a 0.225 m keep-out
-```
-
-`plots/task4_simulation_twolaps.png`. That closest approach is worth reading twice: the soft
-constraint spends 0.1 mm of slack. It is not buying clearance cheaply, because the penalty is
-1e4 against a tracking weight of 1.0. On hardware, with actuation delay, it will spend more,
-and that is the point of making it soft. A hard constraint there deadlocks; we measured that
-too.
-
 ## The lidar display was accumulating
 
 The laser looked like it was mapping everywhere the robot had been, updating slowly. That was
@@ -168,19 +150,53 @@ a violation against the wrong circle. It now reads the table out of the node, an
 Two copies of the same constants is the bug. We have made that mistake before, in Lab 1, with
 five YAML files.
 
-## What we would do differently in labs 1 to 3
+## Task 4, simulated against the recorded run
 
-**Lab 1.** We shipped two packages, five YAML parameter files and fourteen Python modules,
-about 2500 lines, for three tasks. One package with two or three scripts and the parameters
-declared next to the code that reads them would have been both smaller and defensible. We
-could not explain our own layout when asked, which is the real measure of it being wrong.
+| | recorded on the robot | simulation, two laps |
+|---|---|---|
+| path length | 0.019 m | 10.901 m |
+| duration | 98.4 s | 128.1 s |
+| extent | a single point at (1.819, 0.504) | x +/-0.80, y -0.80 to 0.85 |
+| solver failures | every tick | 0 |
+| obstacle closest | 1.822 m, never relevant | 0.2249 m, 0.1 mm of soft slack |
+| tracking error | 1.0872 m, the distance to a circle it never reached | 0.0025 m mean, 0.0463 m max after the 8 s drive-on |
 
-**Lab 2.** Same lesson applied: one node, four tasks, selected by a `task` parameter against
-one table of constraint sets. Changing a task is a restart, not a rebuild, because the goal is
-a time-varying parameter and only the constraints are compiled in.
+`plots/task4_simulation.png` for the path, `plots/task4_simulation_twolaps.png` for the
+commanded v and omega and the error against time.
 
-**Lab 3.** Fill in the template. We added packages beside the course's own and it made the
-work harder to read without making it better.
+The simulated run drives on from the origin during the 8 s delay, then holds the circle to
+2.5 mm on average for two full laps with no solver failure.
+
+That 0.1 mm of slack is worth reading twice. The soft constraint is not buying clearance
+cheaply, because the penalty is 1e4 against a tracking weight of 1.0: it behaves identically to
+a hard constraint whenever a hard one is satisfiable. On hardware, with actuation delay, it
+will spend more, and that is the point of making it soft. A hard constraint in the same place
+deadlocks, which is what task 2 did.
+
+## What we would do differently in tasks 1 to 3
+
+**Task 1.** The boundary bounds are hard, so when the robot overshot x = 1.0 to 1.061 the
+measured state itself became illegal and nothing could recover it. We would make the box four
+soft constraints instead of `mpc.bounds`, and clip the commanded goal into the box from the
+start rather than discovering the problem on the floor. We also had no record of the solver
+status during the run, so we could not tell a correct stop at the boundary from a deadlock
+until we read the bag afterwards.
+
+**Task 2.** We placed the obstacle before checking whether it could be avoided. The test is one
+line of arithmetic: the detour an obstacle forces has to be smaller than `n_horizon * t_step *
+v_max`, which is 0.44 m for us. A 1.105 m keep-out needs about 2.2 m. We would compute that
+before putting anything on the floor, and we would have published the obstacle markers so the
+keep-out circle was visible in RViz instead of invisible and twice the size we pictured.
+
+**Task 3.** We published the goal as roughly (1.8, 0.5) instead of (1.8, 0.0), so the robot
+went over the first obstacle and the second one never constrained anything. The task wants both
+constraints active. We would run the task in simulation first and compare the shape, which is
+exactly what showed the mistake once we did it. Getting the goal on the axis between the two
+obstacles is the whole point of the task.
+
+The common thread across all three: every one of them was a geometry or a feasibility question
+we could have answered at a desk in a minute, and we answered all three on the floor with the
+robot running and the clock going.
 
 ## Still wrong, and we know it
 

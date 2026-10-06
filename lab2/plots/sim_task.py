@@ -16,6 +16,7 @@ Arguments
 --start x,y,theta   initial pose, default 0,0,0
 --seconds S  how long to simulate, default 60 (task 4 uses --laps instead)
 --laps N     task 4 only, default 2
+--start_delay S     task 4 only, overrides the node's 8 s drive-on time
 -o FILE      output image, default task<N>_simulation.png
 """
 
@@ -58,6 +59,8 @@ def main():
     ap.add_argument('--start', default='0,0,0')
     ap.add_argument('--seconds', type=float, default=60.0)
     ap.add_argument('--laps', type=int, default=2)
+    ap.add_argument('--start_delay', type=float,
+                    help="override the node's start delay, task 4 only")
     ap.add_argument('--t_step', type=float, default=0.1)
     ap.add_argument('--n_horizon', type=int, default=20)
     ap.add_argument('-o', '--out')
@@ -72,8 +75,10 @@ def main():
     p = np.array([float(v) for v in a.start.split(',')])
 
     if circle:
-        mc.CIRCLE.update(laps=a.laps, start_delay=0.0)
-        steps = int(a.laps * mc.CIRCLE['lap_period'] / TS)
+        mc.CIRCLE.update(laps=a.laps)
+        if a.start_delay is not None:
+            mc.CIRCLE['start_delay'] = a.start_delay
+        steps = int((mc.CIRCLE['start_delay'] + a.laps * mc.CIRCLE['lap_period']) / TS)
     else:
         steps = int(a.seconds / TS)
 
@@ -129,7 +134,12 @@ def main():
     if circle:
         rad = np.linalg.norm(traj, axis=1)
         err = np.abs(rad - mc.CIRCLE['radius'])
-        print('circle tracking    mean error %.4f m, max %.4f m' % (err.mean(), err.max()))
+        skip = int(mc.CIRCLE['start_delay'] / TS) + 1
+        print('circle tracking    mean error %.4f m, max %.4f m  (whole run)'
+              % (err.mean(), err.max()))
+        if skip < len(err):
+            print('                   mean error %.4f m, max %.4f m  (after the %.0f s drive-on)'
+                  % (err[skip:].mean(), err[skip:].max(), mc.CIRCLE['start_delay']))
     elif reached:
         print('reached goal in    %.1f s' % reached)
     else:
