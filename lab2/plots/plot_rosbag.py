@@ -45,15 +45,21 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-# Must match TASKS in mpc_controller.py. (x, y, radius) before inflation.
-ROBOT_INFLATION = 0.105
-TASKS = {
-    1: dict(bound=1.0, obstacles=[]),
-    2: dict(bound=2.0, obstacles=[(0.75, 0.08, 0.30)]),
-    3: dict(bound=2.0, obstacles=[(0.70, 0.15, 0.15), (1.30, -0.15, 0.15)]),
-    4: dict(bound=1.5, obstacles=[(0.00, 0.62, 0.12)]),
-}
-CIRCLE = dict(radius=0.8, centre_x=0.0, centre_y=0.0)
+# Read straight out of the node, so the two can never drift apart.
+import importlib.util as _u
+_spec = _u.spec_from_file_location('_node', os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '../ros2_ws/src/r7021e_lab2/r7021e_lab2/mpc_controller.py'))
+_src = open(_spec.origin).read()
+_ns = {'__name__': '_node'}
+exec(compile(_src[:_src.index('class MpcNode')].replace('import rclpy', 'pass')
+             .replace('from rclpy', '#from rclpy').replace('from geometry_msgs', '#from geometry_msgs')
+             .replace('from nav_msgs', '#from nav_msgs').replace('from visualization_msgs', '#from visualization_msgs')
+             .replace('from rcl_interfaces', '#from rcl_interfaces'), _spec.origin, 'exec'), _ns)
+ROBOT_INFLATION = _ns['ROBOT_INFLATION']
+TASKS = {k: dict(bound=v['bound'], obstacles=v['obstacles']) for k, v in _ns['TASKS'].items()}
+CIRCLE = dict(radius=_ns['CIRCLE']['radius'], centre_x=_ns['CIRCLE']['centre_x'],
+              centre_y=_ns['CIRCLE']['centre_y'])
 
 
 def read_bag(path):
@@ -177,10 +183,17 @@ def main():
     ap.add_argument('--task', type=int, required=True, choices=sorted(TASKS))
     ap.add_argument('-o', '--out')
     ap.add_argument('--animate', action='store_true')
+    ap.add_argument('--obstacle', action='append', default=[],
+                    help='override as x,y,r  (repeatable, for runs that used -p overrides)')
+    ap.add_argument('--bound', type=float)
     ap.add_argument('--interval', type=int, default=60)
     args = ap.parse_args()
 
-    cfg = TASKS[args.task]
+    cfg = dict(TASKS[args.task])
+    if args.obstacle:
+        cfg['obstacles'] = [tuple(float(v) for v in o.split(',')) for o in args.obstacle]
+    if args.bound:
+        cfg['bound'] = args.bound
     bag = read_bag(args.bag.rstrip('/'))
     t, xy, goals, goal_t, pred = extract(bag)
     if len(xy) == 0:

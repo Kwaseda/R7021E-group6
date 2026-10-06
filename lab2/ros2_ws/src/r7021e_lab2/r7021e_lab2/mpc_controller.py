@@ -26,18 +26,21 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rcl_interfaces.msg import ParameterDescriptor, ParameterType
 from geometry_msgs.msg import Pose, PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry, Path
+from visualization_msgs.msg import Marker, MarkerArray
 
 # ----------------------------------------------------------------
 
-ROBOT_INFLATION = 0.105   # m, turtlebot's half-diagonal.
+ROBOT_INFLATION = 0.105   # m, the Burger's half-diagonal
+BOUND_MARGIN = 0.05       # m, solver box is this much larger than the commanded box
 
 TASKS = {
-    1: dict(bound=1.0, obstacles=[],                                          soft=False, goal='topic'),
-    2: dict(bound=2.0, obstacles=[(0.75, 0.08, 0.30)],                        soft=False, goal='topic'),
-    3: dict(bound=2.0, obstacles=[(0.70, 0.15, 0.15), (1.30, -0.15, 0.15)],   soft=False, goal='topic'),
-    4: dict(bound=1.5, obstacles=[(0.00, 0.62, 0.12)],                        soft=True,  goal='circle'),
+    1: dict(bound=1.0, obstacles=[],                                          soft=True, goal='topic'),
+    2: dict(bound=4.0, obstacles=[(2.0, 0.50, 1.0)],                        soft=True, goal='topic'),
+    3: dict(bound=2.0, obstacles=[(0.70, 0.15, 0.15), (1.30, -0.15, 0.15)],   soft=True, goal='topic'),
+    4: dict(bound=2.5, obstacles=[(0.00, 0.62, 0.12)],                        soft=True,  goal='circle'),
 }
 
 CIRCLE = dict(radius=0.8, centre_x=0.0, centre_y=0.0,
@@ -88,7 +91,7 @@ def build_TBmpc(model, t_step, n_horizon, min_v, max_v, max_w, bound,
         t_step=t_step,
         n_robust=0,
         store_full_solution=True,
-        nlpsol_opts={'ipopt.print_level': 0, 'ipopt.sb': 'yes', 'print_time': 0},
+        nlpsol_opts={'ipopt.print_level': 1, 'ipopt.sb': 'yes', 'print_time': 0},
     )
 
     x = model.x['x']
@@ -170,7 +173,7 @@ class MpcNode(Node):
 
         self.declare_parameter('task', 1)
         self.declare_parameter('t_step', 0.1)
-        self.declare_parameter('n_horizon', 20)
+        self.declare_parameter('n_horizon', 100)
         self.declare_parameter('max_linear_velocity', 0.22)
         self.declare_parameter('max_angular_velocity', 0.8)
         self.declare_parameter('min_linear_velocity', 0.0)
@@ -180,6 +183,7 @@ class MpcNode(Node):
         self.declare_parameter('goal_tolerance', 0.05)
         self.declare_parameter('odom_timeout', 0.5)
         self.declare_parameter('obstacle_penalty', 10000.0)
+        self.declare_parameter('hold_ticks', 3)
 
         p = lambda name: self.get_parameter(name).value
 
@@ -194,18 +198,39 @@ class MpcNode(Node):
 
         if self.task not in TASKS:
             raise ValueError('task must be one of %s' % sorted(TASKS))
+        darr = ParameterDescriptor(type=ParameterType.PARAMETER_DOUBLE_ARRAY)
+        self.declare_parameter('bound', 0.0)
+        self.declare_parameter('obstacle_x', [], darr)
+        self.declare_parameter('obstacle_y', [], darr)
+        self.declare_parameter('obstacle_radius', [], darr)
+
         cfg = TASKS[self.task]
         self.goal_source = cfg['goal']
+
+        self.bound = float(p('bound')) or cfg['bound']
+
+        ox = list(p('obstacle_x'))
+        oy = list(p('obstacle_y'))
+        orad = list(p('obstacle_radius'))
+        if ox or oy or orad:
+            if not len(ox) == len(oy) == len(orad):
+                raise ValueError('obstacle_x, obstacle_y and obstacle_radius must be equal length')
+            obstacles = list(zip(ox, oy, orad))
+        else:
+            obstacles = cfg['obstacles']
+        self.obstacles = obstacles
 
         self.model = build_TBmodel()
         self.mpc, self.tvp = build_TBmpc(
             self.model, self.t_step, self.n_horizon,
-            self.min_v, self.max_v, self.max_w, cfg['bound'],
-            cfg['obstacles'], cfg['soft'], float(p('obstacle_penalty')),
+            self.min_v, self.max_v, self.max_w, self.bound + BOUND_MARGIN,
+            obstacles, cfg['soft'], float(p('obstacle_penalty')),
             float(p('q_position')), float(p('q_terminal')), float(p('r_input')))
 
         self.cmd_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
         self.prediction_pub = self.create_publisher(Path, '/mpc_prediction', 10)
+        self.obstacle_pub = self.create_publisher(MarkerArray, '/mpc_obstacles', 10)
+        self.create_timer(1.0, self.publish_obstacles)
         self.create_subscription(Odometry, '/odom', self.on_odom, qos_profile_sensor_data)
         self.create_subscription(Pose, '/new_position', self.on_goal, 10)
         self.create_timer(self.t_step, self.control_tick)
@@ -217,14 +242,21 @@ class MpcNode(Node):
         self.last_odom = None
         self.warm = False
         self.t0 = None
+        self.checked = False
+        self.hold_ticks = int(p('hold_ticks'))
+        self.held = 0
+        self.last_cmd = (0.0, 0.0)
+        self.reach = self.n_horizon * self.t_step * self.max_v
 
         self.get_logger().info(
-            'task %d | bound +/-%.1f | %d obstacle(s) | %s constraint | goal from %s | '
+            'task %d | bound +/-%.2f | %s constraint | goal from %s | '
             'reach = %d x %.2f x %.2f = %.2f m'
-            % (self.task, cfg['bound'], len(cfg['obstacles']),
-               'soft' if cfg['soft'] else 'hard', self.goal_source,
-               self.n_horizon, self.t_step, self.max_v,
-               self.n_horizon * self.t_step * self.max_v))
+            % (self.task, self.bound, 'soft' if cfg['soft'] else 'hard',
+               self.goal_source, self.n_horizon, self.t_step, self.max_v, self.reach))
+        for i, (ox, oy, radius) in enumerate(self.obstacles, start=1):
+            self.get_logger().info(
+                'obstacle %d at (%.2f, %.2f) r=%.3f, keep-out %.3f m'
+                % (i, ox, oy, radius, radius + ROBOT_INFLATION))
 
 
 
@@ -238,10 +270,53 @@ class MpcNode(Node):
 
 
     def on_goal(self, msg):
-        self.goal = (msg.position.x, msg.position.y)
-        self.warm = False
-        self.get_logger().info('NEW GOAL x=%.3f y=%.3f' % self.goal)
 
+    
+        raw = (msg.position.x, msg.position.y)
+        clip = lambda v: max(-self.bound, min(self.bound, v))
+        self.goal = self.push_out(clip(raw[0]), clip(raw[1]))
+        self.warm = False
+        if self.goal != raw:
+            self.get_logger().info(
+                'NEW GOAL x=%.3f y=%.3f requested, outside the +/-%.2f box, '
+                'clipped to x=%.3f y=%.3f' % (raw[0], raw[1], self.bound, *self.goal))
+        else:
+            self.get_logger().info('NEW GOAL x=%.3f y=%.3f' % self.goal)
+
+
+    def push_out(self, gx, gy):
+        """Move a goal that sits inside an inflated obstacle to the nearest point outside it."""
+        for ox, oy, radius in self.obstacles:
+            keep_out = radius + ROBOT_INFLATION + 0.02
+            d = math.hypot(gx - ox, gy - oy)
+            if d < keep_out:
+                if d < 1e-6:
+                    gx, gy = ox + keep_out, oy
+                else:
+                    gx = ox + (gx - ox) / d * keep_out
+                    gy = oy + (gy - oy) / d * keep_out
+                self.get_logger().warn(
+                    'goal was inside an obstacle, moved to x=%.3f y=%.3f' % (gx, gy))
+        return (gx, gy)
+
+    def check_start(self):
+        """Log anything that will make the first solve hard, once, at startup."""
+        for i, (ox, oy, radius) in enumerate(self.obstacles, start=1):
+            keep_out = radius + ROBOT_INFLATION
+            d = math.hypot(self.x - ox, self.y - oy)
+            if d < keep_out:
+                self.get_logger().warn(
+                    'obstacle %d: robot is %.3f m from its centre, inside the %.3f m keep-out. '
+                    'Soft constraint will drive it out; move the robot if it struggles.'
+                    % (i, d, keep_out))
+            if keep_out > self.bound:
+                self.get_logger().warn(
+                    'obstacle %d keep-out radius %.3f m is larger than the %.2f m box. '
+                    'Raise bound.' % (i, keep_out, self.bound))
+            if 2.0 * keep_out > self.reach:
+                self.get_logger().warn(
+                    'obstacle %d needs more detour than %.2f m of horizon reach. '
+                    'Raise n_horizon or t_step.' % (i, self.reach))
 
     def horizon_points(self):
         """(x, y) reference for each of the N+1 horizon steps, or None to hold still."""
@@ -265,6 +340,10 @@ class MpcNode(Node):
             self.get_logger().warn('odometry is stale, stopping', throttle_duration_sec=2.0)
             self.stop()
             return
+
+        if not self.checked:
+            self.checked = True
+            self.check_start()
 
         points = self.horizon_points()
         if points is None:
@@ -291,20 +370,74 @@ class MpcNode(Node):
         if not self.mpc.solver_stats['success']:
             self.get_logger().warn('solver failed: %s' % self.mpc.solver_stats['return_status'],
                                    throttle_duration_sec=1.0)
-            self.stop()
+            self.warm = False
+            if self.held < self.hold_ticks:
+                self.held += 1
+                self.publish_cmd(now, *self.last_cmd)
+            else:
+                self.stop()
             return
 
         v = max(self.min_v, min(self.max_v, float(u[0, 0])))
         omega = max(-self.max_w, min(self.max_w, float(u[1, 0])))
+        self.held = 0
+        self.last_cmd = (v, omega)
+        self.publish_cmd(now, v, omega)
+        self.publish_prediction(now)
 
+        """   
+    ef publish_obstacles(self):
+        # Drawn at the inflated radius, which is what the solver actually enforces.
+        markers = MarkerArray()
+        for i, (ox, oy, radius) in enumerate(self.obstacles):
+            m = Marker()
+            m.header.frame_id = 'odom'
+            m.ns = 'mpc_obstacles'
+            m.id = i
+            m.type = Marker.CYLINDER
+            m.pose.position.x = ox
+            m.pose.position.y = oy
+            m.pose.position.z = 0.1
+            m.pose.orientation.w = 1.0
+            m.scale.x = m.scale.y = 2.0 * radius
+            m.scale.z = 0.2
+            m.color.r, m.color.g, m.color.b, m.color.a = 0.9, 0.2, 0.2, 0.35
+            markers.markers.append(m)
+        if markers.markers:
+            self.obstacle_pub.publish(markers)
+
+        """
+
+    def publish_cmd(self, now, v, omega):
         cmd = TwistStamped()
         cmd.header.stamp = now.to_msg()
         cmd.header.frame_id = 'base_link'
-        cmd.twist.linear.x = v
-        cmd.twist.angular.z = omega
+        cmd.twist.linear.x = float(v)
+        cmd.twist.angular.z = float(omega)
         self.cmd_pub.publish(cmd)
 
-        self.publish_prediction(now)
+    def publish_obstacles(self):
+        """Draw each obstacle and its inflated keep-out ring in RViz."""
+        arr = MarkerArray()
+        stamp = self.get_clock().now().to_msg()
+        for i, (ox, oy, radius) in enumerate(self.obstacles):
+            for j, (r, alpha) in enumerate(((radius, 0.8), (radius + ROBOT_INFLATION, 0.25))):
+                m = Marker()
+                m.header.frame_id = 'odom'
+                m.header.stamp = stamp
+                m.ns = 'obstacles'
+                m.id = i * 2 + j
+                m.type = Marker.CYLINDER
+                m.action = Marker.ADD
+                m.pose.position.x = float(ox)
+                m.pose.position.y = float(oy)
+                m.pose.position.z = 0.05
+                m.pose.orientation.w = 1.0
+                m.scale.x = m.scale.y = float(2.0 * r)
+                m.scale.z = 0.1
+                m.color.r, m.color.g, m.color.b, m.color.a = 0.9, 0.3, 0.1, alpha
+                arr.markers.append(m)
+        self.obstacle_pub.publish(arr)
 
     def publish_prediction(self, now):
         try:
