@@ -114,8 +114,19 @@ still readable. We only ever needed the current scan.
 
 ## The obstacles were invisible in RViz
 
-Nothing published them. We had started writing a marker publisher during the session and
-commented it out, so the topic had a display and no publisher. The display existed in an earlier config and the topic never had a
+Nothing published them. One of us tried to write the marker publisher during the session and
+could not finish it, because it was not clear what a `Marker` actually needs to be filled in
+with, so it was left commented out.
+
+Four fields decide whether a marker appears at all, and three of them fail silently:
+
+- `id` must be unique within the namespace, or later markers overwrite earlier ones and you
+  see one obstacle instead of two.
+- `pose.orientation.w = 1.0`. Left at zero the quaternion is invalid and RViz drops the marker
+  with no error.
+- `scale.x` and `scale.y` are the **diameter**, not the radius. Half-size circles look like a
+  tolerance problem rather than a units problem.
+- `color.a` above zero. Default alpha is 0, which is a fully transparent marker. The display existed in an earlier config and the topic never had a
 publisher, so we were flying blind on exactly the thing that was breaking the runs. The node
 now publishes a `MarkerArray` on `/mpc_obstacles` with each obstacle and its inflated keep-out
 ring, and the RViz config carries the display.
@@ -132,6 +143,41 @@ a violation against the wrong circle. It now reads the table out of the node, an
 
 Two copies of the same constants is the bug. We have made that mistake before, in Lab 1, with
 five YAML files.
+
+## Task 5, driving between two obstacles
+
+Added as task 5, since the lab only asks for at least two obstacle constraints and a gate
+demonstrates them better than a slalom: both constraints are active at the same moment rather
+than one after the other.
+
+Two obstacles at (1.00, +/-0.40), radius 0.15, keep-out 0.255 m, so a 0.290 m corridor between
+the keep-out edges. Goal (2.0, 0.0) from a start at the origin.
+
+```
+reached goal in 8.8 s, 0 solver failures
+closest approach 0.4001 m and 0.4001 m against a 0.255 m keep-out
+max |y| through the gate 0.0000 m
+```
+
+It goes straight down the middle and never touches either constraint. The symmetry works for us
+here, unlike the single-obstacle case: with the gap on the start-to-goal axis, straight through
+is the unique optimum, so there is no tie for the solver to fail to break.
+
+Narrowing the gate, same geometry, goal reached every time with zero failures:
+
+| gate offset | corridor | closest approach | constraints respected |
+|---|---|---|---|
+| 0.28 m | 0.050 m | 0.2802 m | yes |
+| 0.30 m | 0.090 m | 0.3002 m | yes |
+| 0.40 m | 0.290 m | 0.4001 m | yes |
+| 0.55 m | 0.590 m | 0.5501 m | yes |
+
+Even a 50 mm corridor works, because the model is a point and the obstacles are already
+inflated by the robot's 0.105 m half-diagonal. That inflation is conservative, so 50 mm of
+further clearance is real. We use 0.290 m for the demo because it is visibly tight without
+looking like a stunt.
+
+`plots/task5_gate_simulation.png`.
 
 ## What we would do differently in labs 1 to 3
 
