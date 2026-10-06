@@ -184,6 +184,7 @@ class MpcNode(Node):
         self.declare_parameter('odom_timeout', 0.5)
         self.declare_parameter('obstacle_penalty', 10000.0)
         self.declare_parameter('hold_ticks', 3)
+        self.declare_parameter('delay_steps', 1)
 
         p = lambda name: self.get_parameter(name).value
 
@@ -244,6 +245,7 @@ class MpcNode(Node):
         self.t0 = None
         self.checked = False
         self.hold_ticks = int(p('hold_ticks'))
+        self.delay_steps = int(p('delay_steps'))
         self.held = 0
         self.last_cmd = (0.0, 0.0)
         self.reach = self.n_horizon * self.t_step * self.max_v
@@ -354,7 +356,15 @@ class MpcNode(Node):
             self.tvp['_tvp', k, 'xdes'] = gx
             self.tvp['_tvp', k, 'ydes'] = gy
 
-        state = np.array([[self.x], [self.y], [self.yaw]])
+        # The command decided now is executed delay_steps ticks from now, so solve from
+        # where the robot will be by then, not where it was measured.
+        px, py, pyaw = self.x, self.y, self.yaw
+        v0, w0 = self.last_cmd
+        for _ in range(self.delay_steps):
+            px += self.t_step * v0 * math.cos(pyaw)
+            py += self.t_step * v0 * math.sin(pyaw)
+            pyaw += self.t_step * w0
+        state = np.array([[px], [py], [pyaw]])
         if not self.warm:
             self.mpc.x0 = state
             self.mpc.set_initial_guess()

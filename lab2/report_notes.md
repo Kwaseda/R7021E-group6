@@ -22,14 +22,15 @@ controller that cannot recover. The real flaw is ours: hard bounds on a measured
 1.105 m keep-out radius, so 0.2 m inside the zone, then stopped at x = 1.292 and never moved
 again. Hard obstacle constraint, measurement inside it, infeasible forever.
 
-Two separate mistakes on top of each other:
+The obstacle was a second, physically large robot that the instructor parked in our path, so a
+1.0 m radius may well have been honest. Either way the geometry was unworkable: inflated for
+our own footprint it becomes a 1.105 m keep-out, 2.21 m across, and detouring around that needs
+roughly 2.2 m of lateral swing. Our horizon reaches 20 x 0.1 x 0.22 = 0.44 m. The solver could
+not see far enough around it to commit to a detour, so it drove to the edge and stopped.
 
-- We gave the obstacle a 1.0 m radius. Inflated for the robot that is a 1.105 m keep-out, so
-  2.21 m across. The real object was nowhere near that big; we entered something closer to a
-  diameter or a distance.
-- Even with the right number, a detour around a 1.105 m circle is roughly 2.2 m of swing. Our
-  horizon reaches 20 x 0.1 x 0.22 = 0.44 m. The solver cannot see far enough around an obstacle
-  that size to commit to going around it, so it drives at the edge instead.
+Worth stating plainly, because it is a design limit and not a tuning slip: an obstacle is only
+avoidable if the detour it forces is smaller than the distance the horizon covers. At 0.22 m/s
+that is 0.44 m. Nothing about the cost function changes it.
 
 ## Task 1 overshot its own boundary
 
@@ -41,6 +42,31 @@ of problem again.
 
 `task3-final`: 2.229 m of path, closest approach 0.2629 m against a 0.255 m constraint. Both
 obstacle constraints active and respected, 8 mm to spare. This is the run to show.
+
+## What the instructor saw, and was right about
+
+He suggested the problem was in the publishing, and mentioned t_step. Both land.
+
+The publishing half is the stop-go above: gaps in `/cmd_vel` whenever a solve failed.
+
+The t_step half is actuation delay. The command we compute at tick k does not take effect until
+tick k+1 or later, but we were solving from the pose measured at tick k. The optimiser plans
+from a position the robot has already left. Measured offline on the task 4 circle:
+
+| case | mean error | jerk | omega flips | closest approach |
+|---|---|---|---|---|
+| no delay | 0.0023 m | 0.0044 | 4 | 0.2251 m |
+| 1 step delay, uncompensated | 0.0024 m | 0.0062 | 5 | 0.2254 m |
+| 1 step delay, compensated | 0.0023 m | 0.0045 | 5 | 0.2251 m |
+| 2 step delay, uncompensated | 0.0033 m | **0.0192** | 11 | **0.2217 m** |
+| 2 step delay, compensated | 0.0024 m | 0.0067 | 5 | 0.2254 m |
+
+Keep-out radius is 0.225 m. At two steps of delay the uncompensated run breaks the constraint
+by 3.3 mm and its jerk is 4.4 times the clean case. Compensating cuts jerk by 2.9 times and
+puts the robot back outside the keep-out.
+
+The fix is three lines: propagate the measured pose forward by `delay_steps * t_step` using the
+last command before handing it to the solver. It is a `delay_steps` parameter, default 1.
 
 ## The jagged circle was not a tuning problem
 
@@ -79,9 +105,17 @@ constraint spends 0.1 mm of slack. It is not buying clearance cheaply, because t
 and that is the point of making it soft. A hard constraint there deadlocks; we measured that
 too.
 
+## The lidar display was accumulating
+
+The laser looked like it was mapping everywhere the robot had been, updating slowly. That was
+not the lidar. The RViz LaserScan display had `Decay Time` set to 30, so it held 30 seconds of
+scans on screen at once. Set to 0, with point size raised from 0.01 to 0.03 so a single scan is
+still readable. We only ever needed the current scan.
+
 ## The obstacles were invisible in RViz
 
-Nothing published them. The display existed in an earlier config and the topic never had a
+Nothing published them. We had started writing a marker publisher during the session and
+commented it out, so the topic had a display and no publisher. The display existed in an earlier config and the topic never had a
 publisher, so we were flying blind on exactly the thing that was breaking the runs. The node
 now publishes a `MarkerArray` on `/mpc_obstacles` with each obstacle and its inflated keep-out
 ring, and the RViz config carries the display.
@@ -124,3 +158,7 @@ work harder to read without making it better.
   pushed through rather than avoided. This is a hard limit of the horizon, not a tuning choice,
   and it needs stating whenever we pick obstacle sizes.
 - Task 4 has only ever completed in simulation. We have no hardware bag of it.
+- `delay_steps` defaults to 1 and we have not measured the robot's actual command latency. Over
+  Wi-Fi with a 5 Hz lidar it is plausibly closer to 2, which is where the uncompensated numbers
+  above get bad. Measuring it is a stopwatch job: timestamp a command, timestamp the odometry
+  response.
