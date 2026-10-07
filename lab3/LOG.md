@@ -179,3 +179,19 @@ one proof run each for Tasks 3 and 4.
 
 This is a change of scope, so we write it down. The plan holds no known-goal mode. The lab text
 asks for a test with a known goal, and the planner test in the plan was a hard-coded goal.
+
+### 2026-10-08, later: study files and one more deviation
+
+We wrote four study files in `lab3/STUDY/`: `THEORY.md`, `QUESTIONS.md`, `CODEMAP.md` and
+`COMMANDS.md`. Writing the theory sheet showed a deviation that the first entry did not list.
+
+14. **The information term counts frontier cells, not unknown cells.** The plan and the lab text
+    say to count unknown cells in a reduced range. `score` counts frontier cells within 0.75 m of
+    the goal. This is a proxy, and it is the count that the old repo tuned (w = 0.10 m per cell).
+    A switch to unknown cells would change the scale of I by a large factor, so w would need
+    tuning again. We keep the proxy for now. The decision is open. Dominic defends it at the oral
+    as a proxy, or asks for the switch.
+
+Also found: `navigation_node` has the node name `path_planner_node` in the code, and the launch
+file renames it to `navigation_node`. The follower does the same (`path_follower` and
+`path_follower_node`). Use the launch names in `ros2 param get`.
