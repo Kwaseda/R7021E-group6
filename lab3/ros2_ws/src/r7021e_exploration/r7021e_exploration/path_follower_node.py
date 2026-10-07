@@ -86,9 +86,10 @@ class PathFollower(Node):
         r = np.asarray(self.scan.ranges, dtype=float)
         a = self.scan.angle_min + self.scan.angle_increment * np.arange(len(r))
         valid = np.isfinite(r) & (r > self.scan.range_min) & (r < self.scan.range_max)
+        r, a = r[valid], a[valid]
         x = r * np.cos(a)
         y = r * np.sin(a)
-        ahead = valid & (x > 0.0) & (np.abs(y) <= self.half_width)
+        ahead = (x > 0.0) & (np.abs(y) <= self.half_width)
         return float(x[ahead].min()) if ahead.any() else math.inf
 
     def update_robot_pos(self):
