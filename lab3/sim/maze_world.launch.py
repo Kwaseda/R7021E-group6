@@ -4,11 +4,17 @@ This file is not part of the ROS package. Run it by path:
 
     ros2 launch ~/R7021E-group6/lab3/sim/maze_world.launch.py world:=lab3_maze_small
 
-The worlds are in the worlds/ folder next to this file. Both were made with the course
-maze generator. Cell size is 0.8 m.
+The worlds are in the worlds/ folder next to this file. The first two were made with the course
+maze generator. The blind worlds were made with a small script in the same style. Cell size is
+0.8 m.
 
     lab3_maze_small   4.0 m by 4.0 m, 25 cells, for quick tests
     lab3_maze         7.2 m by 7.2 m, 81 cells, for the full run
+    lab3_maze_blind_a 5.6 m by 5.6 m, 49 cells, a layout you have not seen
+    lab3_maze_blind_b 7.2 m by 7.2 m, 81 cells, a layout you have not seen
+
+For the two blind worlds, use gui:=false and watch only RViz. This is how the hall maze looks
+to you: you learn the layout from the map that the robot builds.
 
 The cell around the world origin is free on all sides, so the robot spawns at (0, 0).
 

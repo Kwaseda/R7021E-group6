@@ -99,6 +99,11 @@ the bridge type, and then stop and ask him before you change anything.
 Stop Gazebo with Ctrl-C. Run `ps aux | grep -E "[g]z sim"`. Kill what is left. Write this check in
 `RUNSHEET.md`.
 
+Two more worlds exist for Dominic's rehearsal of an unknown maze: `lab3_maze_blind_a` and
+`lab3_maze_blind_b`. Do not look at their layout and do not describe it to him. Start each one once
+with `gui:=false`. Pass if `/scan` has a steady rate and `ros2 topic echo /clock --once` works.
+Then stop it. Do not run exploration in them. He does that himself.
+
 ## Phase 3: Task 1 (15 min)
 
 Terminal 1: Gazebo as above. Terminal 2:
