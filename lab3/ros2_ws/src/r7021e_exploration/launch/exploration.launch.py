@@ -26,7 +26,20 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     task1 = LaunchConfiguration('task1')
 
+    # These two are declared first. The nodes below read them when they start, and a
+    # default is only set when its DeclareLaunchArgument has run.
+    declare_use_sim_time_argument = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='false',
+        description='Use simulation/Gazebo clock')
+    declare_task1_argument = DeclareLaunchArgument(
+        'task1',
+        default_value='false',
+        description='Run task1_baseline instead of navigation_node')
+
     ld = LaunchDescription([
+        declare_use_sim_time_argument,
+        declare_task1_argument,
         GroupAction([            
             Node(
                 package='r7021e_exploration',
@@ -78,14 +91,6 @@ def generate_launch_description():
     declare_use_lifecycle_manager = DeclareLaunchArgument(
         'use_lifecycle_manager', default_value='false',
         description='Enable bond connection during node activation')
-    declare_use_sim_time_argument = DeclareLaunchArgument(
-        'use_sim_time',
-        default_value='false',
-        description='Use simulation/Gazebo clock')
-    declare_task1_argument = DeclareLaunchArgument(
-        'task1',
-        default_value='false',
-        description='Run task1_baseline instead of navigation_node')
     declare_slam_params_file_cmd = DeclareLaunchArgument(
         'slam_params_file',
         default_value=os.path.join(get_package_share_directory("r7021e_exploration"),
@@ -136,8 +141,6 @@ def generate_launch_description():
 
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_use_lifecycle_manager)
-    ld.add_action(declare_use_sim_time_argument)
-    ld.add_action(declare_task1_argument)
     ld.add_action(declare_slam_params_file_cmd)
     ld.add_action(start_async_slam_toolbox_node)
     ld.add_action(configure_event)
