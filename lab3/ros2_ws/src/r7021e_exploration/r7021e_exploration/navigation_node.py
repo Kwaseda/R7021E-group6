@@ -360,6 +360,9 @@ class PathPlannerNode(Node):
             OccupancyGrid, self.p['map_topic'], self._on_map, default_qos)
         self.frontier_sub = self.create_subscription(
             OccupancyGrid, self.p['frontier_topic'], self._on_frontier, default_qos)
+        # Task 2 test: the RViz "2D Goal Pose" tool publishes here
+        self.click_sub = self.create_subscription(
+            PoseStamped, 'goal_pose', self._on_click, default_qos)
 
         # TF
         self.tf_buffer = tf2_ros.Buffer(cache_time=Duration(seconds=10.0))
@@ -369,6 +372,7 @@ class PathPlannerNode(Node):
         self._latest_map: Optional[OccupancyGrid] = None
         self._latest_frontier: Optional[OccupancyGrid] = None
         self.goal: Optional[Tuple[float, float]] = None
+        self.clicked: Optional[Tuple[float, float]] = None
         self.retired: List[Tuple[float, float]] = []
         self.tree = None
         self.path_time = self.get_clock().now()
@@ -413,6 +417,12 @@ class PathPlannerNode(Node):
     def _on_map(self, msg: OccupancyGrid) -> None:
         """Store the latest map. The timer does the planning."""
         self._latest_map = msg
+
+    def _on_click(self, msg: PoseStamped) -> None:
+        """Plan to a point from RViz at the next tick. Exploring goes on after the robot arrives."""
+        self.clicked = (msg.pose.position.x, msg.pose.position.y)
+        self.goal = None
+        self.get_logger().info(f'goal from RViz: ({self.clicked[0]:.2f}, {self.clicked[1]:.2f})')
 
     def _tick(self) -> None:
         """Run once per replan_period: check the goal, plan again when needed."""
@@ -507,6 +517,8 @@ class PathPlannerNode(Node):
             goals.append(g)
         goals.sort(key=lambda g: math.dist(g, robot))
         goals = goals[:prm['max_candidates']]
+        if self.clicked is not None:            # a goal from RViz replaces the frontier goals
+            goals, self.clicked = [self.clicked], None
 
         best = None
         for g in goals:
