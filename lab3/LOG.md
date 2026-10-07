@@ -148,3 +148,34 @@ ROS timing. It shows that the logic works. It does not predict Gazebo times.
 
 Pull on the Linux machine, build, run Task 1 in the small maze, then the full run in both mazes.
 Write the commands that worked in `RUNSHEET.md` and the results in this file.
+
+---
+
+## 2026-10-08: goal from RViz for Task 2
+
+### What we did
+
+We compared the lab PDF with the code. Task 2 says: "Test in the maze for relatively simply path
+generation (with a known goal)." The node chose its own goals and had no way to take one from the
+user. We added one subscription to `/goal_pose`. The RViz tool "2D Goal Pose" publishes on that
+topic. The node plans to the clicked point at its next tick, with the same RRT* as for a frontier
+goal. After the robot arrives, the node goes back to frontier exploring.
+
+The change is 11 lines in `navigation_node.py`: a subscription, a callback and one line in
+`plan_path`. The RViz file already had the tool and the topic.
+
+### What we checked [desk]
+
+A click in free space gives a path that ends at the clicked point and stays inside the planning
+mask. A click inside a wall gives `not reachable, crossed off` and no crash. Three desk runs of
+the small maze reach 100 % as before.
+
+### What is still not tested
+
+The click in RViz and Gazebo. Phase 4b of `lab3/sim/LINUX_PROMPT.md` tests it, and it also holds
+one proof run each for Tasks 3 and 4.
+
+### Where it differs from the plan
+
+This is a change of scope, so we write it down. The plan holds no known-goal mode. The lab text
+asks for a test with a known goal, and the planner test in the plan was a hard-coded goal.

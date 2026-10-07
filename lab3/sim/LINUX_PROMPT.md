@@ -29,7 +29,7 @@ weak point that nobody has tested.
 
 | Part | What it does |
 |---|---|
-| `navigation_node` | Picks a frontier, plans with RRT*, publishes `/path`, `/rrt_tree`, `/goal_marker` |
+| `navigation_node` | Picks a frontier, plans with RRT*, publishes `/path`, `/rrt_tree`, `/goal_marker`. Also plans to a point that the RViz "2D Goal Pose" tool sends on `/goal_pose` (Task 2 test with a known goal) |
 | `path_follower_node` | Follows `/path`. Slows down on `/scan`. Stops at the end of the path |
 | `task1_baseline` | Task 1. Sends a 0.5 m path, then the reverse, and repeats |
 | `exploration.launch.py` | Starts SLAM, RViz and the nodes. `use_sim_time:=true` for Gazebo. `task1:=true` runs Task 1 |
@@ -149,6 +149,32 @@ Commit the `launch.log` and `summary.md` of each run. Do not commit the bag.
 Do not tune any value yet. A later session will run experiments on these logs. Change a value
 only to remove a defect, and write why.
 
+## Phase 4b: one proof run for each task (30 min)
+
+The lab has five tasks. Dominic must show each one in simulation. Task 1 is phase 3 and Task 5
+is phase 4. These runs are for Tasks 2, 3 and 4. Use `lab3_maze_small`, one run each, and label
+every number `[gazebo]`. They are single runs, so they show behaviour and are not report data.
+
+Task 2, known goal. Start a normal full launch. When the first plan line prints, click the RViz
+"2D Goal Pose" tool on a free spot of the map that the robot has already seen. Expected: the log
+prints `goal from RViz: (x, y)`, the next plan line has that goal, the green path and the RRT tree
+go to it, and the robot drives there. Then click inside a wall. Expected: `not reachable, crossed
+off`, and no crash. Check the message with `ros2 topic echo /goal_pose --once`. If the click does
+nothing, check that the RViz Fixed Frame is `map`. Exploring goes on after the robot arrives.
+
+Task 3, collision avoidance. Run once with `inflation_radius` 0.0 in `DEFAULTS`, then once with
+the normal 0.105. Write down for each run: did the robot touch a wall, how many `stalled` lines,
+how close did the green path run to the wall in RViz.
+
+Task 4, exploration gain. Run with `info_weight` 0.0 (nearest goal only), 0.10 (normal) and
+0.30. Write down for each run: time of `exploration finished`, time when `known` first passed
+90 % of its final value, number of goals.
+
+Set `DEFAULTS` back after each run (`git diff` must be empty at the end, and `--symlink-install`
+means no rebuild). Put the three tables in `lab3/results/<date>-task-proofs/summary.md`. Say in
+the file that one run per setting cannot separate a real effect from RRT* randomness. If a setting
+changes the result a lot, run it a second time before you write the claim.
+
 ## Phase 5: debug drills (40 min)
 
 Dominic does each drill. You ask what he expects, watch, and help only if he asks. For each
@@ -187,5 +213,5 @@ the command that finds each one.
 
 ## Time
 
-About 2 h 10 min in total. Stop at 4 hours of work in one day. If a phase takes much more than
+About 2 h 40 min in total. Stop at 4 hours of work in one day. If a phase takes much more than
 planned, say so and ask Dominic whether to continue.
