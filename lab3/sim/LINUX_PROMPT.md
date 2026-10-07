@@ -154,7 +154,7 @@ Commit the `launch.log` and `summary.md` of each run. Do not commit the bag.
 Do not tune any value yet. A later session will run experiments on these logs. Change a value
 only to remove a defect, and write why.
 
-## Phase 4b: one proof run for each task (30 min)
+## Phase 4b: one proof run for each task (45 min)
 
 The lab has five tasks. Dominic must show each one in simulation. Task 1 is phase 3 and Task 5
 is phase 4. These runs are for Tasks 2, 3 and 4. Use `lab3_maze_small`, one run each, and label
@@ -218,5 +218,5 @@ the command that finds each one.
 
 ## Time
 
-About 2 h 40 min in total. Stop at 4 hours of work in one day. If a phase takes much more than
+About 2 h 55 min in total. Dominic does phases 0 to 4 on Thursday evening and phases 4b and 5 on Friday evening. Stop at 4 hours of work in one day. If a phase takes much more than
 planned, say so and ask Dominic whether to continue.

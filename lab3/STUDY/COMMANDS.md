@@ -53,9 +53,11 @@ ros2 launch ~/R7021E-group6/lab3/sim/maze_world.launch.py world:=lab3_maze_small
 
 | Argument | Values | Default |
 |---|---|---|
-| `world` | `lab3_maze_small` (4 m by 4 m), `lab3_maze` (7.2 m by 7.2 m) | `lab3_maze_small` |
+| `world` | `lab3_maze_small` (4 m by 4 m), `lab3_maze` (7.2 m by 7.2 m), `lab3_maze_blind_a` (5.6 m), `lab3_maze_blind_b` (7.2 m) | `lab3_maze_small` |
 | `gui` | `true`, `false` | `true` |
 | `x_pose`, `y_pose` | spawn position in metres | 0.0, 0.0 |
+
+The two blind worlds have a layout that you have not seen. Use `gui:=false` and watch only RViz.
 
 Run it by path, as shown. It is not part of the ROS package. After Ctrl-C, look for leftovers:
 

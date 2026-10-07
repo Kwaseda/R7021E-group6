@@ -195,3 +195,14 @@ We wrote four study files in `lab3/STUDY/`: `THEORY.md`, `QUESTIONS.md`, `CODEMA
 Also found: `navigation_node` has the node name `path_planner_node` in the code, and the launch
 file renames it to `navigation_node`. The follower does the same (`path_follower` and
 `path_follower_node`). Use the launch names in `ros2 param get`.
+
+### 2026-10-08, later still: two worlds for an unknown maze
+
+We added `lab3_maze_blind_a` (7 by 7 cells, 5.6 m) and `lab3_maze_blind_b` (9 by 9 cells, 7.2 m).
+A small script made them in the style of the course generator, with random depth-first mazes,
+a few extra openings and an open start cell. Dominic does not look at the layout. He starts them
+with `gui:=false` and learns the maze from the RViz map, as he will in the hall.
+
+Desk check [desk], two runs each: both mazes reach 100 %. Blind A: 245 to 249 s, 31 to 32 m
+driven. Blind B: about 450 s, 60 m driven. They do not load in Gazebo yet. Phase 2 of the Linux
+prompt checks this.
