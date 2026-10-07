@@ -119,6 +119,11 @@ ROS timing. It shows that the logic works. It does not predict Gazebo times.
   Gazebo. Expect corner touches in Gazebo as well.
 - **The plan rule for the goal point was not enough** (item 6 above). The plan says to take the
   middle of the cluster if it is free. We found that "free" must also mean "connected to the robot".
+- **Launch argument order.** We first put `use_sim_time` and `task1` in the nodes at the top of
+  the launch file and left their `DeclareLaunchArgument` lines at the bottom, as in the template.
+  A default is only set when its declaration runs. A launch with no `use_sim_time:=...` on the
+  command line, which is the real-robot case, would have failed. The two declarations are now first
+  in the list. We could not run the launch file at the desk, so this is the first thing to check.
 - **A test expectation was wrong.** The wall at 0.10 m gave full speed because the lidar
   ignores returns closer than its minimum range of 0.12 m. This is a real blind zone. The robot
   stops at 0.18 m, so it should not get there. Check it in Gazebo.
