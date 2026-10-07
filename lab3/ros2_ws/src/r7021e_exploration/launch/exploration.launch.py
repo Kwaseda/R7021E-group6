@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 import os
 from launch.actions import (DeclareLaunchArgument, EmitEvent, LogInfo,
                             RegisterEventHandler, GroupAction)
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.events import matches_action
 from launch.substitutions import (AndSubstitution, LaunchConfiguration,
                                   NotSubstitution)
@@ -22,31 +22,44 @@ def generate_launch_description():
     rviz_config_file = os.path.join(
         share_dir, 'launch', 'rviz', 'exploration.rviz')
 
+    # use_sim_time:=true for Gazebo. task1:=true runs the Task 1 script instead of exploring.
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    task1 = LaunchConfiguration('task1')
+
     ld = LaunchDescription([
         GroupAction([            
             Node(
                 package='r7021e_exploration',
                 executable='frontier_detector_node',
                 name='frontier_detector', 
-                parameters=[{'use_sim_time': False}],
+                parameters=[{'use_sim_time': use_sim_time}],
             ),
             Node(
                 package='r7021e_exploration',
                 executable='navigation_node',
                 name='navigation_node',
-                parameters=[{'use_sim_time': False}],
+                parameters=[{'use_sim_time': use_sim_time}],
+                condition=UnlessCondition(task1),
+            ),
+            Node(
+                package='r7021e_exploration',
+                executable='task1_baseline',
+                name='task1_baseline',
+                parameters=[{'use_sim_time': use_sim_time}],
+                condition=IfCondition(task1),
             ),
             Node(
                 package='r7021e_exploration',
                 executable='path_follower_node',
                 name='path_follower_node',
-                parameters=[{'use_sim_time': False}],
+                parameters=[{'use_sim_time': use_sim_time}],
             ),
             Node(
                 package='rviz2',
                 executable='rviz2',
                 name='rviz',
                 arguments=['-d', rviz_config_file],
+                parameters=[{'use_sim_time': use_sim_time}],
                 output='screen',
             ),
         ]),
@@ -56,7 +69,6 @@ def generate_launch_description():
     ######################## SLAM TOOL-BOX #########################
     autostart = LaunchConfiguration('autostart')
     use_lifecycle_manager = LaunchConfiguration("use_lifecycle_manager")
-    use_sim_time = LaunchConfiguration('use_sim_time')
     slam_params_file = LaunchConfiguration('slam_params_file')
 
     declare_autostart_cmd = DeclareLaunchArgument(
@@ -70,6 +82,10 @@ def generate_launch_description():
         'use_sim_time',
         default_value='false',
         description='Use simulation/Gazebo clock')
+    declare_task1_argument = DeclareLaunchArgument(
+        'task1',
+        default_value='false',
+        description='Run task1_baseline instead of navigation_node')
     declare_slam_params_file_cmd = DeclareLaunchArgument(
         'slam_params_file',
         default_value=os.path.join(get_package_share_directory("r7021e_exploration"),
@@ -84,7 +100,7 @@ def generate_launch_description():
           config,
           {
             'use_lifecycle_manager': use_lifecycle_manager,
-            'use_sim_time': False,
+            'use_sim_time': use_sim_time,
           }
         ],
         package='slam_toolbox',
@@ -121,6 +137,7 @@ def generate_launch_description():
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_use_lifecycle_manager)
     ld.add_action(declare_use_sim_time_argument)
+    ld.add_action(declare_task1_argument)
     ld.add_action(declare_slam_params_file_cmd)
     ld.add_action(start_async_slam_toolbox_node)
     ld.add_action(configure_event)
