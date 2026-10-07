@@ -31,6 +31,7 @@ setup(
             'frontier_detector_node = r7021e_exploration.frontier_detector_node:main',
             'navigation_node = r7021e_exploration.navigation_node:main',
             'path_follower_node = r7021e_exploration.path_follower_node:main', 
+            'task1_baseline = r7021e_exploration.task1_baseline:main',
         ],
     },
 )
