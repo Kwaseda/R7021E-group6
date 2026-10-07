@@ -206,3 +206,14 @@ with `gui:=false` and learns the maze from the RViz map, as he will in the hall.
 Desk check [desk], two runs each: both mazes reach 100 %. Blind A: 245 to 249 s, 31 to 32 m
 driven. Blind B: about 450 s, 60 m driven. They do not load in Gazebo yet. Phase 2 of the Linux
 prompt checks this.
+
+### 2026-10-08, later still: the oral file
+
+The oral on Monday 12 Oct has a talk and a demo. We added `lab3/STUDY/ORAL.md`. It holds five
+headings for the opening, the demo order, three demo layers with a 2-minute fail-over rule, the RViz
+colours with what to say, and a failure script. It holds no sentences for the talk. Dominic writes
+those himself on Sunday evening.
+
+Not known yet: the time of the oral, whether the real robot is available, and whether slides are
+needed. The RViz map colours are not read from the `.rviz` file (`Color Scheme: map` is the RViz
+default). Check them in the first Gazebo run and fix the table in `ORAL.md`.
