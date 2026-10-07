@@ -3,10 +3,13 @@
 
 import math
 
+import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from nav_msgs.msg import Path
 from geometry_msgs.msg import TwistStamped, TransformStamped
+from sensor_msgs.msg import LaserScan
 from tf2_ros import Buffer, TransformListener, LookupException, ConnectivityException, ExtrapolationException
 
 
@@ -22,16 +25,32 @@ class PathFollower(Node):
         self.declare_parameter('max_w', 1.0)  # rad/s
         self.declare_parameter('kp_yaw', 2.0)
         self.declare_parameter('look_ahead', 0.2)  # m
+        # scan check: forward speed falls to zero as something enters the strip
+        self.declare_parameter('stop_distance', 0.18)  # m, forward speed is zero here
+        self.declare_parameter('slow_distance', 0.30)  # m, full speed from here
+        self.declare_parameter('half_width', 0.10)  # m, half the strip the body sweeps
+        self.declare_parameter('scan_timeout', 0.5)  # s, older scans count as missing
+        self.declare_parameter('goal_tolerance', 0.05)  # m, stop at the last waypoint
 
         self.max_v = float(self.get_parameter('max_v').value)
         self.kp_vel = float(self.get_parameter('kp_vel').value)
         self.max_w = float(self.get_parameter('max_w').value)
         self.kp_yaw = float(self.get_parameter('kp_yaw').value)
         self.look_ahead = float(self.get_parameter('look_ahead').value)
+        self.stop_distance = float(self.get_parameter('stop_distance').value)
+        self.slow_distance = float(self.get_parameter('slow_distance').value)
+        self.half_width = float(self.get_parameter('half_width').value)
+        self.scan_timeout = float(self.get_parameter('scan_timeout').value)
+        self.goal_tolerance = float(self.get_parameter('goal_tolerance').value)
+        self.scan = None
+        self.scan_rx = None
 
         # subscriptions and publishers
         self.map_sub = self.create_subscription(
             Path, 'path', self.path_callback, 1)
+
+        self.scan_sub = self.create_subscription(
+            LaserScan, 'scan', self.scan_callback, qos_profile_sensor_data)
 
         self.vel_pub = self.create_publisher(
             TwistStamped, 'cmd_vel', 1)
@@ -49,18 +68,45 @@ class PathFollower(Node):
         for point in msg.poses:
             self.path.append((point.pose.position.x, point.pose.position.y))
 
+    def scan_callback(self, msg: LaserScan):
+        self.scan = msg
+        self.scan_rx = self.get_clock().now()
+
+    def forward_clearance(self):
+        '''
+        Distance to the nearest return in the strip ahead of the robot.
+        Returns None when there is no fresh scan. The scan frame is treated
+        as base_link (the laser sits 3 cm behind the centre).
+        '''
+        if self.scan is None:
+            return None
+        age = (self.get_clock().now() - self.scan_rx).nanoseconds * 1e-9
+        if age > self.scan_timeout:
+            return None
+        r = np.asarray(self.scan.ranges, dtype=float)
+        a = self.scan.angle_min + self.scan.angle_increment * np.arange(len(r))
+        valid = np.isfinite(r) & (r > self.scan.range_min) & (r < self.scan.range_max)
+        x = r * np.cos(a)
+        y = r * np.sin(a)
+        ahead = valid & (x > 0.0) & (np.abs(y) <= self.half_width)
+        return float(x[ahead].min()) if ahead.any() else math.inf
+
     def update_robot_pos(self):
-        ts: TransformStamped = self.buffer.lookup_transform(
-            'map',         # target frame
-            'base_link',   # source frame
-            rclpy.time.Time()
-        )
+        try:
+            ts: TransformStamped = self.buffer.lookup_transform(
+                'map',         # target frame
+                'base_link',   # source frame
+                rclpy.time.Time()
+            )
+        except (LookupException, ConnectivityException, ExtrapolationException):
+            return False
 
         t = ts.transform.translation
         self.robot_pos = (t.x, t.y)
 
         q = ts.transform.rotation
         self.robot_yaw = self.yaw_from_quaternion(q.x, q.y, q.z, q.w)
+        return True
 
     def yaw_from_quaternion(self, x, y, z, w):
         siny_cosp = 2.0 * (w * z + x * y)
@@ -75,12 +121,17 @@ class PathFollower(Node):
         vel_msg.header.stamp= self.get_clock().now().to_msg()
         vel_msg.header.frame_id= self.path_header
 
-        self.update_robot_pos()
+        if not self.update_robot_pos():
+            return
 
         while len(self.path) > 1:
             if self.dist(self.path[0], self.robot_pos) > self.look_ahead:
                 break
             self.path.pop(0)
+
+        if len(self.path) == 1 and self.dist(self.path[0], self.robot_pos) < self.goal_tolerance:
+            self.vel_pub.publish(vel_msg)  # at the end of the path: publish zero
+            return
 
         dist_to_target = self.dist(self.path[0], self.robot_pos)
         if dist_to_target < self.look_ahead:
@@ -96,6 +147,15 @@ class PathFollower(Node):
 
         if abs(dif_ang)>0.3:
             vel_msg.twist.linear.x = 0.0
+
+        clearance = self.forward_clearance()
+        if clearance is None:
+            vel_msg.twist.linear.x = 0.0
+            self.get_logger().warn('no fresh scan, forward speed held at zero',
+                                   throttle_duration_sec=5.0)
+        else:
+            gap = (clearance - self.stop_distance) / (self.slow_distance - self.stop_distance)
+            vel_msg.twist.linear.x *= min(1.0, max(0.0, gap))
         vel_msg.twist.angular.z = dif_ang * self.kp_yaw
         if abs(vel_msg.twist.angular.z) > self.max_w:
             vel_msg.twist.angular.z = math.copysign(self.max_w, vel_msg.twist.angular.z)
