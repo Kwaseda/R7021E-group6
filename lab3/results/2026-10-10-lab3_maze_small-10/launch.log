@@ -1,0 +1,65 @@
+[INFO] [launch]: All log files can be found below /home/dominiques-laptop/.ros/log/2026-10-10-22-02-18-886050-dominiques-laptop-LOQ-15IRX10-47876
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frontier_detector_node-1]: process started with pid [47895]
+[INFO] [navigation_node-2]: process started with pid [47896]
+[INFO] [path_follower_node-3]: process started with pid [47897]
+[INFO] [async_slam_toolbox_node-5]: process started with pid [47899]
+[async_slam_toolbox_node-5] [INFO] [1791662539.097870845] [slam_toolbox]: Node using stack size 40000000
+[navigation_node-2] [INFO] [1791662539.562043761] [navigation_node]: PathPlannerNode initialized.
+[async_slam_toolbox_node-5] [INFO] [1791662539.564146779] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-5] [INFO] [1791662539.567486833] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-5] [INFO] [1791662539.567617953] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-5] [INFO] [1791662539.579482479] [slam_toolbox]: Activating
+[async_slam_toolbox_node-5] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-5] [WARN] [1791662539.847638608] [slam_toolbox]: maximum laser range setting (20.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[async_slam_toolbox_node-5] Registering sensor: [Custom Described Lidar]
+[navigation_node-2] [INFO] [1791662540.644737449] [navigation_node]: t=17.0 goal=(-0.14, 0.76) H=-7.07 L=0.78 I=81 turn=1.68 candidates=2 known=1.9m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791662547.600588758] [navigation_node]: arrived at (-0.14, 0.76)
+[navigation_node-2] [INFO] [1791662547.675815566] [navigation_node]: t=24.0 goal=(-1.31, 0.17) H=-4.47 L=1.54 I=64 turn=2.62 candidates=3 known=3.0m2 plan_time=0.07s
+[navigation_node-2] [INFO] [1791662563.610072922] [navigation_node]: arrived at (-1.31, 0.17)
+[navigation_node-2] [INFO] [1791662563.684091216] [navigation_node]: t=40.0 goal=(-1.27, -0.46) H=-3.88 L=0.87 I=49 turn=1.03 candidates=2 known=3.5m2 plan_time=0.07s
+[navigation_node-2] [INFO] [1791662570.609848055] [navigation_node]: arrived at (-1.27, -0.46)
+[navigation_node-2] [INFO] [1791662570.693335840] [navigation_node]: t=47.0 goal=(-1.44, -1.28) H=-2.77 L=0.94 I=38 turn=0.65 candidates=4 known=4.2m2 plan_time=0.08s
+[navigation_node-2] [INFO] [1791662577.616785502] [navigation_node]: arrived at (-1.44, -1.28)
+[navigation_node-2] [INFO] [1791662577.641923250] [navigation_node]: t=54.0 goal=(-0.38, 1.59) H=2.45 L=3.50 I=15 turn=3.00 candidates=1 known=4.3m2 plan_time=0.02s
+[path_follower_node-3] [WARN] [1791662590.846587522] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791662597.028979365] [path_follower_node]: blocked ahead at 0.13 m, backing off
+[navigation_node-2] [INFO] [1791662598.628835820] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791662598.661014657] [navigation_node]: t=75.0 goal=(-0.38, 1.59) H=2.01 L=3.51 I=15 turn=0.02 candidates=1 known=4.3m2 plan_time=0.03s
+[path_follower_node-3] [WARN] [1791662602.630158293] [path_follower_node]: blocked ahead at 0.15 m, backing off
+[path_follower_node-3] [WARN] [1791662610.431399217] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791662617.031912649] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [INFO] [1791662619.633173985] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791662619.665400211] [navigation_node]: t=96.0 goal=(-0.38, 1.59) H=2.01 L=3.51 I=15 turn=0.00 candidates=1 known=4.3m2 plan_time=0.03s
+[path_follower_node-3] [WARN] [1791662624.832165188] [path_follower_node]: blocked ahead at 0.13 m, backing off
+[path_follower_node-3] [WARN] [1791662631.232300577] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791662637.034447930] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [INFO] [1791662640.634379044] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791662640.660345204] [navigation_node]: t=117.0 goal=(-0.38, 1.59) H=1.96 L=3.46 I=15 turn=0.03 candidates=1 known=4.3m2 plan_time=0.03s
+[path_follower_node-3] [WARN] [1791662643.053225170] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791662648.263655893] [path_follower_node]: blocked ahead at 0.15 m, backing off
+[path_follower_node-3] [WARN] [1791662655.864795135] [path_follower_node]: blocked ahead at 0.15 m, backing off
+[path_follower_node-3] [WARN] [1791662661.075020849] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[navigation_node-2] [INFO] [1791662661.675200209] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791662661.713514998] [navigation_node]: t=138.0 goal=(-0.38, 1.59) H=1.98 L=3.47 I=15 turn=0.05 candidates=1 known=4.3m2 plan_time=0.04s
+[path_follower_node-3] [WARN] [1791662667.075723328] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791662674.276869635] [path_follower_node]: blocked ahead at 0.14 m, backing off
+[path_follower_node-3] [WARN] [1791662679.484832315] [path_follower_node]: blocked ahead at 0.15 m, backing off
+[navigation_node-2] [WARN] [1791662679.684832479] [navigation_node]: stalled, crossing off the goal
+[path_follower_node-3] [WARN] [1791662686.087750377] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791662688.692693338] [navigation_node]: trying 1 stalled goals again
+[navigation_node-2] [INFO] [1791662689.710329329] [navigation_node]: t=166.0 goal=(-0.38, 1.59) H=1.95 L=3.45 I=15 turn=0.01 candidates=1 known=4.3m2 plan_time=0.02s
+[path_follower_node-3] [WARN] [1791662692.488412033] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791662699.290507943] [path_follower_node]: blocked ahead at 0.10 m, backing off
+[navigation_node-2] [WARN] [1791662704.693378748] [navigation_node]: stalled, crossing off the goal
+[path_follower_node-3] [WARN] [1791662705.492834557] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791662710.898029763] [path_follower_node]: blocked ahead at 0.14 m, backing off
+[navigation_node-2] [INFO] [1791662713.711447686] [navigation_node]: trying 1 stalled goals again
+[navigation_node-2] [INFO] [1791662714.727994215] [navigation_node]: t=191.0 goal=(-0.38, 1.59) H=1.94 L=3.43 I=15 turn=0.06 candidates=1 known=4.3m2 plan_time=0.03s
+[path_follower_node-3] [WARN] [1791662716.101660588] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791662723.302231773] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791662728.701921126] [navigation_node]: stalled, crossing off the goal
+[path_follower_node-3] [WARN] [1791662729.501805105] [path_follower_node]: blocked ahead at 0.14 m, backing off
+[path_follower_node-3] [WARN] [1791662735.905344658] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791662737.707646461] [navigation_node]: exploration finished: 11 goals, 197 s since first plan

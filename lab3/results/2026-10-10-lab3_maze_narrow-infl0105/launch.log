@@ -1,0 +1,26 @@
+[INFO] [launch]: All log files can be found below /home/dominiques-laptop/.ros/log/2026-10-10-21-47-14-711210-dominiques-laptop-LOQ-15IRX10-44181
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frontier_detector_node-1]: process started with pid [44198]
+[INFO] [navigation_node-2]: process started with pid [44199]
+[INFO] [path_follower_node-3]: process started with pid [44200]
+[INFO] [async_slam_toolbox_node-5]: process started with pid [44202]
+[async_slam_toolbox_node-5] [INFO] [1791661634.919094524] [slam_toolbox]: Node using stack size 40000000
+[navigation_node-2] [INFO] [1791661635.358676486] [navigation_node]: PathPlannerNode initialized.
+[async_slam_toolbox_node-5] [INFO] [1791661635.637095764] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-5] [INFO] [1791661635.640821237] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-5] [INFO] [1791661635.640939581] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-5] [INFO] [1791661635.652701872] [slam_toolbox]: Activating
+[async_slam_toolbox_node-5] [INFO] [1791661636.023365058] [slam_toolbox]: Message Filter dropping message: frame 'base_scan' at time 16.400 for reason 'the timestamp on the message is earlier than all the data in the transform cache'
+[async_slam_toolbox_node-5] [INFO] [1791661638.624571869] [slam_toolbox]: Message Filter dropping message: frame 'base_scan' at time 19.000 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-5] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-5] [WARN] [1791661638.702742987] [slam_toolbox]: maximum laser range setting (20.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[async_slam_toolbox_node-5] Registering sensor: [Custom Described Lidar]
+[navigation_node-2] [INFO] [1791661640.459930703] [navigation_node]: t=21.0 goal=(-0.38, -0.29) H=-11.95 L=0.48 I=128 turn=2.48 candidates=2 known=3.7m2 plan_time=0.04s
+[navigation_node-2] [INFO] [1791661647.416857554] [navigation_node]: arrived at (-0.38, -0.29)
+[navigation_node-2] [INFO] [1791661647.516299211] [navigation_node]: t=28.0 goal=(-0.93, 0.65) H=-7.46 L=1.15 I=88 turn=1.26 candidates=6 known=6.6m2 plan_time=0.10s
+[navigation_node-2] [INFO] [1791661657.416969009] [navigation_node]: arrived at (-0.93, 0.65)
+[navigation_node-2] [INFO] [1791661657.616684106] [navigation_node]: t=38.0 goal=(1.29, 0.31) H=-1.59 L=2.32 I=43 turn=2.58 candidates=6 known=7.8m2 plan_time=0.20s
+[navigation_node-2] [INFO] [1791661678.416826119] [navigation_node]: arrived at (1.29, 0.31)
+[path_follower_node-3] [WARN] [1791661683.427310718] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791661687.423111139] [navigation_node]: exploration finished: 3 goals, 47 s since first plan

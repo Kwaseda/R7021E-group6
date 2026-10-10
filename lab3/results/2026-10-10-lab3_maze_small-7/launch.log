@@ -1,0 +1,53 @@
+[INFO] [launch]: All log files can be found below /home/dominiques-laptop/.ros/log/2026-10-10-20-46-13-810771-dominiques-laptop-LOQ-15IRX10-32517
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frontier_detector_node-1]: process started with pid [32534]
+[INFO] [navigation_node-2]: process started with pid [32535]
+[INFO] [path_follower_node-3]: process started with pid [32536]
+[INFO] [async_slam_toolbox_node-5]: process started with pid [32538]
+[async_slam_toolbox_node-5] [INFO] [1791657974.022908090] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-5] [INFO] [1791657974.240669098] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-5] [INFO] [1791657974.244011901] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-5] [INFO] [1791657974.244123049] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-5] [INFO] [1791657974.254816860] [slam_toolbox]: Activating
+[navigation_node-2] [INFO] [1791657974.726627846] [navigation_node]: PathPlannerNode initialized.
+[async_slam_toolbox_node-5] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-5] [WARN] [1791657974.829829607] [slam_toolbox]: maximum laser range setting (20.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[async_slam_toolbox_node-5] Registering sensor: [Custom Described Lidar]
+[navigation_node-2] [WARN] [1791657978.223852940] [navigation_node]: TF lookup map <- base_link failed: Could not find a connection between 'map' and 'base_link' because they are not part of the same tree.Tf has two or more unconnected trees.
+[navigation_node-2] [INFO] [1791657978.623968935] [navigation_node]: t=20.0 goal=(0.00, 1.16) H=-9.00 L=1.16 I=104 turn=1.65 candidates=2 known=1.9m2 plan_time=0.06s
+[navigation_node-2] [INFO] [1791657988.597299987] [navigation_node]: arrived at (0.00, 1.16)
+[navigation_node-2] [INFO] [1791657988.636710044] [navigation_node]: t=30.0 goal=(-0.42, 1.59) H=-0.48 L=0.75 I=13 turn=0.44 candidates=2 known=3.1m2 plan_time=0.04s
+[navigation_node-2] [INFO] [1791657993.601231623] [navigation_node]: arrived at (-0.42, 1.59)
+[navigation_node-2] [INFO] [1791657993.655523562] [navigation_node]: t=35.0 goal=(-0.80, 1.53) H=-3.75 L=0.57 I=44 turn=0.59 candidates=2 known=3.4m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791657997.602808270] [navigation_node]: arrived at (-0.80, 1.53)
+[navigation_node-2] [INFO] [1791657997.655527896] [navigation_node]: t=39.0 goal=(-0.59, 0.89) H=-6.55 L=0.70 I=75 turn=1.64 candidates=2 known=4.5m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791658004.605644748] [navigation_node]: arrived at (-0.59, 0.89)
+[navigation_node-2] [INFO] [1791658004.659213532] [navigation_node]: t=46.0 goal=(-1.59, 1.09) H=-1.73 L=1.02 I=30 turn=1.68 candidates=2 known=4.9m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791658013.608116991] [navigation_node]: arrived at (-1.59, 1.09)
+[navigation_node-2] [INFO] [1791658013.670819235] [navigation_node]: t=55.0 goal=(-1.49, 1.49) H=-5.28 L=0.45 I=59 turn=1.08 candidates=2 known=5.5m2 plan_time=0.06s
+[navigation_node-2] [INFO] [1791658018.633293932] [navigation_node]: arrived at (-1.49, 1.49)
+[navigation_node-2] [INFO] [1791658018.675205529] [navigation_node]: t=60.0 goal=(-1.56, -0.42) H=3.19 L=4.66 I=19 turn=2.86 candidates=1 known=5.6m2 plan_time=0.04s
+[path_follower_node-3] [WARN] [1791658032.453923833] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791658039.652727477] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791658039.688243012] [navigation_node]: t=81.0 goal=(-1.56, -0.42) H=2.76 L=4.64 I=19 turn=0.15 candidates=1 known=5.6m2 plan_time=0.04s
+[path_follower_node-3] [WARN] [1791658041.254273001] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791658052.089078456] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791658060.689003653] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791658060.749657839] [navigation_node]: t=102.0 goal=(-1.56, -0.42) H=2.79 L=4.65 I=19 turn=0.22 candidates=1 known=5.6m2 plan_time=0.06s
+[navigation_node-2] [WARN] [1791658069.706282007] [navigation_node]: stalled, crossing off the goal
+[path_follower_node-3] [WARN] [1791658070.106542273] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[navigation_node-2] [INFO] [1791658078.725289281] [navigation_node]: trying 1 stalled goals again
+[navigation_node-2] [INFO] [1791658079.764478203] [navigation_node]: t=121.0 goal=(-1.56, -0.42) H=2.57 L=4.47 I=19 turn=0.03 candidates=1 known=5.6m2 plan_time=0.04s
+[path_follower_node-3] [WARN] [1791658082.134515459] [path_follower_node]: blocked ahead at 0.15 m, backing off
+[path_follower_node-3] [WARN] [1791658094.339523116] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791658100.743413986] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791658100.784378888] [navigation_node]: t=142.0 goal=(-1.56, -0.42) H=2.80 L=4.68 I=19 turn=0.11 candidates=1 known=5.6m2 plan_time=0.04s
+[navigation_node-2] [WARN] [1791658109.749789173] [navigation_node]: stalled, crossing off the goal
+[path_follower_node-3] [WARN] [1791658113.754074453] [path_follower_node]: blocked ahead at 0.13 m, backing off
+[navigation_node-2] [INFO] [1791658118.785342671] [navigation_node]: trying 1 stalled goals again
+[navigation_node-2] [INFO] [1791658119.831245083] [navigation_node]: t=161.0 goal=(-1.56, -0.42) H=2.64 L=4.51 I=19 turn=0.20 candidates=1 known=5.6m2 plan_time=0.05s
+[path_follower_node-3] [WARN] [1791658121.979467449] [path_follower_node]: blocked ahead at 0.14 m, backing off
+[navigation_node-2] [WARN] [1791658134.789319372] [navigation_node]: stalled, crossing off the goal
+[path_follower_node-3] [WARN] [1791658135.989187760] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791658143.804167401] [navigation_node]: exploration finished: 12 goals, 165 s since first plan

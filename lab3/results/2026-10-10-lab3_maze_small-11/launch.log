@@ -1,0 +1,59 @@
+[INFO] [launch]: All log files can be found below /home/dominiques-laptop/.ros/log/2026-10-10-22-06-44-282832-dominiques-laptop-LOQ-15IRX10-48837
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frontier_detector_node-1]: process started with pid [48854]
+[INFO] [navigation_node-2]: process started with pid [48855]
+[INFO] [path_follower_node-3]: process started with pid [48856]
+[INFO] [async_slam_toolbox_node-5]: process started with pid [48858]
+[async_slam_toolbox_node-5] [INFO] [1791662804.497795455] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-5] [INFO] [1791662806.623547131] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-5] [INFO] [1791662806.629028553] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-5] [INFO] [1791662806.629291511] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-5] [INFO] [1791662806.643308251] [slam_toolbox]: Activating
+[async_slam_toolbox_node-5] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-5] [WARN] [1791662806.828147764] [slam_toolbox]: maximum laser range setting (20.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[async_slam_toolbox_node-5] Registering sensor: [Custom Described Lidar]
+[navigation_node-2] [INFO] [1791662807.234409374] [navigation_node]: PathPlannerNode initialized.
+[navigation_node-2] [WARN] [1791662808.522299037] [navigation_node]: TF lookup map <- base_link failed: "base_link" passed to lookupTransform argument source_frame does not exist. 
+[navigation_node-2] [INFO] [1791662809.059454142] [navigation_node]: t=20.0 goal=(0.04, 1.13) H=-8.94 L=1.13 I=103 turn=1.53 candidates=2 known=1.9m2 plan_time=0.04s
+[navigation_node-2] [INFO] [1791662819.023406581] [navigation_node]: arrived at (0.04, 1.13)
+[navigation_node-2] [INFO] [1791662819.071438971] [navigation_node]: t=30.0 goal=(-0.34, 1.40) H=-0.59 L=0.74 I=14 turn=0.44 candidates=2 known=3.1m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791662825.025737428] [navigation_node]: arrived at (-0.34, 1.40)
+[navigation_node-2] [INFO] [1791662825.072614944] [navigation_node]: t=36.0 goal=(-0.80, 1.45) H=-2.88 L=0.66 I=36 turn=0.42 candidates=2 known=3.5m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791662830.029160427] [navigation_node]: arrived at (-0.80, 1.45)
+[navigation_node-2] [INFO] [1791662830.111531455] [navigation_node]: t=41.0 goal=(-0.99, 0.97) H=-7.57 L=0.76 I=85 turn=1.09 candidates=2 known=4.0m2 plan_time=0.08s
+[navigation_node-2] [INFO] [1791662836.029911961] [navigation_node]: arrived at (-0.99, 0.97)
+[navigation_node-2] [INFO] [1791662836.088990177] [navigation_node]: t=47.0 goal=(-1.56, 0.91) H=-3.26 L=0.65 I=40 turn=0.63 candidates=2 known=4.7m2 plan_time=0.06s
+[navigation_node-2] [INFO] [1791662842.047759915] [navigation_node]: arrived at (-1.56, 0.91)
+[navigation_node-2] [INFO] [1791662842.098152951] [navigation_node]: t=53.0 goal=(-1.39, 1.75) H=-3.71 L=0.83 I=48 turn=1.77 candidates=2 known=5.5m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791662851.059800310] [navigation_node]: arrived at (-1.39, 1.75)
+[navigation_node-2] [INFO] [1791662851.118770774] [navigation_node]: t=62.0 goal=(-1.57, -0.45) H=3.91 L=4.86 I=14 turn=3.00 candidates=1 known=5.6m2 plan_time=0.06s
+[path_follower_node-3] [WARN] [1791662858.102992694] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791662872.089315219] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791662872.129800776] [navigation_node]: t=83.0 goal=(-1.57, -0.45) H=2.20 L=3.60 I=14 turn=0.04 candidates=1 known=5.6m2 plan_time=0.04s
+[navigation_node-2] [INFO] [1791662893.094214193] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791662893.123037781] [navigation_node]: t=104.0 goal=(-1.57, -0.50) H=-0.31 L=1.08 I=14 turn=0.05 candidates=1 known=5.6m2 plan_time=0.03s
+[navigation_node-2] [INFO] [1791662900.099678893] [navigation_node]: arrived at (-1.57, -0.50)
+[navigation_node-2] [INFO] [1791662900.133106465] [navigation_node]: t=111.0 goal=(-1.22, -1.54) H=-3.91 L=1.21 I=52 turn=0.53 candidates=2 known=6.6m2 plan_time=0.03s
+[navigation_node-2] [INFO] [1791662908.115909423] [navigation_node]: arrived at (-1.22, -1.54)
+[navigation_node-2] [INFO] [1791662908.135466339] [navigation_node]: t=119.0 goal=(-0.82, -1.59) H=-7.91 L=0.51 I=85 turn=0.59 candidates=1 known=7.4m2 plan_time=0.02s
+[navigation_node-2] [INFO] [1791662912.124969535] [navigation_node]: arrived at (-0.82, -1.59)
+[navigation_node-2] [INFO] [1791662912.147852618] [navigation_node]: t=123.0 goal=(0.12, -1.20) H=-0.80 L=1.13 I=20 turn=0.47 candidates=1 known=8.1m2 plan_time=0.02s
+[navigation_node-2] [INFO] [1791662920.127905047] [navigation_node]: arrived at (0.12, -1.20)
+[navigation_node-2] [INFO] [1791662920.176422123] [navigation_node]: t=131.0 goal=(-0.39, -0.97) H=-6.01 L=0.58 I=68 turn=1.45 candidates=3 known=9.8m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791662927.129320393] [navigation_node]: arrived at (-0.39, -0.97)
+[navigation_node-2] [INFO] [1791662927.219728307] [navigation_node]: t=138.0 goal=(1.69, -1.12) H=-3.43 L=2.03 I=59 turn=2.95 candidates=2 known=10.6m2 plan_time=0.09s
+[navigation_node-2] [INFO] [1791662947.136826748] [navigation_node]: arrived at (1.69, -1.12)
+[navigation_node-2] [INFO] [1791662947.169318066] [navigation_node]: t=158.0 goal=(1.65, -0.04) H=-5.43 L=1.09 I=68 turn=1.85 candidates=2 known=11.4m2 plan_time=0.03s
+[navigation_node-2] [INFO] [1791662957.136700976] [navigation_node]: arrived at (1.65, -0.04)
+[navigation_node-2] [INFO] [1791662957.171232007] [navigation_node]: t=168.0 goal=(1.31, 0.56) H=-1.28 L=0.90 I=22 turn=0.12 candidates=2 known=12.8m2 plan_time=0.03s
+[navigation_node-2] [INFO] [1791662964.145594781] [navigation_node]: arrived at (1.31, 0.56)
+[navigation_node-2] [INFO] [1791662964.191479360] [navigation_node]: t=175.0 goal=(1.17, 1.55) H=-2.00 L=1.16 I=32 turn=0.29 candidates=3 known=13.8m2 plan_time=0.05s
+[navigation_node-2] [INFO] [1791662973.147860149] [navigation_node]: arrived at (1.17, 1.55)
+[navigation_node-2] [INFO] [1791662973.182652906] [navigation_node]: t=184.0 goal=(1.91, 1.41) H=-0.14 L=0.75 I=11 turn=1.37 candidates=2 known=15.0m2 plan_time=0.03s
+[navigation_node-2] [INFO] [1791662980.157503893] [navigation_node]: arrived at (1.91, 1.41)
+[navigation_node-2] [INFO] [1791662980.189388587] [navigation_node]: t=191.0 goal=(0.97, -1.72) H=2.28 L=4.12 I=23 turn=3.07 candidates=1 known=15.1m2 plan_time=0.03s
+[navigation_node-2] [INFO] [1791663001.162101515] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791663001.198404234] [navigation_node]: t=212.0 goal=(0.97, -1.72) H=0.01 L=2.25 I=23 turn=0.37 candidates=1 known=15.1m2 plan_time=0.04s
+[navigation_node-2] [INFO] [1791663016.173289556] [navigation_node]: arrived at (0.97, -1.72)
+[navigation_node-2] [INFO] [1791663025.187095666] [navigation_node]: exploration finished: 20 goals, 216 s since first plan
