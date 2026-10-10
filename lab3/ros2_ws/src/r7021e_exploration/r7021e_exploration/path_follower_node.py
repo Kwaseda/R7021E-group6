@@ -5,6 +5,7 @@ import math
 
 import numpy as np
 import rclpy
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from nav_msgs.msg import Path
@@ -31,6 +32,10 @@ class PathFollower(Node):
         self.declare_parameter('half_width', 0.10)  # m, half the strip the body sweeps
         self.declare_parameter('scan_timeout', 0.5)  # s, older scans count as missing
         self.declare_parameter('goal_tolerance', 0.05)  # m, stop at the last waypoint
+        # blocked ahead with the right heading for this long: back off, if the rear is clear
+        self.declare_parameter('blocked_time', 2.0)  # s
+        self.declare_parameter('backoff_distance', 0.10)  # m
+        self.declare_parameter('backoff_speed', 0.05)  # m/s
 
         self.max_v = float(self.get_parameter('max_v').value)
         self.kp_vel = float(self.get_parameter('kp_vel').value)
@@ -42,8 +47,13 @@ class PathFollower(Node):
         self.half_width = float(self.get_parameter('half_width').value)
         self.scan_timeout = float(self.get_parameter('scan_timeout').value)
         self.goal_tolerance = float(self.get_parameter('goal_tolerance').value)
+        self.blocked_time = float(self.get_parameter('blocked_time').value)
+        self.backoff_distance = float(self.get_parameter('backoff_distance').value)
+        self.backoff_speed = float(self.get_parameter('backoff_speed').value)
         self.scan = None
         self.scan_rx = None
+        self.blocked_since = None   # when the strip ahead first blocked a wanted move
+        self.backoff_end = None     # when the current back-off stops
 
         # subscriptions and publishers
         self.map_sub = self.create_subscription(
@@ -72,9 +82,10 @@ class PathFollower(Node):
         self.scan = msg
         self.scan_rx = self.get_clock().now()
 
-    def forward_clearance(self):
+    def forward_clearance(self, sign=1.0):
         '''
-        Distance to the nearest return in the strip ahead of the robot.
+        Distance to the nearest return in the strip ahead of the robot
+        (sign=-1.0: the strip behind it).
         Returns None when there is no fresh scan. The scan frame is treated
         as base_link (the laser sits 3 cm behind the centre).
         '''
@@ -87,7 +98,7 @@ class PathFollower(Node):
         a = self.scan.angle_min + self.scan.angle_increment * np.arange(len(r))
         valid = np.isfinite(r) & (r > self.scan.range_min) & (r < self.scan.range_max)
         r, a = r[valid], a[valid]
-        x = r * np.cos(a)
+        x = sign * r * np.cos(a)
         y = r * np.sin(a)
         ahead = (x > 0.0) & (np.abs(y) <= self.half_width)
         return float(x[ahead].min()) if ahead.any() else math.inf
@@ -149,6 +160,15 @@ class PathFollower(Node):
         if abs(dif_ang)>0.3:
             vel_msg.twist.linear.x = 0.0
 
+        now = self.get_clock().now()
+        if self.backoff_end is not None:
+            rear = self.forward_clearance(-1.0)
+            if now < self.backoff_end and rear is not None and rear > self.stop_distance:
+                vel_msg.twist.linear.x = -self.backoff_speed   # straight back, no turn
+                self.vel_pub.publish(vel_msg)
+                return
+            self.backoff_end = None
+
         clearance = self.forward_clearance()
         if clearance is None:
             vel_msg.twist.linear.x = 0.0
@@ -157,6 +177,18 @@ class PathFollower(Node):
         else:
             gap = (clearance - self.stop_distance) / (self.slow_distance - self.stop_distance)
             vel_msg.twist.linear.x *= min(1.0, max(0.0, gap))
+
+        # Blocked: we want to go forward, the heading is right, and the strip is full.
+        if clearance is not None and clearance <= self.stop_distance and abs(dif_ang) <= 0.3:
+            if self.blocked_since is None:
+                self.blocked_since = now
+            elif (now - self.blocked_since).nanoseconds * 1e-9 > self.blocked_time:
+                self.get_logger().warn(f'blocked ahead at {clearance:.2f} m, backing off')
+                self.backoff_end = now + Duration(
+                    seconds=self.backoff_distance / self.backoff_speed)
+                self.blocked_since = None
+        else:
+            self.blocked_since = None
         vel_msg.twist.angular.z = dif_ang * self.kp_yaw
         if abs(vel_msg.twist.angular.z) > self.max_w:
             vel_msg.twist.angular.z = math.copysign(self.max_w, vel_msg.twist.angular.z)
