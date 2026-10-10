@@ -40,7 +40,20 @@ def sample_motion_model_odometry(u, poses, sigmas, rng) -> np.ndarray:
         Add Gaussian noise to each component of the odometry 
         increment and apply it to the current particle poses.
     """
-    raise NotImplementedError
+    poses = np.asarray(poses, dtype=float)
+    u = np.asarray(u, dtype=float)
+    sigmas = np.asarray(sigmas, dtype=float)
+
+    ## One noisy copy of the increment per particle: (N, 3).
+    noisy = u + rng.normal(0.0, sigmas, size=poses.shape)
+
+    ## Turn, drive, turn -- the same order odometry_increment() decomposes in.
+    heading = poses[:, 2] + noisy[:, 0]
+    out = np.empty_like(poses)
+    out[:, 0] = poses[:, 0] + noisy[:, 1] * np.cos(heading)
+    out[:, 1] = poses[:, 1] + noisy[:, 1] * np.sin(heading)
+    out[:, 2] = wrap_angle(heading + noisy[:, 2])
+    return out
 
 
 def motion_model_log_pdf(x_cand, x_prev, u, sigmas) -> np.ndarray:
@@ -61,4 +74,27 @@ def motion_model_log_pdf(x_cand, x_prev, u, sigmas) -> np.ndarray:
         normalize by the standard deviations, and return the log probability
         for each candidate pose.
     """
-    raise NotImplementedError
+    x_cand = np.atleast_2d(np.asarray(x_cand, dtype=float))
+    x_prev = np.asarray(x_prev, dtype=float)
+    u = np.asarray(u, dtype=float)
+    sig = np.maximum(np.asarray(sigmas, dtype=float), _SIGMA_FLOOR)
+
+    ## The increment each candidate implies, decomposed exactly like
+    ## utils.odometry_increment does for one pose pair, but for all N at once.
+    dx = x_cand[:, 0] - x_prev[0]
+    dy = x_cand[:, 1] - x_prev[1]
+    trans = np.hypot(dx, dy)
+    rot1 = np.where(trans < TRANS_EPS, 0.0,
+                    wrap_angle(np.arctan2(dy, dx) - x_prev[2]))
+    rot2 = wrap_angle(x_cand[:, 2] - x_prev[2] - rot1)
+
+    ## Compare with what the odometry reported. Angles are wrapped so that a
+    ## 0.1 rad error stays 0.1 rad on both sides of +-pi.
+    resid = np.stack([wrap_angle(rot1 - u[0]),
+                      trans - u[1],
+                      wrap_angle(rot2 - u[2])], axis=1)
+
+    ## Three independent Gaussians.
+    return (-0.5 * np.sum((resid / sig) ** 2, axis=1)
+            - np.sum(np.log(sig))
+            - 1.5 * np.log(2.0 * np.pi))
