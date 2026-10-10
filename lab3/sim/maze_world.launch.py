@@ -16,7 +16,9 @@ maze generator. The blind worlds were made with a small script in the same style
 For the two blind worlds, use gui:=false and watch only RViz. This is how the hall maze looks
 to you: you learn the layout from the map that the robot builds.
 
-The cell around the world origin is free on all sides, so the robot spawns at (0, 0).
+The robot spawns at (0, 0), facing +x, in the middle of a cell. That cell can have walls 0.35 m
+away. In lab3_maze_small a wall is 0.35 m ahead, so Task 1 (0.5 m forward) stops at the wall.
+Spawn one cell back for Task 1: x_pose:=-0.8.
 
 Gazebo does not always stop on Ctrl-C. After you stop this launch, check for leftovers:
 
