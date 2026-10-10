@@ -23,8 +23,8 @@ class PathFollower(Node):
         # Parameters
         self.declare_parameter('max_v', 0.15)  # m/s
         self.declare_parameter('kp_vel', 1.0)
-        self.declare_parameter('max_w', 1.0)  # rad/s
-        self.declare_parameter('kp_yaw', 2.0)
+        self.declare_parameter('max_w', 0.6)  # rad/s, faster turns slip in Gazebo
+        self.declare_parameter('kp_yaw', 1.0)  # keeps turns while driving under 0.3 rad/s
         self.declare_parameter('look_ahead', 0.12)  # m, about one waypoint; 0.2 cut corners into walls
         # scan check: forward speed falls to zero as something enters the strip
         self.declare_parameter('stop_distance', 0.18)  # m, forward speed is zero here
