@@ -179,7 +179,10 @@ class PathFollower(Node):
             vel_msg.twist.linear.x *= min(1.0, max(0.0, gap))
 
         # Blocked: we want to go forward, the heading is right, and the strip is full.
-        if clearance is not None and clearance <= self.stop_distance and abs(dif_ang) <= 0.3:
+        # The slow-down ramp only nears stop_distance and never reaches it, so the last
+        # 0.02 m of the ramp (under 0.025 m/s) also counts as blocked.
+        if (clearance is not None and clearance <= self.stop_distance + 0.02
+                and abs(dif_ang) <= 0.3):
             if self.blocked_since is None:
                 self.blocked_since = now
             elif (now - self.blocked_since).nanoseconds * 1e-9 > self.blocked_time:
