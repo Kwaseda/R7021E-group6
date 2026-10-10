@@ -240,3 +240,87 @@ default). Check them in the first Gazebo run and fix the table in `ORAL.md`.
 - How the costmap colours look over the map in RViz. If the layer hides the map, lower its alpha.
 - Add `/inflated_map`, `/rrt_tree` and `/goal_marker` to the bag record line. Without them the
   replay video cannot show them.
+
+## 2026-10-10, evening: first Gazebo runs, fixes, and a check for the real robot
+
+Claude ran the simulations, at Dominic's request. Dominic has not yet typed these commands
+himself. All numbers are [gazebo] unless marked. Table of all runs:
+`results/2026-10-10-overview.md`.
+
+### What we did
+
+- Phases 0 to 4. Packages present (`turtlebot3_gazebo` comes from `~/turtlebot3_ws`, sourced
+  by `~/.bashrc`). Build passes. Gazebo, both blind worlds (scan and clock only) and Task 1 pass.
+- 20 full exploration runs in the small, big and narrow-door worlds. Each bag also held the
+  true Gazebo pose, so wall contact and SLAM error are measured against the truth.
+- Seven fixes, each in its own commit, each from a run that failed:
+
+| Commit | Fix | The run that showed it |
+|---|---|---|
+| 3c8c19c | Follower backs off 0.10 m when blocked ahead for 2 s | small-1: froze at a corner, goal crossed off, 5.5 of 16 m2 |
+| e6262dd | Stalled goals get 2 more chances before `exploration finished` | small-1, big-1 |
+| 7418286 | `look_ahead` 0.20 to 0.12 m | small-2: aimed past a corner and drove into it, for 4 minutes |
+| 9944cb1 | `kp_yaw` 2.0 to 1.0, `max_w` 1.0 to 0.6 rad/s | Gazebo odometry turned 41 % more than the truth, worst when turning while driving |
+| cf4fab1 | SLAM loop closure off | small-4 and small-5: pose error jumped from 0.15 to 1.7 m in 4 s |
+| aa65d6f | The bottom 0.02 m of the slow-down ramp counts as blocked | small-7, big-2: crept at 0.00 to 0.01 m/s and never backed off |
+| f632b52 | Follower sends zero on Ctrl-C and when the pose is lost | Ctrl-C left the robot driving at 0.15 m/s |
+
+- Also: the planner publishes `/inflated_map` (210b3af), a narrow-door test world, a video
+  script (`video/bag_to_video.py`), and `RUNSHEET.md`.
+- Checks for the real robot, without the robot:
+  - `turtlebot3_node` has a heartbeat to the motor board but no `cmd_vel` timeout (read from
+    the installed binary). The robot keeps its last command.
+  - The Lab 1 robot bags: the robot clock was 325 days behind the laptop. TF is
+    `odom -> base_footprint -> base_link -> base_scan`. The laser gives 0.0, not inf, for no
+    return, on 41 % of rays. `/cmd_vel` on the robot is TwistStamped.
+  - All 635 Lab 1 robot scans gave the same forward clearance in the follower as an
+    independent check. No 0.0 range was used.
+  - A Lab 1 robot bag played into the full stack with `use_sim_time` false: SLAM built a map,
+    the planner planned, the follower published. The 325 day clock offset did not stop it.
+  - Laptop receive gaps in the Lab 1 bags: up to 3.6 s, 30 gaps over 0.5 s in one run, while
+    the message stamps stayed 0.15 to 1.0 s apart. The data was late, not lost.
+
+### What went wrong
+
+- The desk version explored 34 % of the small maze. The desk simulation had perfect wheels
+  and no corners that a pure pursuit could cut, so it could not show the freeze at a corner.
+- Two of our own tries made things worse and were taken back. Lower SLAM travel thresholds
+  (small-4) broke SLAM. The trail-as-free fix (small-10, narrow-trail) made paths hug walls.
+  It was never committed.
+- One good run (small-6) hid a bug that the next run with the same code (small-7) showed.
+  One run is not evidence.
+- Claude's test scripts first killed their own shell (pkill matched its own command line) and
+  first left bags without `metadata.yaml`. A background job from a script ignores SIGINT, so the
+  recorder never stopped. SIGTERM works. In a terminal, Ctrl-C works as usual.
+- Gazebo keeps two `gz sim` processes after Ctrl-C, every time.
+- The spawn cell in `lab3_maze_small` has a wall 0.35 m ahead. Task 1 needs `x_pose:=-0.8`.
+- `ros2 topic hz /scan` printed nothing on this laptop.
+
+### What we would do better
+
+- Run two runs for every change from the start, and measure against the Gazebo truth from the
+  first run. Odometry said the robot drove through walls, and that was odometry drift.
+- Test the stop on shutdown first. It is the most dangerous defect, and it is the cheapest
+  to test.
+
+### What is still not tested
+
+- Nothing has run on the robot. Real odometry slips less than Gazebo. The values `kp_yaw`,
+  `max_w` and loop closure off come from Gazebo.
+- Passages from 0.30 to 0.50 m. The robot can enter a 0.40 m door and then the padding closes
+  it behind the robot, or the follower blocks at the door post. See the runsheet rule.
+- The frontier behind a corner next to an arrived goal falls inside the 0.30 m retire radius
+  and is skipped (small-10). Seen once.
+- Lab 1 bag gaps of up to 3.6 s: the robot drives on a stale command for that long. Only
+  `max_v` lower helps.
+- RViz colours of the inflated map. RViz replay of a bag with the robot clock offset. The video
+  script does not depend on either.
+- Tasks 2, 3 and 4 proof runs, and the phase 5 drills. Dominic does these.
+
+### Late runs, same evening
+
+- `inflation_radius` 0.16 (4 cells): small maze 5.4 m2, 3 stalls, 22 back-offs at a corridor
+  mouth. Stopped after one run. Not adopted.
+- Follower scan check off (`stop_distance` 0.0, `slow_distance` 0.01), not committed: 2 of 2
+  small runs full (15.1 and 15.0 m2), 0 back-offs, closest 0.107 m. One big run still running.
+  Decision for Dominic: see `STUDY/WHY.md`.
