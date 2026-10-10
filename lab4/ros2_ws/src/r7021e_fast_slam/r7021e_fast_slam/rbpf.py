@@ -143,7 +143,69 @@ class GridFastSLAM:
         ## return StepInfo(n_eff=n_eff, resampled=resampled,
         ##                 n_fallback=n_fallback, timings=timings,
         ##                 best_index=argmax of the log-weights)
-        raise NotImplementedError
+        cfg = self.cfg
+        timings = {'scan_match': 0.0, 'likelihood': 0.0, 'map_integrate': 0.0}
+        n_fallback = 0
+
+        ## Split the beams once, outside the particle loop. A max-range return
+        ## maps free space but must not score a pose.
+        hits = ranges < cfg.range_max - 1e-6
+        ep_hit = endpoints[hits]
+        ep_match = ep_hit[::cfg.scan_match_stride]
+        ep_w = ep_hit[::cfg.likelihood_stride]
+
+        for p in self.particles:
+            ## (3) predict from odometry
+            x_bar = sample_motion_model_odometry(
+                u, p.pose[None, :], cfg.odometry_sigmas, self.rng)[0]
+
+            ## (5) scan-match against THIS particle's own map
+            if cfg.use_improved_proposal:
+                t0 = perf_counter()
+                x_star, score = scan_match(x_bar, p.grid, ep_match, cfg)
+                timings['scan_match'] += perf_counter() - t0
+            else:
+                ## FastSLAM 1.0: no match, so the branch below is taken.
+                x_star, score = x_bar, -np.inf
+
+            t0 = perf_counter()
+            if score >= cfg.match_score_min:
+                ## (6-10) Gaussian proposal around the match, (11) sample it,
+                ## (12) weight by the proposal's normaliser.
+                log_eta, mu, sigma = improved_proposal(
+                    x_star, p.pose, u, ep_w, p.grid, cfg)
+                x_new = self.rng.multivariate_normal(mu, sigma)
+                x_new[2] = wrap_angle(x_new[2])
+                p.log_weight += log_eta
+            else:
+                ## No trusted match (or FastSLAM 1.0): keep the odometry
+                ## sample and weight by the likelihood of the scan alone.
+                x_new = x_bar
+                p.log_weight += measurement_log_likelihood(
+                    x_bar, ep_w, p.grid, cfg)[0]
+                if cfg.use_improved_proposal:
+                    n_fallback += 1
+            timings['likelihood'] += perf_counter() - t0
+            p.pose = x_new
+
+            ## (22) The map is updated LAST: every likelihood above has to
+            ## see m_{t-1}, not a map that already holds this scan.
+            t0 = perf_counter()
+            p.grid.integrate_scan(x_new, endpoints, ranges, cfg.range_max)
+            timings['map_integrate'] += perf_counter() - t0
+
+        ## (24-25) normalise, then N_eff. N_eff is read BEFORE resampling.
+        weights, n_eff = self._normalize()
+
+        ## Read the heaviest particle now: after a resample every weight is 1/N.
+        best_index = int(np.argmax(weights))
+
+        ## (26-27) resample if N_eff is below the threshold
+        resampled = self._maybe_resample(weights, n_eff)
+
+        return StepInfo(n_eff=n_eff, resampled=resampled,
+                        n_fallback=n_fallback, timings=timings,
+                        best_index=best_index)
 
     def _normalize(self):
         """Normalize the particle weights and compute the effective sample size.
