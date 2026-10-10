@@ -1,0 +1,122 @@
+# RViz configuration for Lab 1.
+#
+# What the video needs to show at every instant: current position, path so far,
+# current goal, and the laser scan.
+#
+#   current position    Odometry display, the arrow.
+#   path so far         the same Odometry display with Keep set to 5000 -- over
+#                       four minutes of trail at 20 Hz, longer than the two laps take.
+#   laser scan          LaserScan display, 30 s decay so walls persist as the robot moves.
+#   closest wall point  PointStamped, the task 3 quantity.
+#   current goal        Marker display on /goal_marker, published by goal_marker_node.
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Property Tree Widget:
+      Expanded: ~
+      Splitter Ratio: 0.5
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Name: root
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 20
+      Color: 160; 160; 164
+      Reference Frame: <Fixed Frame>
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Names: true
+      Show Axes: true
+      Show Arrows: false
+      Marker Scale: 0.3
+    - Class: rviz_default_plugins/Odometry
+      Name: Robot path
+      Enabled: true
+      Topic:
+        Value: /odom
+        Depth: 5000
+        Durability Policy: Volatile
+        Reliability Policy: Reliable
+      Keep: 5000
+      Position Tolerance: 0.02
+      Angle Tolerance: 0.05
+      Shape:
+        Value: Arrow
+        Alpha: 1
+        Color: 255; 170; 0
+        Shaft Length: 0.1
+        Shaft Radius: 0.015
+        Head Length: 0.05
+        Head Radius: 0.03
+      Covariance:
+        Value: false
+    - Class: rviz_default_plugins/LaserScan
+      Name: Laser scan
+      Enabled: true
+      Topic:
+        Value: /scan
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 3
+      Decay Time: 30
+      Color Transformer: FlatColor
+      Color: 0; 170; 255
+      Alpha: 1
+    - Class: rviz_default_plugins/PointStamped
+      Name: Closest wall point
+      Enabled: true
+      Topic:
+        Value: /closest_wall_point
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Reliable
+      Color: 255; 0; 0
+      Alpha: 1
+      Radius: 0.06
+      History Length: 1
+    - Class: rviz_default_plugins/Marker
+      Name: Goal marker
+      Enabled: true
+      Topic:
+        Value: /goal_marker
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Reliable
+  Global Options:
+    Fixed Frame: odom
+    Background Color: 48; 48; 48
+    Frame Rate: 30
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 8
+      Pitch: 1.2
+      Yaw: 4.7
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Target Frame: <Fixed Frame>
+    Saved: ~
+Window Geometry:
+  Height: 900
+  Width: 1400
+  Displays:
+    collapsed: false
+  Views:
+    collapsed: false

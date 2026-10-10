@@ -1,0 +1,18 @@
+# Closest wall point from the laser scan. Task 3 of Lab 1.
+#
+# Its own node rather than a branch inside the controller: the controller has no use
+# for this number, and the plot needs it at scan rate for a whole run.
+
+/scan_monitor_node:
+  ros__parameters:
+    # Frame written into the published PointStamped header. Empty string means "use
+    # the frame the scan itself arrived in" -- the honest default, since nothing here
+    # transforms the point.
+    output_frame_id: ""
+
+    # Seconds between "every beam was invalid" warnings, so a moment of no valid
+    # returns doesn't flood the log.
+    invalid_scan_warn_period: 5.0
+
+    # scan_range_min / scan_range_max come from config/robot.yaml: they're facts
+    # about the LDS-01, not a choice this node makes.

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>r7021e_control</name>
+  <version>0.1.0</version>
+  <description>
+    Lab 1 control nodes for R7021E 2026: closed loop position tracking with a Near
+    Identity Diffeomorphism, a figure of eight setpoint generator, the closest wall
+    point from the laser scan, wall following until the loop closes, and an RViz
+    marker for the current goal.
+  </description>
+  <maintainer email="domadd-2@student.ltu.se">Dominic Addo</maintainer>
+  <license>MIT</license>
+
+  <!-- Every message type the package imports is declared here. -->
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>visualization_msgs</depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

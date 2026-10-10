@@ -1,0 +1,60 @@
+# Figure of eight setpoint generator. Publishes a moving goal on /new_position.
+#
+# The trajectory node publishes setpoints and the controller chases them. The path
+# is not generated inside the controller. That keeps /new_position the single control
+# entry point, so a terminal setpoint, this node and a later lab's planner all drive
+# the same controller, and it makes the current goal a real topic, which the graded
+# video has to display.
+
+/trajectory_node:
+  ros__parameters:
+    # Gerono lemniscate, the figure of eight that fits in a box:
+    #   x(s) = centre_x + width  * sin(s)
+    #   y(s) = centre_y + height * sin(2s),   s = 2*pi * (elapsed / lap_period)
+    # The double frequency in y is what crosses the path over itself at the centre.
+
+    # Half width in x and half height in y, metres. The eight spans 2*width by 2*height,
+    # so 2.0 m by 1.0 m. Centred in the box world that leaves about a metre of clearance
+    # on the long axis, which is more than the 0.5 m the wall follower keeps.
+    # Confirmed 2026-09-08 against turtlebot3_dqn_stage1, whose walls have inner faces
+    # at +/- 2.35 m: the eight leaves 1.35 m of clearance on the long axis and 1.85 m on
+    # the short one. Measured in Gazebo, x stayed inside [-0.98, 0.98] and y inside
+    # [-0.46, 0.46] over two laps.
+    # box.launch.py, which the tutorial names, was never supplied for this course --
+    # turtlebot3_dqn_stage1 is the permanent stand-in. See lab1.launch.py.
+    width: 0.5
+    height: 0.25
+
+    # Centre of the eight, metres, in the odometry frame. Zero because the box world
+    # starts the robot at the origin and odometry starts there with it.
+    centre_x: 0.0
+    centre_y: 0.0
+
+    # Seconds per lap. The path is 6.097 m long at this width and height, so 50 s is a
+    # mean setpoint speed of 0.122 m/s. The setpoint has to move slower than the robot
+    # can drive, or the controller never catches up and the trajectory plot shows lag
+    # rather than tracking. At 50 s the peak path speed is 0.175 m/s, 80 percent of the
+    # 0.22 limit, and the peak turn rate the path demands is 0.40 rad/s, 14 percent of
+    # the 2.84 limit. Both have headroom, which is the task 2 criterion: commanded
+    # velocity never saturating.
+    #
+    # The turn rate the path asks for is not the turn rate the controller commands. NID
+    # divides the lateral part of the demand by L, so the controller's omega is larger
+    # than the path's own curvature suggests whenever the robot is off the path. The
+    # 0.40 rad/s figure is the floor, not the peak, and the peak is measured in sim.
+    lap_period: 50.0
+
+    # Laps before the node stops advancing and holds the final point. Two, because one
+    # completed lap can be luck and the second one shows it was not.
+    laps: 2
+
+    # How often the setpoint is republished, seconds. 20 Hz, matching the control period,
+    # so the controller gets a fresh goal every tick and never integrates against a stale
+    # one. Cheap: a Pose is 56 bytes.
+    publish_period: 0.05
+
+    # Seconds of stationary setpoint at the start point before the lap begins. Gives the
+    # controller time to drive the robot onto the path from wherever it was parked, so
+    # lap one is tracking rather than a transient. Ten control periods is not enough for
+    # that, three seconds is.
+    start_delay: 3.0
