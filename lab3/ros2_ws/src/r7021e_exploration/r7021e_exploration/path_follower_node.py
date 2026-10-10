@@ -8,6 +8,7 @@ import rclpy
 from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rclpy.signals import SignalHandlerOptions
 from nav_msgs.msg import Path
 from geometry_msgs.msg import TwistStamped, TransformStamped
 from sensor_msgs.msg import LaserScan
@@ -25,7 +26,7 @@ class PathFollower(Node):
         self.declare_parameter('kp_vel', 1.0)
         self.declare_parameter('max_w', 0.6)  # rad/s, faster turns slip in Gazebo
         self.declare_parameter('kp_yaw', 1.0)  # keeps turns while driving under 0.3 rad/s
-        self.declare_parameter('look_ahead', 0.12)  # m, about one waypoint; 0.2 cut corners into walls
+        self.declare_parameter('look_ahead', 0.12)  # m, one waypoint; 0.2 cut corners
         # scan check: forward speed falls to zero as something enters the strip
         self.declare_parameter('stop_distance', 0.18)  # m, forward speed is zero here
         self.declare_parameter('slow_distance', 0.30)  # m, full speed from here
@@ -134,6 +135,9 @@ class PathFollower(Node):
         vel_msg.header.frame_id= self.path_header
 
         if not self.update_robot_pos():
+            self.vel_pub.publish(vel_msg)   # no pose: zero, or the robot keeps its last command
+            self.get_logger().warn('no map -> base_link transform, holding still',
+                                   throttle_duration_sec=5.0)
             return
 
         while len(self.path) > 1:
@@ -198,6 +202,12 @@ class PathFollower(Node):
 
         self.vel_pub.publish(vel_msg)
 
+    def stop(self):
+        '''Publish zero velocity.'''
+        msg = TwistStamped()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        self.vel_pub.publish(msg)
+
     def dist(self, pos1, pos2):
         dx = pos1[0] - pos2[0]
         dy = pos1[1] - pos2[1]
@@ -223,14 +233,18 @@ class PathFollower(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    # No rclpy signal handler: it closes the context on Ctrl-C, and then the stop command
+    # below fails. Python's own handler raises KeyboardInterrupt and the context stays open.
+    rclpy.init(args=args, signal_handler_options=SignalHandlerOptions.NO)
     node = PathFollower()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        node.stop()   # turtlebot3_node keeps the last command, so send zero on the way out
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
