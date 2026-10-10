@@ -180,6 +180,7 @@ class NavigationNode(Node):
                 self.get_logger().info('path is old, planning again')
             elif (now - self.stall_ref[2]).nanoseconds * 1e-9 > self.p['stall_timeout']:
                 self.get_logger().warn('stalled, planning again')
+                self.visited.append(self.goal)           # its frontier stops counting too
             else:
                 return
             self.visited.append(xy)

@@ -1,0 +1,559 @@
+[INFO] [launch]: All log files can be found below /home/dominiques-laptop/.ros/log/2026-10-10-23-34-40-003391-dominiques-laptop-LOQ-15IRX10-63175
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [frontier_detector_node-1]: process started with pid [63192]
+[INFO] [navigation_node-2]: process started with pid [63193]
+[INFO] [path_follower_node-3]: process started with pid [63194]
+[INFO] [async_slam_toolbox_node-5]: process started with pid [63196]
+[async_slam_toolbox_node-5] [INFO] [1791668080.223322992] [slam_toolbox]: Node using stack size 40000000
+[async_slam_toolbox_node-5] [INFO] [1791668080.436065853] [slam_toolbox]: Configuring
+[async_slam_toolbox_node-5] [INFO] [1791668080.439778531] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-5] [INFO] [1791668080.439948431] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[INFO] [launch.user]: [LifecycleLaunch] Slamtoolbox node is activating.
+[async_slam_toolbox_node-5] [INFO] [1791668080.452473974] [slam_toolbox]: Activating
+[async_slam_toolbox_node-5] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-5] [WARN] [1791668080.631232535] [slam_toolbox]: maximum laser range setting (20.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[async_slam_toolbox_node-5] Registering sensor: [Custom Described Lidar]
+[navigation_node-2] [INFO] [1791668084.936131993] [navigation_node]: t=19.0 goal=(0.00, -0.50) H=-9.57 L=0.50 I=103 turn=1.56 nodes=305 known=1.6m2 plan_time=0.10s
+[navigation_node-2] [INFO] [1791668090.841593285] [navigation_node]: arrived at (0.00, -0.50)
+[navigation_node-2] [INFO] [1791668090.968492056] [navigation_node]: t=25.0 goal=(-0.17, -0.72) H=-1.46 L=0.39 I=19 turn=0.29 nodes=410 known=2.2m2 plan_time=0.13s
+[navigation_node-2] [INFO] [1791668092.844763702] [navigation_node]: arrived at (-0.17, -0.72)
+[navigation_node-2] [INFO] [1791668093.011318784] [navigation_node]: t=27.0 goal=(-1.23, -0.92) H=-10.40 L=1.20 I=117 turn=0.63 nodes=574 known=3.0m2 plan_time=0.17s
+[navigation_node-2] [INFO] [1791668100.845791761] [navigation_node]: arrived at (-1.23, -0.92)
+[navigation_node-2] [INFO] [1791668101.008517202] [navigation_node]: t=35.0 goal=(-1.39, -1.02) H=-0.85 L=0.32 I=12 turn=0.20 nodes=575 known=3.6m2 plan_time=0.16s
+[navigation_node-2] [INFO] [1791668101.845677697] [navigation_node]: arrived at (-1.39, -1.02)
+[navigation_node-2] [INFO] [1791668102.019669734] [navigation_node]: t=36.0 goal=(-1.44, -0.97) H=-0.77 L=0.20 I=10 turn=0.15 nodes=591 known=3.6m2 plan_time=0.17s
+[navigation_node-2] [INFO] [1791668102.851155961] [navigation_node]: arrived at (-1.44, -0.97)
+[navigation_node-2] [INFO] [1791668103.035881172] [navigation_node]: t=37.0 goal=(-1.46, -1.94) H=-7.12 L=0.99 I=83 turn=1.30 nodes=662 known=3.8m2 plan_time=0.18s
+[navigation_node-2] [INFO] [1791668110.869892651] [navigation_node]: arrived at (-1.46, -1.94)
+[navigation_node-2] [INFO] [1791668111.076904070] [navigation_node]: t=45.0 goal=(-1.66, -2.31) H=-0.96 L=0.59 I=16 turn=0.28 nodes=719 known=4.8m2 plan_time=0.21s
+[navigation_node-2] [INFO] [1791668113.869988550] [navigation_node]: arrived at (-1.66, -2.31)
+[navigation_node-2] [INFO] [1791668114.065718575] [navigation_node]: t=48.0 goal=(-1.88, -2.46) H=-3.13 L=0.43 I=36 turn=0.26 nodes=715 known=5.0m2 plan_time=0.19s
+[navigation_node-2] [INFO] [1791668115.871024367] [navigation_node]: arrived at (-1.88, -2.46)
+[navigation_node-2] [INFO] [1791668116.076877810] [navigation_node]: t=50.0 goal=(-2.49, -1.97) H=-4.58 L=0.86 I=56 turn=1.09 nodes=758 known=5.5m2 plan_time=0.21s
+[navigation_node-2] [INFO] [1791668122.876459318] [navigation_node]: arrived at (-2.49, -1.97)
+[navigation_node-2] [INFO] [1791668123.123426325] [navigation_node]: t=57.0 goal=(-3.03, -1.23) H=-7.71 L=1.08 I=88 turn=0.09 nodes=867 known=6.4m2 plan_time=0.25s
+[navigation_node-2] [INFO] [1791668128.886211540] [navigation_node]: arrived at (-3.03, -1.23)
+[navigation_node-2] [INFO] [1791668129.126180547] [navigation_node]: t=63.0 goal=(-3.13, -2.08) H=-4.66 L=0.68 I=57 turn=2.36 nodes=918 known=7.1m2 plan_time=0.24s
+[navigation_node-2] [INFO] [1791668137.890130810] [navigation_node]: arrived at (-3.13, -2.08)
+[navigation_node-2] [INFO] [1791668138.144203316] [navigation_node]: t=72.0 goal=(-2.58, -0.53) H=-1.76 L=1.59 I=38 turn=3.03 nodes=912 known=8.7m2 plan_time=0.25s
+[navigation_node-2] [INFO] [1791668153.913468981] [navigation_node]: arrived at (-2.58, -0.53)
+[navigation_node-2] [INFO] [1791668154.156861825] [navigation_node]: t=88.0 goal=(-2.03, 0.16) H=-7.78 L=1.02 I=88 turn=0.01 nodes=964 known=9.8m2 plan_time=0.24s
+[navigation_node-2] [INFO] [1791668159.919883690] [navigation_node]: arrived at (-2.03, 0.16)
+[navigation_node-2] [INFO] [1791668160.160332162] [navigation_node]: t=94.0 goal=(-1.28, 0.91) H=-3.97 L=1.18 I=52 turn=0.31 nodes=1005 known=10.9m2 plan_time=0.24s
+[navigation_node-2] [INFO] [1791668166.929521091] [navigation_node]: arrived at (-1.28, 0.91)
+[navigation_node-2] [INFO] [1791668167.166961489] [navigation_node]: t=101.0 goal=(-2.63, 0.76) H=-7.81 L=1.24 I=94 turn=2.30 nodes=1000 known=12.0m2 plan_time=0.24s
+[navigation_node-2] [INFO] [1791668178.932632111] [navigation_node]: arrived at (-2.63, 0.76)
+[navigation_node-2] [INFO] [1791668179.188185623] [navigation_node]: t=113.0 goal=(-3.19, 0.86) H=-2.18 L=0.70 I=29 turn=0.14 nodes=1007 known=13.2m2 plan_time=0.25s
+[navigation_node-2] [INFO] [1791668182.941999242] [navigation_node]: arrived at (-3.19, 0.86)
+[navigation_node-2] [INFO] [1791668183.163635432] [navigation_node]: t=117.0 goal=(-3.34, 0.81) H=-3.49 L=0.26 I=38 turn=0.32 nodes=942 known=13.4m2 plan_time=0.22s
+[navigation_node-2] [INFO] [1791668183.942134782] [navigation_node]: arrived at (-3.34, 0.81)
+[navigation_node-2] [INFO] [1791668184.118869047] [navigation_node]: t=118.0 goal=(-3.30, 0.36) H=-4.40 L=0.51 I=51 turn=1.28 nodes=827 known=14.0m2 plan_time=0.18s
+[navigation_node-2] [INFO] [1791668188.946400793] [navigation_node]: arrived at (-3.30, 0.36)
+[navigation_node-2] [INFO] [1791668189.173239415] [navigation_node]: t=123.0 goal=(-0.86, 0.60) H=0.69 L=2.48 I=21 turn=2.04 nodes=1038 known=14.1m2 plan_time=0.23s
+[navigation_node-2] [INFO] [1791668208.985954075] [navigation_node]: arrived at (-0.86, 0.60)
+[navigation_node-2] [INFO] [1791668209.205982072] [navigation_node]: t=143.0 goal=(-0.70, 0.51) H=-1.30 L=0.28 I=16 turn=0.16 nodes=978 known=14.3m2 plan_time=0.22s
+[navigation_node-2] [INFO] [1791668209.987778630] [navigation_node]: arrived at (-0.70, 0.51)
+[navigation_node-2] [INFO] [1791668210.241014986] [navigation_node]: t=144.0 goal=(-0.71, 0.41) H=-0.79 L=0.23 I=11 turn=0.53 nodes=1063 known=14.5m2 plan_time=0.25s
+[navigation_node-2] [INFO] [1791668210.990153122] [navigation_node]: arrived at (-0.71, 0.41)
+[navigation_node-2] [INFO] [1791668211.229508566] [navigation_node]: t=145.0 goal=(-0.71, 0.36) H=-0.81 L=0.23 I=11 turn=0.40 nodes=1045 known=14.5m2 plan_time=0.24s
+[navigation_node-2] [INFO] [1791668211.992230283] [navigation_node]: arrived at (-0.71, 0.36)
+[navigation_node-2] [INFO] [1791668212.225890450] [navigation_node]: t=146.0 goal=(-2.56, 0.96) H=2.14 L=1.86 I=1 turn=2.48 nodes=1019 known=14.5m2 plan_time=0.23s
+[navigation_node-2] [INFO] [1791668228.008884190] [navigation_node]: arrived at (-2.56, 0.96)
+[navigation_node-2] [INFO] [1791668228.258428659] [navigation_node]: t=162.0 goal=(-2.66, 0.96) H=0.17 L=0.26 I=1 turn=0.08 nodes=1041 known=14.5m2 plan_time=0.25s
+[navigation_node-2] [INFO] [1791668229.008845837] [navigation_node]: arrived at (-2.66, 0.96)
+[navigation_node-2] [INFO] [1791668229.278513716] [navigation_node]: t=163.0 goal=(-3.11, 1.01) H=0.28 L=0.56 I=3 turn=0.11 nodes=1101 known=14.5m2 plan_time=0.27s
+[navigation_node-2] [INFO] [1791668232.018725014] [navigation_node]: arrived at (-3.11, 1.01)
+[navigation_node-2] [INFO] [1791668232.245536547] [navigation_node]: t=166.0 goal=(-3.21, 1.01) H=0.04 L=0.23 I=2 turn=0.04 nodes=976 known=14.5m2 plan_time=0.23s
+[navigation_node-2] [INFO] [1791668233.019904192] [navigation_node]: arrived at (-3.21, 1.01)
+[navigation_node-2] [INFO] [1791668233.222291852] [navigation_node]: t=167.0 goal=(-3.26, 1.16) H=0.03 L=0.22 I=3 turn=0.73 nodes=928 known=14.5m2 plan_time=0.20s
+[navigation_node-2] [INFO] [1791668235.019962825] [navigation_node]: arrived at (-3.26, 1.16)
+[navigation_node-2] [INFO] [1791668235.212066765] [navigation_node]: t=169.0 goal=(-3.01, -2.89) H=4.35 L=5.56 I=16 turn=2.61 nodes=937 known=14.5m2 plan_time=0.19s
+[path_follower_node-3] [WARN] [1791668243.242738061] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668248.437306984] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668253.643319866] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668255.042655433] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668255.268644088] [navigation_node]: t=189.0 goal=(-3.01, -2.84) H=3.72 L=5.32 I=16 turn=0.00 nodes=1007 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668259.292240986] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668265.101393223] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668270.722525454] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668276.123698219] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668277.125799355] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668277.379097661] [navigation_node]: t=211.0 goal=(-3.06, -2.89) H=3.76 L=5.36 I=16 turn=0.04 nodes=1081 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791668281.329383519] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668286.140810091] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668286.357785816] [navigation_node]: t=220.0 goal=(-2.96, -2.89) H=3.83 L=5.43 I=16 turn=0.03 nodes=984 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668286.743853027] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668292.347088117] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668297.949788426] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668303.549758061] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791668307.149549330] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668307.401713447] [navigation_node]: t=241.0 goal=(-3.06, -2.94) H=3.77 L=5.37 I=16 turn=0.00 nodes=1058 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791668309.152561018] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668314.352535172] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668319.362398923] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668324.563770810] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668330.164087125] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668331.167384756] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668331.372649631] [navigation_node]: t=265.0 goal=(-3.11, -2.94) H=3.84 L=5.43 I=16 turn=0.04 nodes=954 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791668335.167575210] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668340.375771297] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668345.778036335] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668351.178837878] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668352.178567210] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668352.397140562] [navigation_node]: t=286.0 goal=(-2.96, -2.89) H=3.91 L=5.51 I=16 turn=0.01 nodes=998 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668356.781496861] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668361.182286648] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668361.427970730] [navigation_node]: t=295.0 goal=(-3.06, -2.84) H=3.78 L=5.28 I=15 turn=0.03 nodes=1056 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791668362.383196372] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668367.592919047] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668372.793071166] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668374.194704937] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668374.433894753] [navigation_node]: t=308.0 goal=(-3.08, -2.87) H=3.82 L=5.42 I=16 turn=0.03 nodes=1037 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668378.199225124] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668384.011135827] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668389.419941630] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668394.622711517] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668399.828096536] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668401.233975425] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668401.482532250] [navigation_node]: t=335.0 goal=(-3.06, -2.94) H=3.88 L=5.47 I=16 turn=0.03 nodes=1077 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791668405.440618108] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668410.640801088] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668416.051826327] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668417.252866876] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668417.473364964] [navigation_node]: t=351.0 goal=(-3.06, -2.84) H=3.81 L=5.31 I=15 turn=0.00 nodes=1000 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668421.463125875] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668426.882474528] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668432.286523036] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668433.286345815] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668433.515629535] [navigation_node]: t=367.0 goal=(-3.01, -2.84) H=3.76 L=5.36 I=16 turn=0.00 nodes=996 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668437.691214135] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668442.319716406] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668442.545395327] [navigation_node]: t=376.0 goal=(-3.06, -2.94) H=3.86 L=5.46 I=16 turn=0.00 nodes=977 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668443.124173858] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668448.357902304] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668453.759233546] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668459.163413934] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791668462.366351749] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668462.584840146] [navigation_node]: t=396.0 goal=(-3.11, -2.99) H=3.84 L=5.44 I=16 turn=0.00 nodes=990 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668464.766537009] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668470.377968437] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668475.780284578] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668482.187179119] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791668484.393633255] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668484.579707303] [navigation_node]: t=418.0 goal=(-3.01, -2.94) H=3.90 L=5.50 I=16 turn=0.00 nodes=898 known=14.5m2 plan_time=0.19s
+[path_follower_node-3] [WARN] [1791668487.593760596] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668492.795034415] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668498.409282231] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668499.410182661] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668499.649066630] [navigation_node]: t=433.0 goal=(-3.06, -2.89) H=3.77 L=5.36 I=16 turn=0.06 nodes=1051 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668503.620093599] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668508.422418672] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668508.646358075] [navigation_node]: t=442.0 goal=(-3.06, -2.89) H=3.74 L=5.33 I=16 turn=0.07 nodes=971 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668508.824109398] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668514.427559794] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668519.842411320] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668525.256494608] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668526.459997474] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668526.669599534] [navigation_node]: t=460.0 goal=(-2.96, -2.89) H=3.79 L=5.39 I=16 turn=0.00 nodes=962 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791668530.865620147] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668536.280247271] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668541.685920823] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668547.087529641] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668552.301672966] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668553.500725430] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668553.724738225] [navigation_node]: t=487.0 goal=(-3.01, -2.94) H=3.85 L=5.45 I=16 turn=0.04 nodes=1026 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668557.509221679] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668562.909272496] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668568.112805096] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668573.522417731] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791668575.526733940] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668575.711086850] [navigation_node]: t=509.0 goal=(-3.06, -2.94) H=3.84 L=5.43 I=16 turn=0.04 nodes=887 known=14.5m2 plan_time=0.18s
+[path_follower_node-3] [WARN] [1791668579.128550283] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668584.737367369] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668585.540268704] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668585.775064751] [navigation_node]: t=519.0 goal=(-3.06, -2.89) H=3.79 L=5.39 I=16 turn=0.00 nodes=1041 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668589.942795260] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668594.542558372] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668594.789520100] [navigation_node]: t=528.0 goal=(-2.96, -2.94) H=3.85 L=5.45 I=16 turn=0.04 nodes=1028 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791668595.346474082] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668600.547532466] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668605.758944268] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668611.199398269] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668616.637895270] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668617.637824945] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668617.863810454] [navigation_node]: t=551.0 goal=(-3.01, -2.89) H=3.79 L=5.39 I=16 turn=0.03 nodes=1004 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668622.243766491] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668627.864801163] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668628.664830187] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668628.853027792] [navigation_node]: t=562.0 goal=(-3.06, -2.94) H=3.84 L=5.44 I=16 turn=0.04 nodes=918 known=14.5m2 plan_time=0.19s
+[path_follower_node-3] [WARN] [1791668633.279599365] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668637.694351062] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668637.926005935] [navigation_node]: t=571.0 goal=(-3.06, -2.84) H=3.81 L=5.29 I=15 turn=0.14 nodes=1015 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668638.697179362] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668644.102682758] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668649.510032253] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668654.930757167] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791668658.744287333] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668659.017734670] [navigation_node]: t=592.0 goal=(-3.11, -2.99) H=3.91 L=5.50 I=16 turn=0.11 nodes=1072 known=14.5m2 plan_time=0.27s
+[path_follower_node-3] [WARN] [1791668660.547917837] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668665.768119178] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668671.575277659] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668677.181494682] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791668678.781321681] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668679.026368763] [navigation_node]: t=612.0 goal=(-3.11, -2.94) H=3.93 L=5.51 I=16 turn=0.08 nodes=1058 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668682.781349068] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668688.216379963] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668693.840728638] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668699.044075251] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [INFO] [1791668700.858559252] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668701.058160389] [navigation_node]: t=634.0 goal=(-3.01, -2.89) H=3.83 L=5.43 I=16 turn=0.04 nodes=922 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791668704.461219299] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668710.065997784] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668710.865811226] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668711.085033213] [navigation_node]: t=644.0 goal=(-3.06, -2.84) H=3.89 L=5.38 I=15 turn=0.04 nodes=998 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668715.476825887] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668721.078633139] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668726.701306233] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668732.110139933] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791668733.911839817] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668734.164544954] [navigation_node]: t=667.0 goal=(-2.96, -2.89) H=3.89 L=5.49 I=16 turn=0.00 nodes=1077 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791668737.720366260] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668743.520159936] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668748.953960787] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668749.953756019] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668750.183856361] [navigation_node]: t=683.0 goal=(-3.07, -2.81) H=3.81 L=5.31 I=15 turn=0.01 nodes=1047 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668754.758437452] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668759.973511625] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668765.579707227] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668771.185412773] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668771.985553777] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668772.221956832] [navigation_node]: t=705.0 goal=(-3.16, -2.94) H=3.83 L=5.42 I=16 turn=0.03 nodes=1039 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668776.396246622] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668781.635396619] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791668783.034927462] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668783.275481238] [navigation_node]: t=716.0 goal=(-3.21, -2.99) H=3.93 L=5.52 I=16 turn=0.04 nodes=1042 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668787.037281610] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668792.445678902] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668798.066093931] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668799.066016462] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668799.332635693] [navigation_node]: t=732.0 goal=(-3.06, -2.84) H=3.86 L=5.35 I=15 turn=0.04 nodes=1109 known=14.5m2 plan_time=0.27s
+[path_follower_node-3] [WARN] [1791668803.466376309] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791668808.466128820] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668814.069392789] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668819.469518583] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791668824.684960830] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668826.084083765] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668826.297406641] [navigation_node]: t=759.0 goal=(-3.16, -2.89) H=3.98 L=5.48 I=15 turn=0.00 nodes=970 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791668830.089254415] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668835.494262728] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668840.702482127] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668846.110424658] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791668848.118323852] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668848.352335160] [navigation_node]: t=781.0 goal=(-2.96, -2.89) H=3.91 L=5.51 I=16 turn=0.05 nodes=1038 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668851.123560613] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668856.528266724] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668861.929592256] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668867.141293252] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791668869.141324616] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791668869.378728455] [navigation_node]: t=802.0 goal=(-3.06, -2.79) H=3.95 L=5.35 I=14 turn=0.00 nodes=1069 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668872.346981629] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668878.146415038] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668883.547520443] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668888.547541909] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668890.149531389] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668890.376266806] [navigation_node]: t=823.0 goal=(-3.06, -2.89) H=3.86 L=5.46 I=16 turn=0.02 nodes=1006 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668893.954339512] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791668899.754262069] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668904.955356943] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668906.155654452] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668906.360991616] [navigation_node]: t=839.0 goal=(-3.16, -2.93) H=3.89 L=5.49 I=16 turn=0.03 nodes=960 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791668910.156406349] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668915.558681187] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791668921.161515820] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791668922.161037032] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668922.373532494] [navigation_node]: t=855.0 goal=(-3.06, -2.89) H=3.84 L=5.43 I=16 turn=0.04 nodes=958 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791668926.364332844] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668931.168666381] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668931.392701523] [navigation_node]: t=864.0 goal=(-3.06, -2.84) H=3.79 L=5.29 I=15 turn=0.04 nodes=999 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791668931.969321035] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668937.171962949] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668942.374108462] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668948.775516020] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668954.176372168] [navigation_node]: stalled, planning again
+[path_follower_node-3] [WARN] [1791668954.176563459] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791668954.413504627] [navigation_node]: t=887.0 goal=(-3.06, -2.94) H=3.77 L=5.37 I=16 turn=0.00 nodes=1038 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791668959.577124150] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668965.181493322] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668966.182922955] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668966.418291883] [navigation_node]: t=899.0 goal=(-3.06, -2.89) H=3.77 L=5.37 I=16 turn=0.00 nodes=1043 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791668970.390916408] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668975.791939636] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668980.798922861] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791668982.198602718] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791668982.402826778] [navigation_node]: t=915.0 goal=(-2.96, -2.89) H=3.91 L=5.51 I=16 turn=0.00 nodes=959 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791668986.403638221] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668992.005458133] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791668997.204612042] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669002.804650558] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669008.609270264] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669009.209251181] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669009.433248483] [navigation_node]: t=942.0 goal=(-3.06, -2.89) H=3.82 L=5.41 I=16 turn=0.06 nodes=994 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669014.011702806] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669019.219701476] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669024.620818627] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669030.020689109] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669031.220446084] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669031.470124174] [navigation_node]: t=964.0 goal=(-2.96, -2.89) H=3.91 L=5.50 I=16 turn=0.05 nodes=1092 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791669035.422273365] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669040.822372007] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669046.026150936] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791669047.229939512] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669047.428652649] [navigation_node]: t=980.0 goal=(-3.06, -2.84) H=3.88 L=5.38 I=15 turn=0.00 nodes=909 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791669051.432442634] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669057.235672707] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669062.436745359] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669067.636682066] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669072.842468713] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669074.242245906] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669074.475092839] [navigation_node]: t=1007.0 goal=(-3.11, -2.94) H=3.89 L=5.49 I=16 turn=0.00 nodes=1014 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669078.247179746] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669083.647154016] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669089.449578364] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669094.650631512] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791669096.250289411] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669096.456672678] [navigation_node]: t=1029.0 goal=(-2.96, -2.89) H=3.86 L=5.46 I=16 turn=0.03 nodes=934 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669100.253027591] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669105.659936448] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669111.060210623] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669112.259648976] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669112.498521704] [navigation_node]: t=1045.0 goal=(-3.03, -2.83) H=3.82 L=5.41 I=16 turn=0.08 nodes=1048 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669116.659840051] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669122.059875447] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669127.464561896] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669132.867938007] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669138.468923292] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669139.269867469] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669139.490762991] [navigation_node]: t=1072.0 goal=(-3.11, -2.99) H=3.93 L=5.53 I=16 turn=0.02 nodes=978 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669143.870205185] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669148.271658022] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669148.510036714] [navigation_node]: t=1081.0 goal=(-3.01, -2.89) H=3.84 L=5.44 I=16 turn=0.04 nodes=1038 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669149.471545620] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669154.873765363] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669160.275292045] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669161.274695605] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669161.474879820] [navigation_node]: t=1094.0 goal=(-3.16, -2.94) H=3.91 L=5.50 I=16 turn=0.03 nodes=929 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791669166.079409634] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669170.285359003] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669170.502353738] [navigation_node]: t=1103.0 goal=(-3.03, -2.86) H=3.75 L=5.35 I=16 turn=0.00 nodes=976 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669171.285678914] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669176.693397098] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669182.093386907] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669183.293089514] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669183.549268424] [navigation_node]: t=1116.0 goal=(-3.01, -2.94) H=3.91 L=5.51 I=16 turn=0.00 nodes=1108 known=14.5m2 plan_time=0.26s
+[path_follower_node-3] [WARN] [1791669187.293552035] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669192.494497061] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669198.295798212] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669203.696243293] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791669205.295699287] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669205.549620732] [navigation_node]: t=1138.0 goal=(-3.06, -2.89) H=3.86 L=5.46 I=16 turn=0.00 nodes=1051 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791669209.102721466] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669214.902870490] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669220.103901473] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669221.303730015] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669221.532409630] [navigation_node]: t=1154.0 goal=(-2.96, -2.89) H=3.86 L=5.46 I=16 turn=0.00 nodes=996 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669225.517728762] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669230.920558949] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669236.320245840] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791669237.320062412] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669237.557662171] [navigation_node]: t=1170.0 goal=(-3.06, -2.94) H=3.90 L=5.50 I=16 turn=0.00 nodes=1029 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669241.720591321] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669247.122453820] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669252.523372467] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669258.325433902] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791669260.326455715] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669260.553015850] [navigation_node]: t=1193.0 goal=(-3.01, -2.89) H=3.85 L=5.44 I=16 turn=0.00 nodes=1002 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669263.533550748] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669268.737158457] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669274.136293262] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669275.336687291] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669275.570174391] [navigation_node]: t=1208.0 goal=(-3.11, -2.94) H=3.87 L=5.47 I=16 turn=0.00 nodes=1015 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669279.744016686] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669284.357504409] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669284.565289184] [navigation_node]: t=1217.0 goal=(-3.01, -2.94) H=3.79 L=5.38 I=16 turn=0.03 nodes=967 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669285.157875075] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669290.357639303] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669296.158112291] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669301.557589357] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791669304.357419583] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669304.596376176] [navigation_node]: t=1237.0 goal=(-3.01, -2.89) H=3.81 L=5.41 I=16 turn=0.03 nodes=1027 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669306.958181650] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669312.358910324] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669313.358611600] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669313.563905357] [navigation_node]: t=1246.0 goal=(-3.06, -2.94) H=3.87 L=5.47 I=16 turn=0.00 nodes=943 known=14.5m2 plan_time=0.20s
+[path_follower_node-3] [WARN] [1791669317.758720686] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669323.162438608] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669324.363095165] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669324.604093008] [navigation_node]: t=1257.0 goal=(-3.02, -2.87) H=3.82 L=5.41 I=16 turn=0.10 nodes=1044 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669328.363298882] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669333.971806652] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669339.371812366] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669344.772337637] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791669346.373136528] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669346.606652160] [navigation_node]: t=1279.0 goal=(-3.06, -2.84) H=3.92 L=5.41 I=15 turn=0.04 nodes=1037 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669350.185714170] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669355.398248180] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669360.599050852] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669365.999014386] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669371.802651927] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669372.402587509] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669372.610088185] [navigation_node]: t=1305.0 goal=(-3.11, -2.89) H=3.94 L=5.44 I=15 turn=0.00 nodes=945 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669377.204025925] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669382.605455578] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669387.807183926] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669393.414589971] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669394.414502671] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669394.635554748] [navigation_node]: t=1327.0 goal=(-3.11, -2.94) H=3.84 L=5.44 I=16 turn=0.00 nodes=1005 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669398.814832783] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791669403.418335030] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669403.624536868] [navigation_node]: t=1336.0 goal=(-3.06, -2.92) H=3.85 L=5.43 I=16 turn=0.15 nodes=961 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669404.218618939] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669409.618392343] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669414.420584699] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669414.631046884] [navigation_node]: t=1347.0 goal=(-3.06, -2.84) H=3.87 L=5.35 I=15 turn=0.13 nodes=974 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669415.820939999] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669421.625200551] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[path_follower_node-3] [WARN] [1791669426.825323859] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669432.446875329] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791669433.446613441] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669433.626410715] [navigation_node]: t=1366.0 goal=(-2.96, -2.89) H=3.93 L=5.51 I=16 turn=0.09 nodes=848 known=14.5m2 plan_time=0.18s
+[path_follower_node-3] [WARN] [1791669437.647311072] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791669442.446650288] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669442.663445856] [navigation_node]: t=1375.0 goal=(-2.96, -2.89) H=3.85 L=5.44 I=16 turn=0.04 nodes=987 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669443.047181229] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669448.446852900] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669453.647092899] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669459.051239174] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669464.453348510] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669465.453686344] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669465.693892176] [navigation_node]: t=1398.0 goal=(-3.01, -2.94) H=3.87 L=5.47 I=16 turn=0.00 nodes=1043 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669469.853400680] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669475.259948769] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669480.668292862] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669485.872223899] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669491.071702048] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669492.471557909] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669492.702429755] [navigation_node]: t=1425.0 goal=(-3.01, -2.84) H=3.79 L=5.38 I=16 turn=0.01 nodes=1034 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669496.272832333] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669501.472126212] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669506.875323565] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669512.078800867] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669513.478983918] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669513.727008395] [navigation_node]: t=1446.0 goal=(-3.01, -2.84) H=3.81 L=5.41 I=16 turn=0.01 nodes=1032 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791669517.490640267] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669523.096245480] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669528.298392398] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669529.498293631] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669529.687019417] [navigation_node]: t=1462.0 goal=(-3.06, -2.84) H=3.90 L=5.40 I=15 turn=0.02 nodes=930 known=14.5m2 plan_time=0.19s
+[path_follower_node-3] [WARN] [1791669533.698417937] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669539.098402475] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669544.505336254] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669545.505206971] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669545.726904720] [navigation_node]: t=1478.0 goal=(-2.96, -2.89) H=3.89 L=5.48 I=16 turn=0.06 nodes=1037 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669549.706655050] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669554.508404967] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669554.728432920] [navigation_node]: t=1487.0 goal=(-3.06, -2.89) H=3.78 L=5.37 I=16 turn=0.06 nodes=969 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669555.508555139] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669561.930794248] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669567.141512990] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669567.541427436] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669567.773943987] [navigation_node]: t=1500.0 goal=(-3.09, -2.82) H=3.85 L=5.35 I=15 turn=0.00 nodes=1029 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669573.146277741] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669578.550598485] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669583.754673439] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669588.978964201] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669594.580124840] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669595.579936955] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669595.822811034] [navigation_node]: t=1528.0 goal=(-3.06, -2.89) H=3.84 L=5.43 I=16 turn=0.08 nodes=1036 known=14.5m2 plan_time=0.24s
+[path_follower_node-3] [WARN] [1791669599.982976217] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669605.587135050] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669606.586919407] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669606.820074495] [navigation_node]: t=1539.0 goal=(-3.01, -2.94) H=3.87 L=5.47 I=16 turn=0.02 nodes=1018 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669610.989353194] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669616.189688345] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669621.592971633] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669626.993263527] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791669628.592731424] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669628.780459460] [navigation_node]: t=1561.0 goal=(-3.19, -2.97) H=3.97 L=5.57 I=16 turn=0.01 nodes=916 known=14.5m2 plan_time=0.19s
+[path_follower_node-3] [WARN] [1791669632.399917120] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669637.799636148] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669643.603210115] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669649.204423982] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669655.205803521] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [WARN] [1791669655.612327637] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669655.895887324] [navigation_node]: t=1588.0 goal=(-2.96, -2.89) H=3.87 L=5.47 I=16 turn=0.01 nodes=1046 known=14.5m2 plan_time=0.28s
+[path_follower_node-3] [WARN] [1791669660.615569287] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669666.018580753] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669671.419695182] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669672.619938542] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669672.852094281] [navigation_node]: t=1605.0 goal=(-2.96, -2.89) H=3.88 L=5.48 I=16 turn=0.00 nodes=979 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669676.829123790] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669682.230252358] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669687.630277196] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669688.630108080] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669688.882103823] [navigation_node]: t=1621.0 goal=(-3.06, -2.89) H=3.85 L=5.45 I=16 turn=0.01 nodes=1087 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791669692.833871461] [path_follower_node]: blocked ahead at 0.16 m, backing off
+[navigation_node-2] [WARN] [1791669697.637125457] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669697.832416443] [navigation_node]: t=1630.0 goal=(-3.06, -2.89) H=3.82 L=5.42 I=16 turn=0.00 nodes=936 known=14.5m2 plan_time=0.19s
+[path_follower_node-3] [WARN] [1791669698.037733097] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669703.237379319] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669708.637487589] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669714.037320988] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[navigation_node-2] [INFO] [1791669717.637143320] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669717.859538557] [navigation_node]: t=1650.0 goal=(-3.10, -2.88) H=3.85 L=5.45 I=16 turn=0.01 nodes=988 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669719.237363736] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669724.638439207] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669729.838603112] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669735.039555206] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669740.443480270] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669741.643018756] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669741.863928096] [navigation_node]: t=1674.0 goal=(-3.11, -2.94) H=3.90 L=5.50 I=16 turn=0.03 nodes=988 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669746.051585319] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669751.253733014] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669756.653851540] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669761.862863582] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [INFO] [1791669763.662738515] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669763.897369859] [navigation_node]: t=1696.0 goal=(-3.06, -2.89) H=3.88 L=5.48 I=16 turn=0.03 nodes=1035 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669767.262933912] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669773.262882305] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669773.662903262] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669773.871262630] [navigation_node]: t=1706.0 goal=(-3.01, -2.89) H=3.81 L=5.41 I=16 turn=0.00 nodes=985 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669779.062983827] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669784.264535039] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669789.666964083] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669795.082568630] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669800.282311989] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669801.683641608] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669801.901661679] [navigation_node]: t=1734.0 goal=(-3.06, -2.89) H=3.90 L=5.50 I=16 turn=0.03 nodes=996 known=14.5m2 plan_time=0.22s
+[path_follower_node-3] [WARN] [1791669805.686494754] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669811.286502939] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669816.687877202] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [WARN] [1791669817.687397250] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669817.918367323] [navigation_node]: t=1750.0 goal=(-2.98, -2.87) H=3.91 L=5.51 I=16 turn=0.03 nodes=1023 known=14.5m2 plan_time=0.23s
+[path_follower_node-3] [WARN] [1791669821.887508058] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669826.687334485] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669826.940525806] [navigation_node]: t=1759.0 goal=(-3.06, -2.84) H=3.86 L=5.36 I=15 turn=0.03 nodes=1098 known=14.5m2 plan_time=0.25s
+[path_follower_node-3] [WARN] [1791669827.487365143] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669832.690845431] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669837.890786236] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669843.491315257] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[navigation_node-2] [INFO] [1791669846.690664863] [navigation_node]: path is old, planning again
+[navigation_node-2] [INFO] [1791669846.900536237] [navigation_node]: t=1779.0 goal=(-3.11, -2.94) H=3.84 L=5.44 I=16 turn=0.01 nodes=984 known=14.5m2 plan_time=0.21s
+[path_follower_node-3] [WARN] [1791669848.890737389] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669853.892618054] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669859.096533173] [path_follower_node]: blocked ahead at 0.19 m, backing off
+[path_follower_node-3] [WARN] [1791669864.503430923] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[navigation_node-2] [WARN] [1791669865.703219152] [navigation_node]: stalled, planning again
+[navigation_node-2] [INFO] [1791669865.968764085] [navigation_node]: t=1798.0 goal=(-3.06, -2.94) H=3.88 L=5.48 I=16 turn=0.00 nodes=1108 known=14.5m2 plan_time=0.26s
+[path_follower_node-3] [WARN] [1791669869.904958763] [path_follower_node]: blocked ahead at 0.17 m, backing off
+[path_follower_node-3] [WARN] [1791669875.310900307] [path_follower_node]: blocked ahead at 0.18 m, backing off
+[path_follower_node-3] [WARN] [1791669880.716577675] [path_follower_node]: blocked ahead at 0.18 m, backing off
