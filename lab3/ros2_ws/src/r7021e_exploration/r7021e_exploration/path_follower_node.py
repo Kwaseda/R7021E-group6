@@ -25,7 +25,7 @@ class PathFollower(Node):
         self.declare_parameter('kp_vel', 1.0)
         self.declare_parameter('max_w', 1.0)  # rad/s
         self.declare_parameter('kp_yaw', 2.0)
-        self.declare_parameter('look_ahead', 0.2)  # m
+        self.declare_parameter('look_ahead', 0.12)  # m, about one waypoint; 0.2 cut corners into walls
         # scan check: forward speed falls to zero as something enters the strip
         self.declare_parameter('stop_distance', 0.18)  # m, forward speed is zero here
         self.declare_parameter('slow_distance', 0.30)  # m, full speed from here
