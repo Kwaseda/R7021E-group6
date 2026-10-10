@@ -217,3 +217,26 @@ those himself on Sunday evening.
 Not known yet: the time of the oral, whether the real robot is available, and whether slides are
 needed. The RViz map colours are not read from the `.rviz` file (`Color Scheme: map` is the RViz
 default). Check them in the first Gazebo run and fix the table in `ORAL.md`.
+
+## 2026-10-10: the planner publishes its inflated map
+
+### What we did
+
+- `navigation_node` publishes `/inflated_map` (`OccupancyGrid`) each time it plans. A cell is 100
+  where the map is known and the robot centre may not go: a wall or the padding around it. All
+  other cells are 0. RViz shows it as "Inflated map", colour scheme costmap, alpha 0.5.
+- Why: Task 3 needs proof of how close the path runs to a wall. The path, the padding and the
+  wall are now in one view, live and in the bag.
+- Idea from another team's lab 3, which also publishes an inflated map. We wrote our own from
+  the mask the planner already uses. No code was copied.
+
+### What we checked [desk]
+
+- A fake 20 x 10 map with a wall 2 cells thick gives 8 blocked cells in a row: the wall and 3
+  cells of padding on each side. Unknown cells stay 0.
+
+### What is still not tested
+
+- How the costmap colours look over the map in RViz. If the layer hides the map, lower its alpha.
+- Add `/inflated_map`, `/rrt_tree` and `/goal_marker` to the bag record line. Without them the
+  replay video cannot show them.

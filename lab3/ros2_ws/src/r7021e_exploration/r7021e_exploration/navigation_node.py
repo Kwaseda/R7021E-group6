@@ -354,6 +354,7 @@ class PathPlannerNode(Node):
         self.path_pub = self.create_publisher(Path, self.p['path_topic'], default_qos)
         self.tree_pub = self.create_publisher(Marker, 'rrt_tree', default_qos)
         self.goal_pub = self.create_publisher(Marker, 'goal_marker', default_qos)
+        self.inflated_pub = self.create_publisher(OccupancyGrid, 'inflated_map', default_qos)
 
         # Subscribers
         self.map_sub = self.create_subscription(
@@ -491,6 +492,7 @@ class PathPlannerNode(Node):
         robot = (start[0], start[1])
         grid = Grid(map_msg)
         mask = planning_mask(grid, prm['inflation_radius'], prm['occupied_threshold'])
+        self._publish_inflated(map_msg, grid, mask)
 
         # The robot is often inside the wall padding. Root the tree at the nearest free cell.
         root = robot if is_free(mask, grid, robot[0], robot[1]) \
@@ -554,6 +556,18 @@ class PathPlannerNode(Node):
         return self._make_path(densify(path, prm['waypoint_spacing']))
 
     # ----------------- Messages -----------------
+
+    def _publish_inflated(self, map_msg: OccupancyGrid, grid: Grid, mask: np.ndarray) -> None:
+        """Publish the walls and the padding that the planner used: 100 there, 0 elsewhere.
+
+        It changes only when the node plans, so it shows what the last plan saw.
+        """
+        out = OccupancyGrid()
+        out.header = map_msg.header
+        out.info = map_msg.info
+        blocked = (grid.data >= 0) & ~mask       # known cells the robot centre may not use
+        out.data = np.where(blocked, 100, 0).astype(np.int8).ravel().tolist()
+        self.inflated_pub.publish(out)
 
     def _make_path(self, points) -> Path:
         msg = Path()
