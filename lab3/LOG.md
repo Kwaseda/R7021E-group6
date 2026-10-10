@@ -324,3 +324,5 @@ himself. All numbers are [gazebo] unless marked. Table of all runs:
 - Follower scan check off (`stop_distance` 0.0, `slow_distance` 0.01), not committed: 2 of 2
   small runs full (15.1 and 15.0 m2), 0 back-offs, closest 0.107 m. One big run still running.
   Decision for Dominic: see `STUDY/WHY.md`.
+- Big maze with the scan check off: SLAM error 2.62 m, and the robot centre came 0.038 m from
+  a wall (contact). The scan check stays on. Kept as committed.

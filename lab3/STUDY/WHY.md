@@ -57,11 +57,11 @@ graded part. Say so if asked.
 - Set the robot clock first (`RUNSHEET.md`). The Lab 1 robot was 325 days behind.
 - Keep the stop command ready. Bad Wi-Fi delayed data up to 3.6 s in Lab 1. Use `max_v` 0.10 then.
 
-## Open question for you to decide
+## Why the follower keeps its scan check
 
-With the follower's scan check off (`stop_distance` 0.0, `slow_distance` 0.01), both small
-maze runs explored fully, with zero back-offs, and the robot came no closer than 0.107 m to a wall
-(half width 0.089 m). With it on: 4 of 4 full as well. The lab's own T3 answer is map
-inflation alone. Turning the check off and deleting the back-off code makes the follower much
-simpler. The cost: no reactive stop if the SLAM pose is wrong on the real robot. One big-maze run
-of this was still going when the session ended: `results/2026-10-10-lab3_maze-noscan-1`.
+With the scan check off (`stop_distance` 0.0, `slow_distance` 0.01), the small maze was explored
+fully in 2 of 2 runs. In the big maze the SLAM pose went 2.6 m wrong, and the robot hit a wall:
+its centre came 0.038 m from a wall, and the Burger's half width is 0.089 m. Map inflation only
+helps while the pose is right. The scan check uses the laser directly, so it still works when
+the pose is wrong. That is why both stay. If the teacher asks why there are two layers, this run
+is the answer: `results/2026-10-10-lab3_maze-noscan-1`.
