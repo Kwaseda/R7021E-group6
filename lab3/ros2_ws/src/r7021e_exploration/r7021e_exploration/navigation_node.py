@@ -31,6 +31,7 @@ DEFAULTS = {
     'stall_timeout': 8.0,        # ... within this many seconds
     'max_path_age': 20.0,        # s, then plan again
     'max_empty_cycles': 10,      # cycles with no goal before we stop
+    'stall_retries': 2,          # rounds in which stalled goals get another chance first
     'retire_radius': 0.30,       # m around a crossed-off goal
     # map
     'inflation_radius': 0.105,   # m, robot radius (the planner treats the robot as a point)
@@ -375,6 +376,8 @@ class PathPlannerNode(Node):
         self.goal: Optional[Tuple[float, float]] = None
         self.clicked: Optional[Tuple[float, float]] = None
         self.retired: List[Tuple[float, float]] = []
+        self.stalled: List[Tuple[float, float]] = []    # retired after a stall, may retry
+        self.retries_left = self.p['stall_retries']
         self.tree = None
         self.path_time = self.get_clock().now()
         self.stall_ref = (0.0, 0.0, self.path_time)
@@ -445,6 +448,7 @@ class PathPlannerNode(Node):
                     self.stall_ref = (xy[0], xy[1], now)
                 elif (now - st).nanoseconds * 1e-9 > self.p['stall_timeout']:
                     self.get_logger().warn('stalled, crossing off the goal')
+                    self.stalled.append(self.goal)
                     self._retire()
             if self.goal is not None:
                 if (now - self.path_time).nanoseconds * 1e-9 <= self.p['max_path_age']:
@@ -462,7 +466,13 @@ class PathPlannerNode(Node):
         if self.chosen_once:
             self.empty_cycles += 1
             if self.empty_cycles >= self.p['max_empty_cycles']:
-                self._finish(pose)
+                if self.stalled and self.retries_left > 0:
+                    self.get_logger().info(f'trying {len(self.stalled)} stalled goals again')
+                    self.retired = [g for g in self.retired if g not in self.stalled]
+                    self.stalled, self.empty_cycles = [], 0
+                    self.retries_left -= 1
+                else:
+                    self._finish(pose)
 
     def _retire(self) -> None:
         """Cross the current goal off so we do not pick it again."""
