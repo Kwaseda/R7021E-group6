@@ -3,7 +3,7 @@
 Robot: turtle ___   IP 192.168.50.__0   domain 3__
 Mapping: turtleN -> 192.168.50.N0 -> domain 3N
 
-Planner: next-best-view (2026-10-11, see `STUDY/CODE.md`). Every command here ran in Gazebo on 2026-10-10/11, unless the line says "not tested on the robot".
+Every command here ran in Gazebo on 2026-10-10, unless the line says "not tested on the robot".
 When this file and `STUDY/COMMANDS.md` disagree, this file wins.
 
 ## Stop the robot
@@ -150,11 +150,11 @@ minutes and ends with `exploration finished`. In the big maze it is about 20 min
 The planner prints one line for each plan:
 
 ```
-t=82.0 goal=(0.89, 1.06) H=-4.00 L=0.57 I=46 turn=0.19 nodes=1500 known=11.2m2 plan_time=0.25s
+t=82.0 goal=(0.89, 1.06) H=-4.00 L=0.57 I=46 turn=0.19 candidates=5 known=11.2m2 plan_time=0.15s
 ```
 
 Other lines: `arrived at`, `stalled, crossing off the goal`, `path is old, planning again`,
-`stalled, planning again`, `goal (x, y) not reachable` (RViz click), `exploration finished`. The
+`trying N stalled goals again`, `not reachable, crossed off`, `exploration finished`. The
 follower prints `blocked ahead at 0.17 m, backing off` when it reverses 0.10 m.
 
 ## Recording
@@ -278,8 +278,8 @@ No `use_sim_time`. Recorder first, same line as above. A phone video of the robo
 | Follower prints `no map -> base_link transform, holding still` | `ros2 run tf2_tools view_frames` | as above. The robot is held at zero meanwhile |
 | Map smears, walls doubled, robot pose jumps by a metre | the map in RViz | loop closure is already off. If it still happens, drive slower (`max_v` 0.10) |
 | `blocked ahead ..., backing off` many times in one place | the log | normal at tight corners. It moves 0.10 m back and tries again |
-| `exploration finished` with green frontier left in RViz | is it behind a wall, or in a passage under 0.40 m? | normal for both. Otherwise restart the launch |
-| a corridor you can see is never entered | measure it | narrower than about 0.40 m. Lower `inflation_radius` |
+| `stalled, crossing off the goal`, then `exploration finished` early | `/frontiers` in RViz: green cells left? | the goal comes back up to 2 times by itself. If the corridor is narrow, see "Changing a value" |
+| `not reachable, crossed off` for a corridor you can see | measure it | narrower than about 0.40 m. Lower `inflation_radius` |
 | Bag folder has no `metadata.yaml` | `ls ~/bags/<run>` | the recorder was killed, not stopped. Ctrl-C once and wait |
 | Robot clips corners on the real robot | the bag: Wi-Fi gaps | the laptop gets data up to 3.6 s late on bad Wi-Fi (Lab 1 bags). Drive slower: `max_v` 0.10 |
 

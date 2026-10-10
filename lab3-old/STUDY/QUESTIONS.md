@@ -1,5 +1,3 @@
-> **2026-10-11:** this file describes the frontier-cluster planner in `../lab3-old`. The planner here is next-best-view: read `STUDY/CODE.md` first. RRT*, SLAM, TF, frontiers, inflation and the follower parts below still hold. Clusters, `cluster_goal`, `reachable`, retire lists and candidates do not exist here.
-
 # Lab 3 questions
 
 Answer each one out loud in two sentences, with no notes. The answers are in `THEORY.md` and
