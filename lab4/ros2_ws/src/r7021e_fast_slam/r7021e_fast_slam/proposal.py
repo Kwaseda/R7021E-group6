@@ -46,7 +46,31 @@ def proposal_candidates(x_star, cfg) -> np.ndarray:
         Implement the generation of candidate poses around the scan-matched pose `x_star`
         using a regular lattice within the specified proposal window.
     """
-    raise NotImplementedError
+    x_star = np.asarray(x_star, dtype=float)
+
+    ## K rounded down to a perfect cube: side ** 3 <= K. The integer loops
+    ## guard against cube roots like 26.999999... rounding the wrong way.
+    k = int(cfg.num_candidates)
+    side = max(int(round(k ** (1.0 / 3.0))), 1)
+    while side ** 3 > k:
+        side -= 1
+    while (side + 1) ** 3 <= k:
+        side += 1
+
+    ## The window is the FULL width of the lattice: offsets run from -w/2 to
+    ## +w/2. (The scan matcher's windows are half-widths, +-w.)
+    if side == 1:
+        d_xy = d_th = np.zeros(1)          # linspace(.., 1) would give -w/2
+    else:
+        d_xy = np.linspace(-0.5 * cfg.proposal_window_xy,
+                           0.5 * cfg.proposal_window_xy, side)
+        d_th = np.linspace(-0.5 * cfg.proposal_window_theta,
+                           0.5 * cfg.proposal_window_theta, side)
+
+    dx, dy, dth = np.meshgrid(d_xy, d_xy, d_th, indexing='ij')
+    return np.stack([x_star[0] + dx.ravel(),
+                     x_star[1] + dy.ravel(),
+                     wrap_angle(x_star[2] + dth.ravel())], axis=1)
 
 
 def improved_proposal(x_star, x_prev, u, endpoints, grid_map, cfg):
@@ -77,4 +101,32 @@ def improved_proposal(x_star, x_prev, u, endpoints, grid_map, cfg):
         Normalize the weights to get `w`, and use them to compute the weighted 
         mean `mu` and covariance `Sigma`.
     """
-    raise NotImplementedError
+    cands = proposal_candidates(x_star, cfg)                          # (K, 3)
+
+    ## tau_j = p(z | x_j, m) * p(x_j | x_prev, u), in log space.
+    log_tau = (measurement_log_likelihood(cands, endpoints, grid_map, cfg)
+               + motion_model_log_pdf(cands, x_prev, u, cfg.odometry_sigmas))
+
+    ## eta = sum_j tau_j. This is the particle's weight factor.
+    log_eta = logsumexp(log_tau)
+    w = np.exp(log_tau - log_eta)                                     # sums to 1
+
+    ## Weighted mean. The heading is an angle, so average its sin and cos
+    ## instead of the raw numbers (-pi and +pi are the same direction).
+    mu = np.empty(3)
+    mu[:2] = w @ cands[:, :2]
+    mu[2] = np.arctan2(w @ np.sin(cands[:, 2]), w @ np.cos(cands[:, 2]))
+
+    ## Weighted scatter around mu, with the heading difference wrapped.
+    d = cands - mu
+    d[:, 2] = wrap_angle(d[:, 2])
+    sigma = (d * w[:, None]).T @ d
+
+    ## Keep Sigma usable as a covariance: add the variance floor, lift any
+    ## eigenvalue that is still too small, and make the result exactly symmetric.
+    sigma += np.diag(SIGMA_REG)
+    vals, vecs = np.linalg.eigh(sigma)
+    sigma = (vecs * np.maximum(vals, SIGMA_EIG_MIN)) @ vecs.T
+    sigma = 0.5 * (sigma + sigma.T)
+
+    return float(log_eta), mu, sigma
