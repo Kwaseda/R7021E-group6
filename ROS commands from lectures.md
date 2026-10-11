@@ -10,7 +10,7 @@
 1. Services - Two-way communication between Nodes via Topics where one sends a request for certain Messages and the other Node responds with that Message.
 2. Actions - Long running tasks (Services) with Feedback during runs.
 3. Launch file - So, in our case, it is the python files or scripts for launching the multiple applications (Nodes), we need for our different control stacks (Navigation, Perception, Control, etc.).
-4. Packages - ROS Modules containing these Nodes, Messages, Services, and other whatnots.
+4. Packages - ROS Modules containing these Nodes, Messages, Services, and other whatnots.  
 
 # Now, actual commands in terminal for different things
 echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc  # add ros2 path to hidden configuration file
