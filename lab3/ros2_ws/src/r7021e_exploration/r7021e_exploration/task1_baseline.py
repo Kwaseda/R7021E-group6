@@ -45,6 +45,7 @@ class Task1Baseline(Node):
         msg.header.frame_id = 'map'
         msg.header.stamp = self.get_clock().now().to_msg()
         yaw = math.atan2(b[1] - a[1], b[0] - a[0])
+
         for i in range(n + 1):
             pose = PoseStamped()
             pose.header = msg.header
@@ -52,7 +53,9 @@ class Task1Baseline(Node):
             pose.pose.position.y = a[1] + (b[1] - a[1]) * i / n
             pose.pose.orientation.z = math.sin(yaw / 2.0)
             pose.pose.orientation.w = math.cos(yaw / 2.0)
+
             msg.poses.append(pose)
+
         self.path_pub.publish(msg)
         self.target = b
         self.legs += 1
@@ -64,14 +67,17 @@ class Task1Baseline(Node):
         if pose is None:
             return
         x, y, yaw = pose
+
         if self.start is None:
             self.start = (x, y)
             self.end = (x + self.length * math.cos(yaw), y + self.length * math.sin(yaw))
             self._send(self.start, self.end)
         elif math.dist((x, y), self.target) < self.tolerance:
-            self._send(self.target, self.start if self.target == self.end else self.end)
+            # Send start to end, else end to start if forward-end
+            self._send(self.target, self.start if self.target == self.end else self.end) 
 
 
+# setup.py's registered entry point
 def main() -> None:
     rclpy.init()
     node = Task1Baseline()

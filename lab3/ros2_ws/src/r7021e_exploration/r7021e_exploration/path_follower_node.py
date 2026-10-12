@@ -216,7 +216,7 @@ class PathFollower(Node):
 
     def ang_dist(self, v1: float, v2: float):
         '''
-        Get the  shortest distance between two angles,
+        Get the shortest distance between two angles,
         handles extreme values of angles.
         '''
         v1 = math.copysign(math.fmod(v1, (2*math.pi)), v1)
