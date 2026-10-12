@@ -28,6 +28,7 @@ DEFAULTS = {
     'max_path_age': 20.0,        # s, then plan again
     'max_empty_cycles': 10,      # plans in a row with no frontier leaf, then stop
     'seen_radius': 0.50,         # m, frontier this near a spot the robot stood on stops counting
+    'min_gain': 5,               # frontier cells a leaf must see; fewer is a sliver behind a wall
 }
 
 
@@ -78,6 +79,7 @@ def rrt_star(mask, grid, root, prm, rng, enough):
     """Grow an RRT* tree from root over free space. Stop early when enough(nodes) says so."""
     nodes, parent, cost = [root], [-1], [0.0]
     free = np.argwhere(mask)
+    
     if len(free) == 0:
         return np.array(nodes), parent, cost
     for it in range(prm['max_iterations']):
@@ -236,12 +238,12 @@ class NavigationNode(Node):
             info, h, turn = 0, cost[best], 0.0
         else:                                            # Task 4: next best view
             nodes, parent, cost = rrt_star(mask, grid, root, prm, self.rng,
-                                           lambda n, p: gain(n[leaves_of(p)]).max() > 0)
+                                           lambda n, p: gain(n[leaves_of(p)]).max() >= prm['min_gain'])
             leaves = leaves_of(parent)
             leaves = leaves[np.hypot(nodes[leaves, 0] - pose[0], nodes[leaves, 1] - pose[1])
                             > prm['arrival_tolerance']]
             g = gain(nodes[leaves]) if len(leaves) else np.array([])
-            if len(g) == 0 or g.max() == 0:
+            if len(g) == 0 or g.max() < prm['min_gain']:
                 if self.planned_once:
                     self.empty_cycles += 1
                     if self.empty_cycles >= prm['max_empty_cycles']:
@@ -249,7 +251,7 @@ class NavigationNode(Node):
                 return
             best, h, info, turn = None, math.inf, 0, 0.0
             for i, gi in zip(leaves, g):
-                if gi == 0:
+                if gi < prm['min_gain']:
                     continue
                 b = branch(nodes, parent, int(i))
                 first = math.atan2(b[1][1] - b[0][1], b[1][0] - b[0][0]) if len(b) > 1 else 0
@@ -267,14 +269,16 @@ class NavigationNode(Node):
         self.publish(path, nodes, parent)
         known = np.count_nonzero(grid.data >= 0) * grid.res ** 2
         self.get_logger().info(
-            f't={now.nanoseconds * 1e-9:.1f} goal=({self.goal[0]:.2f}, {self.goal[1]:.2f}) '
+            f'current_time={now.nanoseconds * 1e-9:.1f} goal=({self.goal[0]:.2f}, {self.goal[1]:.2f}) '
             f'H={h:.2f} L={cost[best]:.2f} I={info} turn={turn:.2f} nodes={len(nodes)} '
-            f'known={known:.1f}m2 plan_time={time.perf_counter() - t0:.2f}s')
+            f'mapped_area={known:.1f}m² plan_time={time.perf_counter() - t0:.2f}s')
 
     def finish(self, pose):
         self.done = True
         self.publish([pose[:2]], None, None)              # a one-point path holds the robot still
         self.get_logger().info('exploration finished')
+
+
 
     # publishing
     def publish(self, points, nodes, parent):
