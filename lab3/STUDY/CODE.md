@@ -49,6 +49,7 @@ clustering and no separate goal search.
 | `max_path_age` | 20 s | The map grows while driving. After 20 s a fresh tree is better |
 | `max_empty_cycles` | 10 | 10 plans in a row with no leaf seeing a frontier means done. Counted only after the first plan |
 | `seen_radius` | 0.50 m | A frontier cell still there after the robot stood within 0.5 m of it cannot be seen from free space. It stops counting. Without this, the robot crept 0.2 m at a time toward frontier behind a wall (run nbv-small-1) |
+| `min_gain` | 5 cells | A leaf must see at least 5 frontier cells (0.25 m of frontier). Slivers of 1 to 4 cells sit behind walls 0.5 to 0.75 m away, out of reach of `seen_radius`, and kept the robot circling one spot (Dominic's run, 2026-10-12). Real goals had I of 10 or more |
 
 ### Functions
 
@@ -76,10 +77,10 @@ clustering and no separate goal search.
 ### The log line
 
 ```
-t=82.0 goal=(0.89, 1.06) H=-4.00 L=0.57 I=46 turn=0.19 nodes=1500 known=11.2m2 plan_time=0.25s
+current_time=82.0 goal=(0.89, 1.06) H=-4.00 L=0.57 I=46 turn=0.19 nodes=1500 mapped_area=11.2m² plan_time=0.25s
 ```
 
-`nodes` is the tree size. `known` is the mapped area, and it is the 90 % measure for the competition.
+`nodes` is the tree size. `mapped_area` is the known area, and it is the 90 % measure for the competition.
 
 ---
 
@@ -137,7 +138,7 @@ every 1 s:
     mask = known free minus walls grown by 0.105 m
     tree = RRT*(root = robot, samples from mask)            # grow until a leaf sees frontier
     frontier = frontier cells not within 0.5 m of a remembered spot
-    for each leaf: I = frontier cells within 0.75 m
+    for each leaf: I = frontier cells within 0.75 m (needs I >= 5)
                    H = cost(leaf) - 0.10*I + 0.15*|first turn|
     if no leaf has I > 0: count; after 10 in a row: stop
     else: send branch to best leaf as /path

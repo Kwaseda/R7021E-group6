@@ -21,3 +21,16 @@ Earlier entries (desk version, frontier clusters, all Gazebo debugging): `../lab
 - Until nbv-big-2 is full, the proven version for a maze larger than 4 m is `../lab3-old` (small 4 of 4 full, big 1 of 2 full).
 - nbv-big-2 [gazebo], with the stall fix: cut at 1124 s by a laptop reboot (no launch log, bag not closed). Read from the raw mcap: 38.8 m2 known and still growing. Flat at 15.1 m2 from 192 s to about 700 s, then 27.0 m2 at 843 s. Better than nbv-big-1 (14.5 m2 after 30 min), worse than lab3-old (44 and 49 m2 at about 1200 to 1300 s). The 8.5 minute plateau is the open problem.
 - Decision for the hall: maze about 4 m or smaller, use lab3. Larger, use lab3-old.
+
+## 2026-10-12: circling at the end of a run
+
+- Dominic's small maze run: after 637 s every plan had I = 1 to 4 and L = 0.2, and the robot
+  hopped around one spot for two minutes at 12.5 m2. The frontier cells sat behind a wall,
+  0.5 to 0.75 m from any spot the robot could reach, so `seen_radius` (0.5 m) never removed them
+  and `info_radius` (0.75 m) kept counting them.
+- Fix: `min_gain` 5. A leaf must see at least 5 frontier cells. Real goals in that log had I of
+  10 or more.
+- After the fix [gazebo]: small maze full, 15.3 m2, `exploration finished` after 271 s.
+  `lab3_maze_blind_a` (5.6 m) twice: both full and finished, 30.4 and 30.3 m2 of 31.4, after 456
+  and 441 s, 0 stalls, 0 and 3 back-offs.
+- RUNSHEET rewritten as a terminal-by-terminal procedure for the hall and for Gazebo.
