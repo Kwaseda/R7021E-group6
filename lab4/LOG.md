@@ -53,4 +53,4 @@ The desk checks pass again with these values and no desk overrides [desk]. FS2 b
 
 ## 2026-10-13: mixed commit
 
-Commits 8b823b2 and 10f835f also contain Lab 3 files that were already staged: RUNSHEET.md, navigation_node.py, path_follower_node.py, bag_to_video.py, bag_to_report.py and a .gitignore rule. We keep the history as it is. Before each commit we now check the full staged list with git diff --cached --name-only.
+Commit 8b823b2 ("Lab 4 params") also contains Lab 3 files that were already staged: RUNSHEET.md, navigation_node.py, path_follower_node.py, bag_to_video.py, bag_to_report.py and a .gitignore rule. Commit 10f835f also contains seven lab3/ study files (PLAN.md and STUDY/*.md). Another session stages Lab 3 files while we work. We keep the history as it is. From now on we commit with git commit --only <path>. That commits only the named paths, whatever else is in the index.
