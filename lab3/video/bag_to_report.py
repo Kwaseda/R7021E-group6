@@ -100,12 +100,13 @@ def plot_map(run, title, out):
     image[(grid >= 0) & (grid <= 50)] = matplotlib.colors.to_rgb(
         COLORS['free'])
 
-    safe = latest.get('/inflated_map')
-    if safe is not None:
-        if same_grid(msg, safe):
-            safe_grid = np.asarray(safe.data, dtype=np.int16).reshape(
+    inflated = latest.get('/inflated_map')
+    if inflated is not None:
+        if same_grid(msg, inflated):
+            inflated_grid = np.asarray(inflated.data, dtype=np.int16).reshape(
                 grid.shape)
-            image[safe_grid > 50] = matplotlib.colors.to_rgb(COLORS['safe'])
+            blocked = (inflated_grid > 50) & (grid <= 50)
+            image[blocked] = matplotlib.colors.to_rgb(COLORS['inflated'])
         else:
             print('warning: /inflated_map grid differs from /map; '
                   'omitting that overlay')
@@ -170,7 +171,8 @@ def plot_map(run, title, out):
         Patch(facecolor=COLORS['free'], edgecolor='#999999',
               label='known free'),
         Patch(facecolor=COLORS['occupied'], label='occupied'),
-        Patch(facecolor=COLORS['safe'], label='planner-safe (/inflated_map)'),
+        Patch(facecolor=COLORS['inflated'],
+              label='inflated/blocked cells (/inflated_map)'),
         Patch(facecolor=COLORS['frontier'], label='frontier cells'),
         Line2D([], [], color=COLORS['tree'], lw=1, label='last RRT* tree'),
         Line2D([], [], color=COLORS['path'], lw=2, label='last planned path'),

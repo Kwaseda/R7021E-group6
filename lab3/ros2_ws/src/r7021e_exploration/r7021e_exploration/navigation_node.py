@@ -207,6 +207,7 @@ class NavigationNode(Node):
         grid = Grid(self.map)
         mask = free_mask(grid, prm['inflation_radius'])
         self.publish_inflated(grid, mask)
+        
         root = pose[:2]
         r, c = grid.cell(*root)
         if not (0 <= r < grid.h and 0 <= c < grid.w and mask[r, c]):
@@ -216,6 +217,7 @@ class NavigationNode(Node):
             wx, wy = grid.world(cells[:, 0], cells[:, 1])
             i = int(np.argmin(np.hypot(wx - root[0], wy - root[1])))
             root = (float(wx[i]), float(wy[i]))
+        
         fg = Grid(self.frontiers)
         fc = np.argwhere(fg.data > 50)
         fx, fy = fg.world(fc[:, 0], fc[:, 1])

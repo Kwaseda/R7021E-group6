@@ -30,6 +30,8 @@ Earlier entries (desk version, frontier clusters, all Gazebo debugging): `../lab
   and `info_radius` (0.75 m) kept counting them.
 - Fix: `min_gain` 5. A leaf must see at least 5 frontier cells. Real goals in that log had I of
   10 or more.
+- This is the value tested for the runs recorded in this historical entry. The current source
+  default is 7; use `STUDY/CODE.md` and `navigation_node.py` for the active setting.
 - After the fix [gazebo]: small maze full, 15.3 m2, `exploration finished` after 271 s.
   `lab3_maze_blind_a` (5.6 m) twice: both full and finished, 30.4 and 30.3 m2 of 31.4, after 456
   and 441 s, 0 stalls, 0 and 3 back-offs.

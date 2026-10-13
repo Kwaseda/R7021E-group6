@@ -4,9 +4,9 @@
     source /opt/ros/jazzy/setup.bash
     python3 ~/R7021E-group6/lab3/video/bag_to_video.py ~/bags/<run> [--speed 10] [--out run.mp4]
 
-Each frame shows the SLAM map, planner-safe cells (/inflated_map), frontiers, the most recent
-RRT* tree and path, the most recent goal, and the robot's recorded trail. A legend is included
-in every frame. The robot pose is map->odom->base_footprint from /tf.
+Each frame shows the SLAM map, the planner-blocked wall/inflation cells (/inflated_map),
+frontiers, the most recent RRT* tree and path, the most recent goal, and the robot's recorded
+trail. A legend is included in every frame. The robot pose is map->odom->base_footprint from /tf.
 
 Time comes from the bag (when the laptop received each message), not from message stamps.
 The robot clock can be far from the laptop clock, and this way that does not matter.
@@ -38,7 +38,7 @@ COLORS = {
     'unknown': '#cccccc',
     'free': '#ffffff',
     'occupied': '#252525',
-    'safe': '#dceeff',
+    'inflated': '#f2b6b6',
     'frontier': '#1ebf32',
     'tree': '#33b3b3',
     'path': '#008040',
@@ -121,7 +121,8 @@ def main():
         Patch(facecolor=COLORS['unknown'], label='unknown'),
         Patch(facecolor=COLORS['free'], edgecolor='#999999', label='known free'),
         Patch(facecolor=COLORS['occupied'], label='occupied'),
-        Patch(facecolor=COLORS['safe'], label='planner-safe cells (/inflated_map)'),
+        Patch(facecolor=COLORS['inflated'],
+              label='inflated/blocked cells (/inflated_map)'),
         Patch(facecolor=COLORS['frontier'], label='frontier cells'),
         Line2D([], [], color=COLORS['tree'], lw=1, label='last RRT* tree'),
         Line2D([], [], color=COLORS['path'], lw=2, label='last planned path'),
@@ -148,7 +149,8 @@ def main():
                         and np.allclose(ie, e, atol=1e-6)
                         and abs(latest['/inflated_map'].info.resolution
                                 - latest['/map'].info.resolution) < 1e-9):
-                    img[ig > 50] = matplotlib.colors.to_rgb(COLORS['safe'])
+                    blocked = (ig > 50) & (g <= 50)
+                    img[blocked] = matplotlib.colors.to_rgb(COLORS['inflated'])
             img[g > 50] = matplotlib.colors.to_rgb(COLORS['occupied'])
             if '/frontiers' in latest:
                 fg, fe = grid_image(latest['/frontiers'])
