@@ -26,3 +26,5 @@ bags/*
 /PROPOSAL.md
 /lab2/PLAN.md
 /lab3/Lab_Instructions_Exploration.pdf
+# hall and sim bags stay on this laptop
+lab3/ros2_ws/bags/

@@ -85,9 +85,67 @@ it was boxed in); frontier behind walls; the bag recorder ignoring SIGINT in scr
 `gz sim` processes after Ctrl-C. From the Lab 1 robot bags: the robot clock was 325 days behind
 the laptop, and laptop receive gaps reached 3.6 s on bad Wi-Fi.
 
+## The hall runs, 2026-10-13
+
+All numbers here are [hall], read from the bags in `ros2_ws/bags/`. Videos, map figures and
+metric plots for every bag are in `results/hall-2026-10-13/<bag>/`, made with
+`video/bag_to_video.py` and `video/bag_to_report.py`.
+
+| Bag | Settings | Length | Mapped | 90 % of final at | Map stopped growing at | Plans | Stalls | Driven | Ended |
+|---|---|---|---|---|---|---|---|---|---|
+| `lab3-task1` | Task 1 baseline | 216 s | 17.8 m2 | 151 s | 195 s | 13 legs | 0 | 8.4 m | by hand |
+| `lab3-task4` | min_gain 7, inflation 0.105 | 545 s | 19.8 m2 | 148 s | 316 s | 31 | 7 | 24.5 m | `exploration finished` |
+| `lab3-task5` | first attempt | 192 s | 9.8 m2 | 147 s | 161 s | 10 | 0 | 5.4 m | by hand, early |
+| `lab3-task5-attempt2` | as task4 | 429 s | 21.6 m2 | 217 s | 364 s | 34 | 2 | 35.1 m | by hand |
+| `lab3-task5-attempt3-min-gain8-radius-12cm` | min_gain 8, inflation 0.12 | 272 s | 20.6 m2 | **125 s** | **205 s** | 15 | **0** | 22.2 m | by hand |
+
+Attempt 3 is the run to show. It reached 90 % fastest, stopped growing after 205 s, had no
+stalls and no back-offs, and gives the cleanest map: straight walls, a closed outline, and only
+a few single frontier cells left. Attempt 2 shows more area, but its map is rotated and
+smeared. Walls are slanted and doubled, so SLAM drifted. Part of its extra area is that smear,
+not more maze. A larger number is not a better map here.
+
+Two things we only saw afterwards:
+
+- `inflation_radius` 0.12 gives the same padding as 0.105. The planner rounds the radius up to
+  whole 5 cm cells: 0.105 / 0.05 = 2.1 and 0.12 / 0.05 = 2.4, both give 3 cells. So the better
+  result of attempt 3 came from `min_gain` 8, or from the run itself, not from the radius. Say
+  so in the report rather than claiming the radius helped.
+- The robot clock was 17.5 s behind the laptop in the first runs and 12.6 s behind in the
+  task5 runs (laptop receive time minus scan stamp, constant over each run). slam_toolbox
+  logged many "queue is full" and "timestamp earlier than the transform cache" drops in
+  `lab3-task4`. The scan rate at the laptop was still 4.6 to 4.9 Hz, with up to 50 gaps over
+  0.5 s per run (longest 1.48 s), so Wi-Fi was acceptable. The clock offset is the likely cause
+  of the SLAM drops, and the clock sync step in the run sheet did not remove all of it.
+
+For the competition score in the PDF (time to 100 % plus time to 90 %), using "map stopped
+growing" as 100 %: attempt 3 scores 205 + 125 = 330 s, task4 316 + 148 = 464 s, attempt 2
+364 + 217 = 581 s.
+
+## What the report needs, and what we have
+
+The PDF asks for about 3 pages with figures, focused on Task 4, with Tasks 1 to 3 brief, and a
+video of the robot plus an RViz visualization. Report sections: node structure, planner
+pseudocode, exploration method and info-gain equations, real-time problems.
+
+| Need | Have | Where |
+|---|---|---|
+| Node structure | yes | `STUDY/CODE.md` diagram |
+| Planner pseudocode | yes | `STUDY/CODE.md`, end |
+| Info gain equation | yes | H = L - w*I + c*turn, I within 0.75 m, min_gain |
+| Task 1 result and figure | yes | `results/hall-2026-10-13/lab3-task1/` |
+| Task 2 (known goal) | Gazebo only, not in the hall | brief mention is enough |
+| Task 3 figure (padding) | yes, pink layer in every hall map figure | `*_map.png` |
+| Task 4 results | partly: three settings in the hall, but min_gain, run and clock changed together | table above |
+| Task 5 run and map | yes, attempt 3 | `results/hall-2026-10-13/lab3-task5-attempt3-.../` |
+| RViz-style visualization video | yes, from the bags | `*.mp4` |
+| Camera video of the robot | only if someone filmed it in the hall | cannot be made later |
+| Real-time problems | yes | section above and `LOG.md` |
+
 ## Still open, to fill in after Tuesday
 
-- How the robot run went: time to 90 % and to 100 %, video link, RViz recording.
 - Whether real odometry slips less than Gazebo's, and whether the turning limits still matter.
 - Task 4 comparison of `info_weight` 0.0, 0.10 and 0.30 (greedy vs complete).
 - Narrowest passage in the hall maze, and what the robot did there.
+- A clean Task 4 comparison. The hall runs changed more than one thing at a time. A Gazebo
+  comparison of `info_weight` 0.0, 0.10 and 0.30 with everything else fixed can be done at home.
