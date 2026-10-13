@@ -15,7 +15,7 @@ import tf2_ros
 from visualization_msgs.msg import Marker
 
 DEFAULTS = {
-    'inflation_radius': 0.105,   # m, Burger radius
+    'inflation_radius': 0.120, # 0.105,   # m, Burger radius
     'iterations': 1500,          # RRT* samples per plan
     'max_iterations': 8000,      # keep growing up to this if no leaf sees a frontier
     'step_size': 0.30,           # m
@@ -28,7 +28,7 @@ DEFAULTS = {
     'max_path_age': 20.0,        # s, then plan again
     'max_empty_cycles': 10,      # plans in a row with no frontier leaf, then stop
     'seen_radius': 0.50,         # m, frontier this near a spot the robot stood on stops counting
-    'min_gain': 7,  # 5          # frontier cells a leaf must see; fewer is a sliver behind a wall
+    'min_gain': 8,  # 5          # frontier cells a leaf must see; fewer is a sliver behind a wall
 }
 
 
@@ -187,11 +187,13 @@ class NavigationNode(Node):
             age = (now - self.goal_time).nanoseconds * 1e-9
             if math.dist(xy, self.goal) < self.p['arrival_tolerance']:
                 self.get_logger().info(f'arrived at ({self.goal[0]:.2f}, {self.goal[1]:.2f})')
+            
             elif math.dist(xy, self.stall_ref[:2]) > 0.05:
                 self.stall_ref = (xy[0], xy[1], now)
                 if age < self.p['max_path_age']:
                     return
                 self.get_logger().info('path is old, planning again')
+                
             elif (now - self.stall_ref[2]).nanoseconds * 1e-9 > self.p['stall_timeout']:
                 self.get_logger().warn('stalled, planning again')
                 self.visited.append(self.goal)           # its frontier stops counting too
