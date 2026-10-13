@@ -109,7 +109,7 @@ class PathFollower(Node):
             ts: TransformStamped = self.buffer.lookup_transform(
                 'map',         # target frame
                 'base_link',   # source frame
-                rclpy.time.Time()
+                rclpy.time.Time(),  # at this time
             )
         except (LookupException, ConnectivityException, ExtrapolationException):
             return False

@@ -15,6 +15,9 @@ bags/*
 *.mcap
 *.webm
 
+# local Lab 3 demo bags and rendered videos
+/lab3/bags/*
+
 # editor tool worktrees - these hold stale copies of the notes below
 .kilo/
 

@@ -201,8 +201,9 @@ current_time=82.0 goal=(0.89, 1.06) H=-4.00 L=0.57 I=46 turn=0.19 nodes=1500 map
 ```
 
 `I` is how many frontier cells the goal sees. Real goals have I of 10 or more. A goal needs at
-least 5 (`min_gain`). When `mapped_area` stops growing and no leaf sees 5 cells for 10 plans in a
-row, it prints `exploration finished` and holds the robot still. Other lines: `arrived at`,
+least 7 (`min_gain`, current source default). When no leaf sees 7 cells for 10 plans in a row
+after at least one successful plan, it prints `exploration finished` and holds the robot still.
+Other lines: `arrived at`,
 `stalled, planning again`, `path is old, planning again`, `goal from RViz`, `not reachable`.
 After Ctrl-C the frontier detector may print a traceback. That is a shutdown race and harmless.
 
@@ -211,6 +212,39 @@ After Ctrl-C the frontier detector may print a traceback. That is a shutdown rac
 ```bash
 python3 ~/R7021E-group6/lab3/video/bag_to_video.py ~/bags/sim-1 --speed 10 --out ~/sim-1.mp4
 ```
+
+## Report figures and GIF from a hall bag
+
+After the bag has stopped cleanly and `ros2 bag info` shows messages, make the figures
+offline. These scripts read the bag directly; they do not start ROS nodes or replay it.
+
+```bash
+source /opt/ros/jazzy/setup.bash && source ~/R7021E-group6/lab3/ros2_ws/install/setup.bash
+```
+
+```bash
+python3 ~/R7021E-group6/lab3/video/bag_to_report.py ~/bags/hall-1 --out-dir ~/bags/hall-1-report
+```
+
+This writes two PNGs:
+
+- `hall-1_map.png`: final SLAM occupancy map, planner-safe cells, frontiers, the last
+  non-trivial RRT* tree/path/goal, and the robot's recorded map-frame trail with start/end.
+  Its legend names each layer. `/inflated_map` is the planner's safe-cell mask (100 means
+  safe), not a picture of the wall padding itself.
+- `hall-1_metrics.png`: known mapped area and `/cmd_vel` linear/angular commands against
+  elapsed bag receive time. Known area is not a completion percentage: the real maze's
+  ground-truth area is not recorded in the bag.
+
+Make a compact animated GIF of the changing map and planner state:
+
+```bash
+python3 ~/R7021E-group6/lab3/video/bag_to_video.py ~/bags/hall-1 --speed 30 --fps 5 --out ~/bags/hall-1-report/hall-1.gif
+```
+
+The GIF has the same layer legend on every frame. Higher `--speed` or lower `--fps`
+reduces the number of frames and file size. Copy the PNGs and GIF into the report folder
+after checking them; keep the original bag unchanged.
 
 ---
 
@@ -225,7 +259,7 @@ python3 ~/R7021E-group6/lab3/video/bag_to_video.py ~/bags/sim-1 --speed 10 --out
 | Robot does not move on hardware | Terminal 1 still running? | restart bringup. If still nothing: `ros2 service call /motor_power std_srvs/srv/SetBool "{data: true}"` |
 | Robot jumps in RViz, `TF_OLD_DATA` | `ps aux \| grep -E "[g]z sim"` | `pkill -f "gz sim"`, start again |
 | `TF lookup` warnings repeat | `ros2 lifecycle get /slam_toolbox` | wait for `active`. Gazebo needs `use_sim_time:=true`, the robot needs it left out |
-| Robot circles one spot, `I` stays 1 to 4 | the log | fixed by `min_gain` 5 (2026-10-12). If it still happens, raise `min_gain` to 8 |
+| Robot circles one spot, `I` stays 1 to 6 | the log | current `min_gain` is 7; the threshold was raised after low-gain slivers kept being selected |
 | Finished with green frontier left in RViz | look where it is | behind a wall or in a passage under 0.40 m: normal. Otherwise restart the launch |
 | Many `backing off` lines in one place | the log | normal at tight corners |
 | Bag folder has no `metadata.yaml` | `ls ~/bags/<run>` | the recorder was killed. Ctrl-C once and wait next time |
@@ -243,7 +277,7 @@ python3 ~/R7021E-group6/lab3/video/bag_to_video.py ~/bags/sim-1 --speed 10 --out
 |---|---|---|---|
 | `inflation_radius` | `navigation_node.py`, `DEFAULTS` | 0.105 | 0.09 if a must-pass gap is 0.30 to 0.40 m |
 | `info_weight` | same | 0.10 | Task 4 test: 0.0 and 0.30 |
-| `min_gain` | same | 5 | 8 if it still circles |
+| `min_gain` | same | 7 | Raising it further rejects more small frontiers; compare coverage before changing |
 | `max_v` | `path_follower_node.py`, `declare_parameter` | 0.15 | 0.10 on bad Wi-Fi |
 
 `ros2 param set` does not change anything. The nodes read their values once at start.

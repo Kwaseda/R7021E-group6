@@ -28,7 +28,7 @@ DEFAULTS = {
     'max_path_age': 20.0,        # s, then plan again
     'max_empty_cycles': 10,      # plans in a row with no frontier leaf, then stop
     'seen_radius': 0.50,         # m, frontier this near a spot the robot stood on stops counting
-    'min_gain': 5,               # frontier cells a leaf must see; fewer is a sliver behind a wall
+    'min_gain': 7,  # 5          # frontier cells a leaf must see; fewer is a sliver behind a wall
 }
 
 
@@ -54,15 +54,19 @@ class Grid:
 
 def free_mask(grid, radius):
     """True where the robot centre may go: known free, and not within radius of a wall."""
-    occ = grid.data > 50
-    k = int(math.ceil(radius / grid.res))
+    
+    occ = grid.data > 50 # occupied cells
+    k = int(math.ceil(radius / grid.res)) # number of cells to grow
     pad = np.pad(occ, k)
     grown = np.zeros_like(occ)
+
     for dy in range(-k, k + 1):
         for dx in range(-k, k + 1):
             if dy * dy + dx * dx <= k * k:                  # a disc of k cells
-                grown |= pad[k + dy:k + dy + grid.h, k + dx:k + dx + grid.w]
-    return (grid.data >= 0) & (grid.data <= 50) & ~grown
+                grown |= pad[k + dy:k + dy + grid.h, k + dx:k + dx + grid.w]  # grow occupied cells
+    
+    # return known free and not within radius of a wall
+    return (grid.data >= 0) & (grid.data <= 50) & ~grown  
 
 
 def segment_free(mask, grid, a, b):
@@ -82,24 +86,30 @@ def rrt_star(mask, grid, root, prm, rng, enough):
     
     if len(free) == 0:
         return np.array(nodes), parent, cost
+    
     for it in range(prm['max_iterations']):
         if it >= prm['iterations'] and it % 500 == 0 and enough(np.array(nodes), parent):
             break
+        
         r, c = free[rng.integers(len(free))]
         sample = grid.world(r, c)
         pts = np.array(nodes)
         near_i = int(np.argmin(np.hypot(pts[:, 0] - sample[0], pts[:, 1] - sample[1])))
+        
         d = math.dist(nodes[near_i], sample)
         if d < 1e-6:
             continue
+        
         s = min(1.0, prm['step_size'] / d)
         new = (nodes[near_i][0] + s * (sample[0] - nodes[near_i][0]),
                nodes[near_i][1] + s * (sample[1] - nodes[near_i][1]))
         if not segment_free(mask, grid, nodes[near_i], new):
             continue
+        
         dist = np.hypot(pts[:, 0] - new[0], pts[:, 1] - new[1])
         near = np.flatnonzero(dist <= prm['rewire_radius'])
         best, best_cost = near_i, cost[near_i] + math.dist(nodes[near_i], new)
+
         for j in near:                                   # choose the cheapest parent
             cj = cost[j] + dist[j]
             if cj < best_cost and segment_free(mask, grid, nodes[j], new):
@@ -132,9 +142,11 @@ class NavigationNode(Node):
         self.tree_pub = self.create_publisher(Marker, 'rrt_tree', 10)
         self.goal_pub = self.create_publisher(Marker, 'goal_marker', 10)
         self.inflated_pub = self.create_publisher(OccupancyGrid, 'inflated_map', 10)
+
         self.create_subscription(OccupancyGrid, 'map', self.on_map, 10)
         self.create_subscription(OccupancyGrid, 'frontiers', self.on_frontiers, 10)
         self.create_subscription(PoseStamped, 'goal_pose', self.on_click, 10)
+        
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
         self.map = self.frontiers = self.goal = self.clicked = None
@@ -282,6 +294,7 @@ class NavigationNode(Node):
 
     # publishing
     def publish(self, points, nodes, parent):
+        """Publish a path, the RRT* tree, and the goal marker."""
         msg = Path()
         msg.header.frame_id = 'map'
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -290,15 +303,19 @@ class NavigationNode(Node):
             n = max(1, int(math.ceil(math.dist(a, b) / 0.10)))
             dense += [(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n)
                       for i in range(1, n + 1)]
+            
         for x, y in dense:
             ps = PoseStamped()
             ps.header = msg.header
             ps.pose.position.x, ps.pose.position.y = x, y
             ps.pose.orientation.w = 1.0
             msg.poses.append(ps)
+
         self.path_pub.publish(msg)
+        
         if nodes is None:
             return
+        
         tree = Marker()
         tree.header = msg.header
         tree.ns, tree.type, tree.action = 'rrt_tree', Marker.LINE_LIST, Marker.ADD
@@ -308,9 +325,12 @@ class NavigationNode(Node):
             for j in (i, parent[i]):
                 tree.points.append(Point(x=float(nodes[j, 0]), y=float(nodes[j, 1])))
         self.tree_pub.publish(tree)
+        
         goal = Marker()
         goal.header = msg.header
-        goal.ns, goal.type, goal.action = 'goal', Marker.SPHERE, Marker.ADD
+        goal.ns = 'goal'
+        goal.type = Marker.SPHERE
+        goal.action = Marker.ADD
         goal.pose.position.x, goal.pose.position.y = points[-1]
         goal.pose.orientation.w = 1.0
         goal.scale.x = goal.scale.y = goal.scale.z = 0.2

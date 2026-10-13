@@ -25,3 +25,28 @@ Two problems came from the check, not from the modules:
 The desk check used its own values for these fields (in `desk/_path.py`). They are not tuned and they are not in `params.yaml`.
 
 The rbpf result is one seed on a synthetic room. It shows that the step runs and the numbers are sensible. It does not show which filter is better.
+
+## 2026-10-13: first values for params.yaml
+
+The shipped yaml had 0 in 14 fields. We chose a start value for each. All are starting points for Task 1 and Task 7 tuning. None is tuned yet.
+
+| Field | Old | New | Why |
+|---|---|---|---|
+| map_resolution | 0.01 | 0.05 | 0.01 m on 50 m is 25 M cells, about 100 MB for each particle. Too large for the laptop and not necessary for the maze. 5 cm is larger than the LDS range noise |
+| map_size_m | 50 | 20 | 400 x 400 cells, about 0.6 MB for each particle. The maze fits |
+| p_occ | 0 | 0.7 | +0.85 log-odds for each hit. One stray return does not make a wall |
+| p_free | 0 | 0.4 | -0.41 for each pass. Weaker than a hit, so one grazing beam cannot erase a wall |
+| hit_window_cells | 0 | 2 | +-5 cm around the hit, the size of the range noise |
+| log_odds_limit | 0 | 5 | Caps p at 0.993, so a wrong cell can recover after 6 to 12 scans |
+| odom_noise_sigma | 0 | 0.003 each | Sim only. Added on each /odom message, not on each filter step. Set [0, 0, 0] for the hall |
+| odometry_sigmas | 0 | 0.02 each | A few times the noise that adds up in one filter step. Too narrow and the particles never cover the true pose |
+| scan_match_window_xy | 0 | 0.2 | Half-width, +-20 cm. Final step w/4 = 5 cm = one cell |
+| scan_match_window_theta | 0 | 0.1 | +-0.1 rad, about 3.5 sigma of the heading prior. Final step 0.025 rad |
+| match_score_min | 0 | 0.3 | The first steps have an empty map and score 0, so they fall back. That is correct |
+| num_candidates | 3 | 27 | 3 rounds down to 1 candidate, and then Sigma is only the regularization floor. 27 is 3 x 3 x 3. 125 costs 4.6 times more |
+| proposal_window_xy | 0 | 0.1 | Full width, +-5 cm. Covers the +-2.5 cm that the matcher leaves |
+| proposal_window_theta | 0 | 0.05 | +-0.025 rad, the final matcher step |
+| resample_threshold | 0 | 0.5 | Resample only when N_eff < N/2 (selective resampling) |
+| resample_every_step | true | false | Resampling on every step removes diversity also when the weights are even. The Neff figure tests this |
+
+The desk checks pass again with these values and no desk overrides [desk]. FS2 best pose after 20 steps: x 0.974 m, true 0.95 m [desk].
