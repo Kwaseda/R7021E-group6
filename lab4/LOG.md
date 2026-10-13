@@ -53,4 +53,4 @@ The desk checks pass again with these values and no desk overrides [desk]. FS2 b
 
 ## 2026-10-13: mixed commit
 
-Commit 8b823b2 ("Lab 4 params") also contains Lab 3 files that were already staged: RUNSHEET.md, navigation_node.py, path_follower_node.py, bag_to_video.py, bag_to_report.py and a .gitignore rule. We keep the history as it is. Before each commit we now check the full staged list with git diff --cached --name-only.
+Commits 8b823b2 and 10f835f also contain Lab 3 files that were already staged: RUNSHEET.md, navigation_node.py, path_follower_node.py, bag_to_video.py, bag_to_report.py and a .gitignore rule. We keep the history as it is. Before each commit we now check the full staged list with git diff --cached --name-only.
