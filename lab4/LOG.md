@@ -50,3 +50,7 @@ The shipped yaml had 0 in 14 fields. We chose a start value for each. All are st
 | resample_every_step | true | false | Resampling on every step removes diversity also when the weights are even. The Neff figure tests this |
 
 The desk checks pass again with these values and no desk overrides [desk]. FS2 best pose after 20 steps: x 0.974 m, true 0.95 m [desk].
+
+## 2026-10-13: mixed commit
+
+Commit 8b823b2 ("Lab 4 params") also contains Lab 3 files that were already staged: RUNSHEET.md, navigation_node.py, path_follower_node.py, bag_to_video.py, bag_to_report.py and a .gitignore rule. We keep the history as it is. Before each commit we now check the full staged list with git diff --cached --name-only.

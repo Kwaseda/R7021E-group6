@@ -1,7 +1,8 @@
 # Lab 3 code, file by file
 
-This is the simple version (2026-10-11). The older frontier-cluster planner is in `../lab3-old`.
-Only `navigation_node.py` is new. The other files are the same as in `lab3-old`.
+This describes the current next-best-view version. The older frontier-cluster planner is in
+`../lab3-old`. Verify values against `navigation_node.py`; the implementation can change after
+these notes are written.
 
 ## How the parts meet
 
@@ -49,7 +50,7 @@ clustering and no separate goal search.
 | `max_path_age` | 20 s | The map grows while driving. After 20 s a fresh tree is better |
 | `max_empty_cycles` | 10 | 10 plans in a row with no leaf seeing a frontier means done. Counted only after the first plan |
 | `seen_radius` | 0.50 m | A frontier cell still there after the robot stood within 0.5 m of it cannot be seen from free space. It stops counting. Without this, the robot crept 0.2 m at a time toward frontier behind a wall (run nbv-small-1) |
-| `min_gain` | 5 cells | A leaf must see at least 5 frontier cells (0.25 m of frontier). Slivers of 1 to 4 cells sit behind walls 0.5 to 0.75 m away, out of reach of `seen_radius`, and kept the robot circling one spot (Dominic's run, 2026-10-12). Real goals had I of 10 or more |
+| `min_gain` | 7 cells | A leaf must see at least 7 frontier cells. Slivers of 1 to 4 cells sit behind walls 0.5 to 0.75 m away, out of reach of `seen_radius`, and kept the robot circling one spot (Dominic's run, 2026-10-12). Real goals had I of 10 or more |
 
 ### Functions
 

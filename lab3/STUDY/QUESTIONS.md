@@ -1,4 +1,4 @@
-> **2026-10-11:** this file describes the frontier-cluster planner in `../lab3-old`. The planner here is next-best-view: read `STUDY/CODE.md` first. RRT*, SLAM, TF, frontiers, inflation and the follower parts below still hold. Clusters, `cluster_goal`, `reachable`, retire lists and candidates do not exist here.
+> **Historical question set:** some questions name functions, parameters and behavior from the earlier frontier-cluster planner. Check every planner question against `CODE.md`, `LEARNING_NOTES.md` and `navigation_node.py` before using it for oral practice.
 
 # Lab 3 questions
 

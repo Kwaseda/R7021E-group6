@@ -1,4 +1,4 @@
-> **2026-10-11:** this file describes the frontier-cluster planner in `../lab3-old`. The planner here is next-best-view: read `STUDY/CODE.md` first. RRT*, SLAM, TF, frontiers, inflation and the follower parts below still hold. Clusters, `cluster_goal`, `reachable`, retire lists and candidates do not exist here.
+> **Historical plan:** this records an earlier proposed implementation and does not describe the current source. For current behavior, use `STUDY/CODE.md`, `STUDY/LEARNING_NOTES.md` and `ros2_ws/src/r7021e_exploration/r7021e_exploration/navigation_node.py`.
 
 # Lab 3 plan: autonomous exploration with RRT
 
