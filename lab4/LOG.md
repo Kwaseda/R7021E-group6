@@ -120,3 +120,31 @@ Defects in their work. Do not repeat them:
 5. The yaml in their repo does not reproduce their sweep. The sweep .json files show `map_resolution` 0.01 and scan match and proposal windows of 3.0 m. The committed yaml has other values. For our report, the .json that the node writes with each run is the record of the values.
 
 What we adopt: no code and no values. We adopt one process rule (item 1: equal step counts in the sweep) and one argument (item 2: the noise must not be trivial). Neither changes our code.
+
+## 2026-10-15: the drive bag runs/maze_drive
+
+Claude drove the robot with a desk script (`desk/drive_maze.py`, not in git), at Dominic's request. Route in `lab3_maze_small`, on the corridor centre lines: (0,0) to (-1.6,0), (-1.6,-1.6), (0,-1.6), (0,-0.8), (1.6,-0.8), and back the same way to (0,0). The maze is a tree with no loop, so the robot returns along the same corridors. 0.15 m/s, turns at 0.3 rad/s.
+
+Result [gazebo]: 218 s, 13.9 m, 816 scans. The closest wall over the whole drive was 0.29 m, with no contact. The true end pose is 3.4 cm from the true start pose. Topics: /scan /odom /tf /tf_static /clock /ground_truth.
+
+Earlier attempts, kept in `desk/` and not used:
+
+- `runs/maze_drive_dominic` (teleop, 175 s): the end is 0.86 m from the start, and 346 of 771 scans have a wall closer than 0.15 m. The robot body touched walls.
+- Two driver attempts that steered on /odom. In one the robot stuck against a wall. In the other it stopped 0.13 m from a wall end.
+
+### Finding: Gazebo /odom is not ground truth
+
+The node logs /odom as ground truth in simulation. But /odom in Gazebo is wheel odometry. On this drive, without any contact, /odom was 0.171 m from the true pose on average, 0.312 m at most, and 0.057 rad in yaw on average [gazebo]. The true pose comes from Gazebo itself (`/world/maze_world/dynamic_pose/info`, entry 0 is the model `burger`). A bridge and the driver republish it as `/ground_truth` (nav_msgs/Odometry, stamped with sim time).
+
+Effect: the smoke runs of 2026-10-14 used /odom as ground truth. Their error numbers include up to about 0.3 m of Gazebo odometry drift. They are not comparable with later runs.
+
+Rule from now on: every replay of `runs/maze_drive` uses `ground_truth_topic:=/ground_truth`. The node supports this parameter already (grid_slam_node.py, `ROS_DEFAULTS`). We did not change the node.
+
+### Real robot odometry, rough only
+
+The Lab 3 hall bags (`lab3/ros2_ws/bags`) have /odom and /tf, and no /clock, so they come from the real robot. Two rough facts [hall, Lab 3 bags]:
+
+1. The real /odom rate is about 19 Hz. Gazebo is 44 Hz. The node adds `odom_noise_sigma` on each message, so the same value gives less noise per second on the real robot. In the hall, `odom_noise_sigma` is [0, 0, 0] in any case.
+2. slam_toolbox corrected the odometry by 0.06 m and 0.02 rad over 8.8 m and 50 rad of turning (task4 bag). The heading of the real robot drifts very little, probably because turtlebot3_node uses the IMU for the heading.
+
+Limits: these runs were Lab 3 exploration, with a different SLAM (slam_toolbox), other speeds and other driving. A slam_toolbox correction is not a measurement of truth. We do not tune Lab 4 values from these numbers. The hall tuning (Task 8) happens in the hall.
