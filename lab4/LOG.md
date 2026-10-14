@@ -96,3 +96,27 @@ Things we saw, for later steps:
 2. The node adds `odom_noise_sigma` on each /odom message, also when the robot stands still. /odom is 44 Hz [gazebo]. With 0.003 on rot1 and rot2, the yaw noise grows by about 0.028 rad for each square root of a second, also without motion. In smoke_b the robot stood for 124 s and the noisy odometry turned by -0.575 rad. Before we record the bag (step B4), decide if 0.003 is the correct value at 44 Hz.
 3. /scan is 4.4 Hz in Gazebo, so the scan period is 225 ms. The step time at N = 5 is already 234 ms median. Live, the node drops scans. For the sweep, replays at N = 20 and N = 50 must be slowed down or use a deep `scan_queue_depth` (step C9).
 4. Before smoke2, an orphan `gz sim -r -s` server was still running after the launch had stopped. No /odom or /scan was visible. `pkill -f "gz sim"` fixed it.
+
+## 2026-10-14: the one read of the classmates' code
+
+Source: github.com/willmerw/R7021E-, lab4/src/r7021e_fast_slam, cloned to ~/reference/willmerw (outside our repo). We read it one time, after our smoke test. We copied no code and no values. Do not read it again. Everything we learned is here.
+
+What is the same as ours:
+
+- Helper files: `config.py` and `scan_matcher.py` differ from the template, but only by one space and one pair of parentheses. All other helpers and the node are identical. The handover said "identical", which is true in effect.
+- The five modules are the same size as ours (580 lines against 606) and use the same method: the same motion model, the same likelihood field, the same systematic resampling, and the same Gaussian fit in log space. There is nothing that would make our code smaller.
+- Their `match_score_min` is 0.7 in the yaml and 0.85 in the sweep. Both are above 0.5. This agrees with our bug of today.
+
+Differences that are not errors:
+
+- Their proposal lattice spans +-w. Ours spans +-w/2, as our docstring says. Both are valid definitions. At the oral, say which convention we use and why the scan matcher is different (+-w).
+
+Defects in their work. Do not repeat them:
+
+1. Their sweep is not comparable across N. Their runs have 36 to 37 filter steps at N = 1 and only 9 to 12 at N = 100. With `scan_queue_depth` 1 and replay in real time, the node drops the scans it cannot process in time. A run with large N then sees a different and shorter set of scans. Our rule for step C9: before we compare ATE, all runs of the sweep must have the same number of steps.
+2. Their sweep used `odom_noise_sigma` 0.001. Their ATE is about 0.03 to 0.07 m for all N and for FS1 and FS2. The experiment was too easy to show a difference. This is a reason to keep noise that is not trivial (our 0.003, see the smoke test finding 2).
+3. In their `step()`, `np.argmax((... for p in ...))` gets a generator, and numpy then returns 0 every time. Their logged `best_index` is always 0. The node does not use that column for the estimate, so their ATE is not affected.
+4. Their `step()` does not time the improved proposal branch. Only the fallback branch goes into `t_likelihood`. Their timing figure shows FS2 as faster than it is. For our comparison run (step C13), the logged step times of the two packages are therefore not comparable. Use the wall time of the replay, or compare only `t_scan_match` and `t_map_integrate`.
+5. The yaml in their repo does not reproduce their sweep. The sweep .json files show `map_resolution` 0.01 and scan match and proposal windows of 3.0 m. The committed yaml has other values. For our report, the .json that the node writes with each run is the record of the values.
+
+What we adopt: no code and no values. We adopt one process rule (item 1: equal step counts in the sweep) and one argument (item 2: the noise must not be trivial). Neither changes our code.
