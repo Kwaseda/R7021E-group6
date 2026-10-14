@@ -54,3 +54,26 @@ The desk checks pass again with these values and no desk overrides [desk]. FS2 b
 ## 2026-10-13: mixed commit
 
 Commit 8b823b2 ("Lab 4 params") also contains Lab 3 files that were already staged: RUNSHEET.md, navigation_node.py, path_follower_node.py, bag_to_video.py, bag_to_report.py and a .gitignore rule. Commit 10f835f also contains seven lab3/ study files (PLAN.md and STUDY/*.md). Another session stages Lab 3 files while we work. We keep the history as it is. From now on we commit with git commit --only <path>. That commits only the named paths, whatever else is in the index.
+
+## 2026-10-14: smoke test and the first bug
+
+Smoke run `runs/smoke` (N = 5, FS2, 87 s, 198 steps, a small loop of about 2.5 m) [gazebo]:
+
+- No exception. The node wrote the .npz and the .json.
+- Estimate error mean 0.29 m, max 0.86 m. Raw odometry error mean 0.04 m. The filter made the pose worse.
+- The map has double walls, turned against each other.
+- N_eff mean 1.8 of 5. It resampled on 161 of 198 steps.
+- Fallbacks: 0 on every early step, but the map was empty then.
+- Step time median 216 ms, p95 256 ms. That is more than the 200 ms scan period at N = 5.
+
+Cause: the scan-match score is the mean occupancy probability at the beam endpoints (`scan_matcher.correlation`). An unknown cell has p = 0.5, so an empty map scores 0.5, not 0. With `match_score_min` 0.3 the fallback can never occur. The first steps trust a match against a map that holds one or two scans, and that wrong pose is then built into the map. Our first value of 0.3 came from the wrong assumption that an empty map scores 0.
+
+Desk test of only this value, N = 5, a loop of radius 0.25 m in a room with inner walls, 3 seeds [desk]:
+
+| match_score_min | Mean error per seed (m) | Fallbacks |
+|---|---|---|
+| 0.3 | 0.176, 0.152, 0.106 | 0, 0, 0 |
+| 0.55 | 0.052, 0.057, 0.083 | 5, 5, 5 |
+| 0.6 | 0.066, 0.057, 0.085 | 6, 5, 6 |
+
+Fix: `match_score_min` 0.55, just above the score of an unknown map. The step time is a separate problem. We look at it after the Gazebo rerun.

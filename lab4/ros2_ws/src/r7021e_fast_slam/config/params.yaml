@@ -51,7 +51,7 @@ grid_slam_node:
     ## told apart, so a narrower window searches nothing.
     scan_match_window_xy: 0.2       
     scan_match_window_theta: 0.1  
-    match_score_min: 0.3          # minimum score for a successful scan match
+    match_score_min: 0.55         # minimum score for a successful scan match
     ## Beam subsampling stride for scan matching.
     scan_match_stride: 1 # leave at 1 for full scan
     ## --- improved proposal ---
