@@ -157,3 +157,31 @@ Two values in `params.yaml` are for the simulation only. The course's `tools/run
 - `ground_truth_topic: /ground_truth`. The true Gazebo pose in `runs/maze_drive`.
 
 Before the hall: `scan_queue_depth: 1` and `ground_truth_topic: ''`, together with `odom_noise_sigma: [0, 0, 0]` and `use_sim_time` false.
+
+## 2026-10-15: Task 1, occupancy mapping with known poses
+
+Both runs replay `runs/maze_drive` at real-time rate with `use_measurement_update: false`, N = 1, `odom_noise_sigma` 0.003, deep scan queue and `/ground_truth`. `mapping_shipped` uses the occupancy values of the first commit: `map_size_m` 50, `map_resolution` 0.01, `p_free` 0, `p_occ` 0, `hit_window_cells` 0, `log_odds_limit` 0, `use_clamping` true. `mapping_tuned` uses the values in `params.yaml`. Figure: `figures/maps.png`.
+
+### Task 1a: what we changed, why, and the effect
+
+We changed one value at a time, and each step kept the previous changes. These steps were replayed at 4 times real time into `desk/runs` [gazebo].
+
+| Step | Change | Occupied | Free | Effect |
+|---|---|---|---|---|
+| shipped | none | 0 m2 | 0 m2 | 100 % unknown. With `log_odds_limit` 0 and clamping on, each update is clamped back to 0 |
+| 1 | `log_odds_limit` 0 to 5 | 0 m2 | 7.9 m2 | The cells can now change. But `p_occ` 0 gives logit(0), a large negative value, so a hit adds free evidence. No walls |
+| 2 | `p_occ` 0 to 0.7 | 0 m2 | 13.3 m2 | Still no walls. `hit_window_cells` 0 gives an occupied band of zero width |
+| 3 | `p_free` 0 to 0.4 | 0 m2 | 11.7 m2 | Free evidence is now weaker (-0.41 for each pass instead of a very large value). No walls yet |
+| 4 | `hit_window_cells` 0 to 2 | 0.63 m2 | 13.4 m2 | A few wall cells. At 1 cm the endpoints with noise seldom hit the same cell two times, and the free evidence of nearby beams removes them |
+| 5 | `map_resolution` 0.01 to 0.05, `map_size_m` 50 to 20 | 5.16 m2 | 9.8 m2 | The walls are visible. The resolution was the important value. This is the tuned set |
+| 6 | as 5, `use_clamping` false | 5.21 m2 | 9.95 m2 | Almost no difference. On a drive of 3.5 minutes, few cells get to +-5 |
+
+The tuned map has double walls that are turned against each other. This is correct for Task 1: the map uses the raw corrupted odometry. The pose error against the true pose is 0.47 m mean and 0.98 m max [gazebo]. Task 7 must correct this.
+
+### Limitation: the two runs did not use the same noisy trajectory
+
+The node adds odometry noise on each /odom message that it receives. The odometry queue is 100 messages and the node has one thread. When a scan takes a long time (the 1 cm map), messages are dropped, and there are fewer noise draws. So the same bag and the same seed give a different noisy trajectory. Pose error against the true pose: `mapping_shipped` 1.64 m mean, 3.26 m max (149 steps). `mapping_tuned` 0.47 m mean, 0.98 m max (564 steps) [gazebo]. Two runs with the same seed and almost the same load (t1_5, t1_6) were already different at the first step.
+
+Decision (Dominic): keep the noise in the node, as the course does, and state this limitation. We read the run logs of the classmates to check the course level: their `mapping_shipped` had 4 steps and noise 0.001, and their `mapping_tuned` had 151 steps and noise 0.005. Their two maps were not made from the same trajectory either.
+
+A wrong statement in an earlier draft of this entry: the bag does not start with 50 s of standing. The robot moves 4.4 s after the start of `/ground_truth`. The sim time of about 51 s at the first step is the Gazebo clock, not a wait.
