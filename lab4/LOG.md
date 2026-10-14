@@ -148,3 +148,12 @@ The Lab 3 hall bags (`lab3/ros2_ws/bags`) have /odom and /tf, and no /clock, so 
 2. slam_toolbox corrected the odometry by 0.06 m and 0.02 rad over 8.8 m and 50 rad of turning (task4 bag). The heading of the real robot drifts very little, probably because turtlebot3_node uses the IMU for the heading.
 
 Limits: these runs were Lab 3 exploration, with a different SLAM (slam_toolbox), other speeds and other driving. A slam_toolbox correction is not a measurement of truth. We do not tune Lab 4 values from these numbers. The hall tuning (Task 8) happens in the hall.
+
+## 2026-10-15: params.yaml for sim replays
+
+Two values in `params.yaml` are for the simulation only. The course's `tools/run_sweep.sh` reads `params.yaml` directly, and the launch file only accepts num_particles, seed, use_improved_proposal and run_name as overrides. So these values must be in the file:
+
+- `scan_queue_depth: 1000`. In a replay the node must process every scan, also when a step is slower than the scan period. Otherwise a run with a large N sees fewer scans, and the ATE is not comparable (classmates' defect 1).
+- `ground_truth_topic: /ground_truth`. The true Gazebo pose in `runs/maze_drive`.
+
+Before the hall: `scan_queue_depth: 1` and `ground_truth_topic: ''`, together with `odom_noise_sigma: [0, 0, 0]` and `use_sim_time` false.

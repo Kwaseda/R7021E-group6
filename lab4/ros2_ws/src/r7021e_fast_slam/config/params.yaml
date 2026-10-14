@@ -67,7 +67,7 @@ grid_slam_node:
     update_max_rate: 10.0        # Hz, 0 for no limit
     update_min_dist: 0.05        # meters
     update_min_angle: 0.0175     # rad
-    scan_queue_depth: 1          # depth of the scan queue
+    scan_queue_depth: 1000       # sim replay: keep every scan. Hall: 1
 
     ## --- run log ---
     ## The node writes <log_dir>/<run_name>.npz on shutdown. Every report
@@ -77,3 +77,4 @@ grid_slam_node:
     ## whatever directory you launched from. An absolute path is used as given.
     log_dir: 'runs'
     run_name: 'mapping_only'
+    ground_truth_topic: /ground_truth   # sim only: Gazebo true pose in the drive bag. Hall: ''
