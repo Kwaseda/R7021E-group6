@@ -184,4 +184,4 @@ The node adds odometry noise on each /odom message that it receives. The odometr
 
 Decision (Dominic): keep the noise in the node, as the course does, and state this limitation. We read the run logs of the classmates to check the course level: their `mapping_shipped` had 4 steps and noise 0.001, and their `mapping_tuned` had 151 steps and noise 0.005. Their two maps were not made from the same trajectory either.
 
-A wrong statement in an earlier draft of this entry: the bag does not start with 50 s of standing. The robot moves 4.4 s after the start of `/ground_truth`. The sim time of about 51 s at the first step is the Gazebo clock, not a wait.
+Note: the bag has almost no standing time at the start. The robot moves 4.4 s after `/ground_truth` starts. The sim time of about 51 s at the first step is the Gazebo clock, not a wait.
