@@ -77,3 +77,22 @@ Desk test of only this value, N = 5, a loop of radius 0.25 m in a room with inne
 | 0.6 | 0.066, 0.057, 0.085 | 6, 5, 6 |
 
 Fix: `match_score_min` 0.55, just above the score of an unknown map. The step time is a separate problem. We look at it after the Gazebo rerun.
+
+## 2026-10-14: smoke test passes
+
+Three runs, all N = 5, FS2, `lab3_maze_small` [gazebo]:
+
+| Run | match_score_min | Time, path | Est error mean / max (m) | Odom error mean / max (m) | Fallbacks in first 20 steps | Step time median / p95 (ms) |
+|---|---|---|---|---|---|---|
+| smoke (Dominic, teleop) | 0.3 | 87 s, 2.5 m | 0.289 / 0.857 | 0.039 / 0.082 | 0 | 216 / 256 |
+| smoke_b (Dominic, teleop) | 0.3 | 492 s, 12.8 m | 2.152 / 2.956 | 2.347 / 2.771 | 0 | 239 / 283 |
+| smoke2 (loop, 0.05 m/s, 0.2 rad/s) | 0.55 | 146 s, 3.5 m | 0.215 / 0.401 | 0.166 / 0.310 | 5 | 234 / 280 |
+
+Done condition of step A: no exception for more than 2 minutes, a particle cloud and a map like the maze. smoke2 meets it. Its map has single, sharp walls. The smoke map had double walls.
+
+Things we saw, for later steps:
+
+1. In smoke2 the yaw error of the estimate moves to about -0.3 rad in the first 75 s, while the map is small. After that it stays constant, while the odometry yaw error continues to change. The map is then correct in itself but turned by about 0.3 rad. `evaluation.absolute_trajectory_error` does not align the trajectories, so this early drift counts in the ATE. This is Task 7 tuning.
+2. The node adds `odom_noise_sigma` on each /odom message, also when the robot stands still. /odom is 44 Hz [gazebo]. With 0.003 on rot1 and rot2, the yaw noise grows by about 0.028 rad for each square root of a second, also without motion. In smoke_b the robot stood for 124 s and the noisy odometry turned by -0.575 rad. Before we record the bag (step B4), decide if 0.003 is the correct value at 44 Hz.
+3. /scan is 4.4 Hz in Gazebo, so the scan period is 225 ms. The step time at N = 5 is already 234 ms median. Live, the node drops scans. For the sweep, replays at N = 20 and N = 50 must be slowed down or use a deep `scan_queue_depth` (step C9).
+4. Before smoke2, an orphan `gz sim -r -s` server was still running after the launch had stopped. No /odom or /scan was visible. `pkill -f "gz sim"` fixed it.
