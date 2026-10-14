@@ -12,8 +12,9 @@ and fit a Gaussian to the weighted cloud,
 The normalizer eta = sum_j tau_j of that same product is the particle's
 importance weight, which is why it is returned alongside the moments.
 
-Everything is in log space. The raw products underflow within a handful of
-beams.
+Everything is in log space. A scan has hundreds of beams, so the product of
+their probabilities is a very small number. A sum of logs is the safe way to
+handle it.
 """
 import numpy as np
 
@@ -22,9 +23,10 @@ from .motion_model import motion_model_log_pdf
 from .utils import logsumexp, wrap_angle
 
 ## Regularization of the fitted covariance. With all the tau mass on a single
-## candidate the scatter matrix is exactly singular and the sampler's Cholesky
-## would fail. SIGMA_REG is an additive variance floor per axis (x, y, theta);
-## SIGMA_EIG_MIN floors the eigenvalues afterwards.
+## candidate the scatter matrix is exactly zero, so the sampler would return mu
+## every time and the particles would show no spread. SIGMA_REG is an additive
+## variance floor per axis (x, y, theta); SIGMA_EIG_MIN floors the eigenvalues
+## afterwards, so rounding cannot leave a slightly negative eigenvalue.
 SIGMA_REG = (1.0e-4, 1.0e-4, 1.0e-5)
 SIGMA_EIG_MIN = 1.0e-6
 
