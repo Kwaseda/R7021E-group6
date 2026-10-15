@@ -23,8 +23,7 @@ _SIGMA_FLOOR = 1e-4
 
 
 def sample_motion_model_odometry(u, poses, sigmas, rng) -> np.ndarray:
-    """Draw one perturbed pose per input pose. 
-    We need to sample from the odometry motion model for each particle.
+    """Draw one perturbed pose per input pose.
 
     Args:
         u:      (3,) [d_rot1, d_trans, d_rot2]
@@ -34,11 +33,6 @@ def sample_motion_model_odometry(u, poses, sigmas, rng) -> np.ndarray:
 
     Returns:
         (N, 3) perturbed particle poses
-
-    TODO: 
-        Implement the odometry motion model sampling. 
-        Add Gaussian noise to each component of the odometry 
-        increment and apply it to the current particle poses.
     """
     poses = np.asarray(poses, dtype=float)
     u = np.asarray(u, dtype=float)
@@ -67,12 +61,6 @@ def motion_model_log_pdf(x_cand, x_prev, u, sigmas) -> np.ndarray:
 
     Returns:
         (N,) log probabilities of the candidate poses
-
-    TODO:
-        Implement the odometry motion model log density calculation.
-        Compute the errors between the predicted and actual odometry increments,
-        normalize by the standard deviations, and return the log probability
-        for each candidate pose.
     """
     x_cand = np.atleast_2d(np.asarray(x_cand, dtype=float))
     x_prev = np.asarray(x_prev, dtype=float)

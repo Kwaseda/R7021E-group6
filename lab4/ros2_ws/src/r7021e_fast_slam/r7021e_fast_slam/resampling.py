@@ -15,9 +15,6 @@ def effective_sample_size(weights) -> float:
         weights: (N,) array of normalized particle weights.
     Returns:
         float: the effective sample size, between 1 and N.
-
-    TODO:
-        Compute the effective sample size based on the current particle weights.
     """
     w = np.asarray(weights, dtype=float)
     return float(1.0 / np.sum(w ** 2))
@@ -31,11 +28,6 @@ def systematic_resample(weights, rng) -> np.ndarray:
         rng: a random number generator with a `random()` method.
     Returns:
         np.ndarray: (N,) array of ancestor indices.
-
-    TODO:
-        Implement systematic resampling based on the particle weights.
-        Stochastic universal sampling (SUS) is used, where a single uniform
-        is drawn and the remaining N-1 positions are spaced deterministically.
     """
     w = np.asarray(weights, dtype=float)
     n = len(w)

@@ -222,7 +222,7 @@ when the current row looks right.
 
 | Order | Value | Now | Try between | Look at | Too small | Too large |
 |---|---|---|---|---|---|---|
-| 1 | `num_particles` (launch arg) | 10 | 5 to 30 | step ms p95 against about 200 ms | Cloud has no choice | Steps slower than the scan, filter lags |
+| 1 | `num_particles` (launch arg) | 10 | 5 to 20 | step ms p95 against 400 ms (time between steps in a turn) | Cloud has no choice | Steps slower than the robot turns, filter lags (50 is too slow) |
 | 2 | `odometry_sigmas` | [0.05, 0.04, 0.05] | rot 0.03 to 0.10, trans 0.02 to 0.06 | Double walls after turns; cloud size | Pose lags in turns, double walls | Cloud wide, pose shakes |
 | 3 | `scan_match_window_theta` | 0.1 | 0.05 to 0.2 | Heading after turns | Cannot correct a turn error | Slow, can lock on a wrong wall |
 | 4 | `scan_match_window_xy` | 0.2 | 0.1 to 0.3 | Map after a long straight | Cannot correct slip | Slow, wrong peaks |
@@ -243,8 +243,8 @@ How the values depend on each other:
 - **Proposal and matcher.** `proposal_window_xy` 0.1 (offsets +-0.05 m) and
   `proposal_window_theta` 0.05 must cover the matcher's last step. Change them together with the
   matcher windows, not alone.
-- **N and time.** Each particle has its own map. Time and memory grow with N. If the step takes
-  longer than the scan period, the node drops scans (`scan_queue_depth` 1 on the robot).
+- **N and time.** Each particle has its own map. Time and memory grow with N. A step must end before the next gated scan
+  (about 0.4 s in a turn). If not, the node drops scans (`scan_queue_depth` 1 on the robot) and lags.
 - **`match_score_min` and the map.** An unknown cell is p = 0.5, so an empty map scores 0.5. The
   threshold must stay above 0.5, or the fallback never runs.
 

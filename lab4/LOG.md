@@ -283,3 +283,49 @@ Result, FS2, N = 10, seed 1, `odometry_sigmas` [0.05, 0.04, 0.05] [gazebo]:
 At 0.003 the run pair is not paired (the raw odometry is different). But the ratio ATE / raw odometry goes from 1.32 to 0.34, which is much larger than that effect. At Gazebo odometry (paired) the mean gets a little worse and the maximum gets better. We keep the wider values: they are necessary at 0.003, and they are the safe side for the turns in the hall.
 
 Change in `params.yaml`: `odometry_sigmas` [0.02, 0.02, 0.02] to [0.05, 0.04, 0.05].
+
+## 2026-10-16: Task 7 sweep and the four figures
+
+Sweep: `tools/run_sweep.sh runs/maze_drive "1 5 10 20 50" "1 2 3"`, 30 replays at real time, `params.yaml` as committed (noise 0.003, steps every 0.2 m or 0.2 rad, `odometry_sigmas` [0.05, 0.04, 0.05], deep scan queue, `/ground_truth`). No errors. Every run has 127 to 139 steps, so all runs used almost the same scans [gazebo].
+
+ATE rmse over 3 seeds, mean (min to max), m [gazebo]:
+
+| N | FastSLAM 1.0 | Grid-FastSLAM 2.0 |
+|---|---|---|
+| 1 | 1.081 (0.636 to 1.683) | 0.387 (0.272 to 0.476) |
+| 5 | 0.342 (0.184 to 0.545) | 0.239 (0.199 to 0.279) |
+| 10 | 0.210 (0.137 to 0.283) | 0.130 (0.088 to 0.197) |
+| 20 | 0.175 (0.082 to 0.324) | 0.161 (0.070 to 0.326) |
+| 50 | 0.101 (0.085 to 0.131) | 0.142 (0.121 to 0.180) |
+
+Raw odometry rmse in these runs: 0.23 to 1.15 m. It changes between runs (shared random generator, Task 1 limitation).
+
+Extra runs for figures 1 and 3 (N = 10 for N_eff, N = 20 for the map, seed 1, same values):
+
+| Run | ATE rmse (m) | Resamples | N_eff / N median |
+|---|---|---|---|
+| `neff_selective` (`resample_every_step` false) | 0.197 | 104 of 135 steps (78 %) | 0.34 |
+| `neff_every` (true) | 0.121 | 136 of 136 (100 %) | 0.40 |
+| `fastSLAM2` (FS2, N = 20) | 0.070 | 106 of 135 | |
+
+Figures (all made with the PDF commands; the two maps figures got their own names because both commands write `maps.png`):
+
+### Figure 1, `figures/maps_task7.png` (and `maps_task1.png` for Task 1)
+
+The map from raw corrupted odometry has double walls, turned by about 0.3 rad, and the path leaves the corridors. The FS2 map (N = 20) has single walls at right angles, and the estimate is on the true path (ATE 0.070 m). The filter corrects the heading drift that the raw odometry builds into the map.
+
+### Figure 2, `figures/ate_vs_particles.png`
+
+At N = 1 FS2 is almost 3 times better than FS1 (0.39 m against 1.08 m), and its band is much narrower. With one particle FS1 is dead reckoning with extra noise, while FS2 still corrects each step with the scan match. Both curves drop as N grows. From N = 10 the bands overlap, and at N = 50 both are near 0.1 m. FS2 needs fewer particles for the same error, as Lecture 9 says. The bands are wide because each run sees a different noise sample (one generator for the noise and the filter), so a difference smaller than the bands is not a result.
+
+### Figure 3, `figures/neff.png`
+
+N_eff often falls below N/2 even with selective resampling: 78 % of the steps resampled, against 100 % with resampling on every step. The median N_eff / N is 0.34. The scan likelihood is very sharp (about 300 beams, each counted as independent), so after one step most weight is on a few particles. Selective resampling saves only about one resample in five here. With a flatter likelihood (`sigma_hit` larger, or `likelihood_stride` 2 to 4) the difference would be larger. The ATE of the two runs (0.197 and 0.121 m) is one seed each with different noise, so it does not show which policy is better.
+
+### Figure 4, `figures/timing.png`
+
+Time per step grows linearly with N: about 35 ms at N = 1, 230 ms at N = 10, 830 ms at N = 50 for FS2. Each particle runs its own scan match (blue) and its own proposal with 27 likelihoods (orange); the map update (green) is small. Memory grows linearly too: one 400 x 400 grid per particle, 0.64 MB each, 32 MB at N = 50. A step only has to finish before the next gated scan, not before the next scan. With steps every 0.2 m or 0.2 rad, that is about 1.3 s on a straight and 0.4 to 0.7 s in a turn at our speeds. N = 20 (about 360 ms) fits. N = 50 (830 ms) falls behind in turns. On the robot (queue 1) the node then drops scans; in the replay the deep queue keeps them.
+
+### What this means for the hall
+
+Start the hall at N = 10 (ATE 0.13 m mean in simulation, about 230 ms per step). N = 20 also fits the step time. Do not go to 50.

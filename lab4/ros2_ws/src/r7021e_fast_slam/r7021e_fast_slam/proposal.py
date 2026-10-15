@@ -34,7 +34,7 @@ SIGMA_EIG_MIN = 1.0e-6
 def proposal_candidates(x_star, cfg) -> np.ndarray:
     """K candidate poses around the scan-matched pose.
 
-    A regular lattice: it covers the small search window evenly. 
+    A regular lattice: it covers the small search window evenly.
     K is rounded down to a perfect cube, e.g. 27 gives 3 x 3 x 3.
 
     Args:
@@ -43,10 +43,6 @@ def proposal_candidates(x_star, cfg) -> np.ndarray:
 
     Returns:
         (K, 3) numpy array of candidate poses, where K is the number of candidates.
-
-    TODO:
-        Implement the generation of candidate poses around the scan-matched pose `x_star`
-        using a regular lattice within the specified proposal window.
     """
     x_star = np.asarray(x_star, dtype=float)
 
@@ -85,7 +81,7 @@ def improved_proposal(x_star, x_prev, u, endpoints, grid_map, cfg):
         endpoints:  (N, 2) array of laser scan endpoints in the robot frame.
         grid_map:   occupancy grid map.
         cfg:        configuration object with proposal parameters.
-    
+
     Returns:
         log_eta:    float, the importance weight factor for the particle.
         mu:        (3,) numpy array, the mean of the candidate poses.
@@ -95,13 +91,6 @@ def improved_proposal(x_star, x_prev, u, endpoints, grid_map, cfg):
     applies to the particle. It is the sum, NOT the likelihood at the sampled
     pose: it approximates the integral p(z | x_prev, m, u), which is what the
     weight is supposed to be.
-
-    TODO: 
-        Use `proposal_candidates` to generate candidate poses around `x_star`, 
-        then compute the importance weights `log_tau` for each candidate using
-        the measurement likelihood and motion model. 
-        Normalize the weights to get `w`, and use them to compute the weighted 
-        mean `mu` and covariance `Sigma`.
     """
     cands = proposal_candidates(x_star, cfg)                          # (K, 3)
 

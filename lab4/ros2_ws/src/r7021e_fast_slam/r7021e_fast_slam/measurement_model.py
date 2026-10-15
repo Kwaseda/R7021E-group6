@@ -26,24 +26,6 @@ def measurement_log_likelihood(poses, endpoints, grid_map, cfg) -> np.ndarray:
 
     Returns:
         (K,) array of log-likelihoods for each candidate pose.
-    
-    TODO:
-        Implement the likelihood field measurement model as described in Task 3.
-        Transform the beam endpoints into the map frame, look up the distance
-        to the nearest occupied cell, and compute the log-likelihood using
-        the Gaussian and uniform mixture model.
-    NOTE:
-        1) Use the transform_points function to convert beam endpoints from the 
-        robot base frame to the map frame.
-        2) Use the grid_map.world_to_grid and grid_map.in_bounds methods to handle 
-        the conversion from world coordinates to grid coordinates and to check 
-        if the points are within the map bounds.
-        3) Use the distance transform provided by grid_map.likelihood_field to efficiently 
-        compute distances for all beam endpoints at once.
-        4) Compute the log probability for each beam using the Gaussian and uniform mixture model:
-            p_b = z_hit * np.exp(-0.5 * (dist / sigma) ** 2) + z_rand / range_max
-        5) Sum the log probabilities over all beams to get the final log-likelihood for each candidate pose.
-
     """
     ## (K, B, 2): every beam endpoint of every candidate pose, in the map frame.
     world = transform_points(poses, endpoints)

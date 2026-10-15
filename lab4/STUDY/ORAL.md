@@ -35,7 +35,7 @@ Learn this table. The examiner can name a knob and ask what changes.
 
 | Knob | Bigger | Smaller | Coupled with |
 |---|---|---|---|
-| `num_particles` | More hypotheses, better odds to hold the truth; time and memory grow linearly | Fewer choices; at N = 1 there is no filter | Step time against the scan period |
+| `num_particles` | More hypotheses, better odds to hold the truth; time and memory grow linearly | Fewer choices; at N = 1 there is no filter | Step time against the time between steps |
 | `odometry_sigmas` | Wider cloud; weaker matcher prior, the scan pulls further; more noise per step | Stiff: the truth outside the cloud, double walls after turns | Step size, matcher windows |
 | `update_min_dist`, `_angle` | Fewer steps, less error added up; larger odometry error per step | Many steps; a small error per step becomes a heading drift | `odometry_sigmas` must cover one step |
 | `scan_match_window_xy`, `_theta` | Can correct bigger errors; more cost; can lock on a wrong wall | Cannot reach the true pose | About 3 x `odometry_sigmas`; last step = window / 4 near one cell |
