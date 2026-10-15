@@ -43,6 +43,11 @@ PLANK_LENGTH = 0.50     # m, along the heading (decision Q2)
 PLANK_WIDTH = 0.20      # m
 BURGER_RADIUS = 0.105   # m, Lab 2's single disc for the bare robot
 
+# Added to every keep-out radius. In s1a with no margin the three-disc plank grazed the obstacle
+# by 2 mm: odometry was 2.8 cm off ground truth at that moment (LOG.md D9). Lab 3 did the same
+# with inflation_radius 0.120 against the robot's 0.105.
+SAFETY_MARGIN = 0.02   # m
+
 # Radius of the circle the plank sweeps when the robot turns on the spot: half its diagonal.
 PLANK_SWEEP = math.hypot(PLANK_LENGTH / 2, PLANK_WIDTH / 2)   # 0.269 m
 
@@ -177,7 +182,8 @@ def build_TBmodel():
 
 
 def build_TBmpc(model, t_step, n_horizon, min_v, max_v, max_w, box, sweep,
-                obstacles, offsets, disc_radius, penalty, q_position, q_terminal, r_input):
+                obstacles, offsets, disc_radius, penalty, q_position, q_terminal, r_input,
+                margin=SAFETY_MARGIN):
     """The controller. Everything here must happen before mpc.setup().
 
     Returns (mpc, tvp_template). Write the goal into tvp_template each tick;
@@ -224,7 +230,7 @@ def build_TBmpc(model, t_step, n_horizon, min_v, max_v, max_w, box, sweep,
     # Keep-out: one constraint per obstacle per disc. Each disc centre turns with the heading.
     # Squared on both sides, so there is no square root.  r^2 - d^2 <= 0  means outside.
     for j, (ox, oy, r_obs) in enumerate(obstacles, start=1):
-        keep_out = r_obs + disc_radius
+        keep_out = r_obs + disc_radius + margin
 
         for i, d in enumerate(offsets, start=1):
             cx = x + d * ca.cos(th)
@@ -241,6 +247,9 @@ def build_TBmpc(model, t_step, n_horizon, min_v, max_v, max_w, box, sweep,
     return mpc, tvp_template
 
 
+N_SMOKE = 20   # same as the node's n_horizon default
+
+
 def smoke_test():
     """Build the solver for a few scenarios and solve once. If this prints OK, setup is ok."""
     for name, footprint in (('lab2_t3', 'burger'), ('s1a', 'one'), ('s2_030', 'three')):
@@ -249,11 +258,11 @@ def smoke_test():
 
         started = time.perf_counter()
         model = build_TBmodel()
-        mpc, tvp = build_TBmpc(model, 0.1, 40, 0.0, 0.22, 0.8, cfg['box'], fp['sweep'],
+        mpc, tvp = build_TBmpc(model, 0.1, N_SMOKE, 0.0, 0.22, 0.8, cfg['box'], fp['sweep'],
                                cfg['obstacles'], fp['offsets'], fp['radius'],
                                1e4, 1.0, 1.0, 0.01)
 
-        for k in range(41):
+        for k in range(N_SMOKE + 1):
             tvp['_tvp', k, 'xdes'] = 1.0
             tvp['_tvp', k, 'ydes'] = 0.0
 
@@ -285,6 +294,7 @@ class MpcNode(Node):
         self.declare_parameter('q_terminal', 1.0)        # terminal cost on position error
         self.declare_parameter('r_input', 0.01)          # cost on input changes: smoothness
         self.declare_parameter('obstacle_penalty', 10000.0)   # price per unit of soft slack
+        self.declare_parameter('safety_margin', SAFETY_MARGIN)  # m added to every keep-out, see SAFETY_MARGIN
 
         # Robot limits
         self.declare_parameter('max_linear_velocity', 0.22)   # m/s, the Burger's real top speed
@@ -308,6 +318,7 @@ class MpcNode(Node):
         self.min_v = float(p('min_linear_velocity'))
         self.goal_tolerance = float(p('goal_tolerance'))
         self.odom_timeout = float(p('odom_timeout'))
+        self.margin = float(p('safety_margin'))
         self.hold_ticks = int(p('hold_ticks'))
         self.delay_steps = int(p('delay_steps'))
 
@@ -324,6 +335,7 @@ class MpcNode(Node):
         self.goal_source = cfg['goal']
         self.offsets = fp['offsets']
         self.disc_radius = fp['radius']
+        self.sweep = fp['sweep']
 
         # The solver, built once
         self.model = build_TBmodel()
@@ -332,7 +344,8 @@ class MpcNode(Node):
             self.min_v, self.max_v, self.max_w, self.box, fp['sweep'],
             self.obstacles, self.offsets, self.disc_radius,
             float(p('obstacle_penalty')),
-            float(p('q_position')), float(p('q_terminal')), float(p('r_input')))
+            float(p('q_position')), float(p('q_terminal')), float(p('r_input')),
+            self.margin)
 
         # Publishers
         self.cmd_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
@@ -363,13 +376,13 @@ class MpcNode(Node):
         self.reach = self.n_horizon * self.t_step * self.max_v
 
         self.get_logger().info(
-            'scenario %s | footprint %s: %d disc(s) of r=%.3f | horizon %d x %.2f s | reach %.2f m'
-            % (self.scenario, self.footprint, len(self.offsets), self.disc_radius,
+            'scenario %s | footprint %s: %d disc(s) of r=%.3f | margin %.3f | horizon %d x %.2f s | reach %.2f m'
+            % (self.scenario, self.footprint, len(self.offsets), self.disc_radius, self.margin,
                self.n_horizon, self.t_step, self.reach))
         for i, (ox, oy, radius) in enumerate(self.obstacles, start=1):
             self.get_logger().info(
                 'obstacle %d at (%.3f, %.3f) r=%.3f, keep-out %.3f m'
-                % (i, ox, oy, radius, radius + self.disc_radius))
+                % (i, ox, oy, radius, radius + self.disc_radius + self.margin))
 
     # ------------------------------------------------------------ callbacks: store only
 
@@ -389,9 +402,10 @@ class MpcNode(Node):
                                    % self.scenario)
             return
 
+        # Clip into the box the axle may actually use: the box shrunk by the body's sweep.
         x_min, x_max, y_min, y_max = self.box
-        gx = max(x_min, min(x_max, msg.position.x))
-        gy = max(y_min, min(y_max, msg.position.y))
+        gx = max(x_min + self.sweep, min(x_max - self.sweep, msg.position.x))
+        gy = max(y_min + self.sweep, min(y_max - self.sweep, msg.position.y))
 
         self.goal = self.push_out(gx, gy)
         self.warm = False
@@ -402,7 +416,7 @@ class MpcNode(Node):
     def push_out(self, gx, gy):
         """Move a goal that sits inside an inflated obstacle to the nearest point outside it."""
         for ox, oy, radius in self.obstacles:
-            keep_out = radius + self.disc_radius + 0.02
+            keep_out = radius + self.disc_radius + self.margin + 0.02
             d = math.hypot(gx - ox, gy - oy)
 
             if d < keep_out:
@@ -420,13 +434,21 @@ class MpcNode(Node):
     def check_start(self):
         """Log anything that will make the first solve hard, once, at startup."""
         for i, (ox, oy, radius) in enumerate(self.obstacles, start=1):
-            keep_out = radius + self.disc_radius
+            keep_out = radius + self.disc_radius + self.margin
             d = math.hypot(self.x - ox, self.y - oy)
 
             if d < keep_out:
                 self.get_logger().warn(
                     'obstacle %d: robot is %.3f m from its centre, inside the %.3f m keep-out. '
                     'Soft constraint will drive it out.' % (i, d, keep_out))
+
+            # Lab 2 finding 7b/7c: going round an obstacle needs up to its keep-out diameter
+            # of sideways travel. If that is more than the horizon reaches, it cannot be planned.
+            if 2.0 * keep_out > self.reach:
+                self.get_logger().warn(
+                    'obstacle %d: going round it can need %.2f m, the horizon reaches %.2f m. '
+                    'If the path must go round it, raise n_horizon or t_step.'
+                    % (i, 2.0 * keep_out, self.reach))
 
     def horizon_points(self):
         """(x, y) reference for each of the N+1 horizon steps, or None to hold still."""
@@ -545,7 +567,7 @@ class MpcNode(Node):
         stamp = self.get_clock().now().to_msg()
 
         for i, (ox, oy, radius) in enumerate(self.obstacles):
-            for j, (r, alpha) in enumerate(((radius, 0.8), (radius + self.disc_radius, 0.25))):
+            for j, (r, alpha) in enumerate(((radius, 0.8), (radius + self.disc_radius + self.margin, 0.25))):
                 m = self.marker('obstacles', i * 2 + j, Marker.CYLINDER, stamp)
                 m.pose.position.x = float(ox)
                 m.pose.position.y = float(oy)
@@ -616,6 +638,9 @@ class MpcNode(Node):
         self.prediction_pub.publish(path)
 
     def stop(self):
+        # The robot is now told to stand still, so that is what delay compensation must assume.
+        self.last_cmd = (0.0, 0.0)
+
         cmd = TwistStamped()
         cmd.header.stamp = self.get_clock().now().to_msg()
         cmd.header.frame_id = 'base_link'

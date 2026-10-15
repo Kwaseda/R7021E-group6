@@ -31,6 +31,7 @@ from r7021e_project.mpc_node import SCENARIOS
 
 OBSTACLE_HEIGHT = 0.40   # m, taller than the plank (0.21 m) so the plank can really hit it
 WALL_THICKNESS = 0.05    # m
+ROBOT_NAME = 'burger'    # Gazebo entity name; the ground-truth topic is built from it
 
 
 def cylinder_sdf(name, radius):
@@ -93,7 +94,7 @@ def setup(context):
 
     # The robot, with the plank or without
     robot_file = os.path.join(share, 'worlds', 'burger_plank.sdf' if plank else 'burger_bare.sdf')
-    actions.append(spawn('burger', 0.0, 0.0, sdf_file=robot_file))
+    actions.append(spawn(ROBOT_NAME, 0.0, 0.0, sdf_file=robot_file))
 
     actions.append(IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(tb3, 'launch', 'robot_state_publisher.launch.py')),
@@ -108,8 +109,8 @@ def setup(context):
     # Ground truth, for the evaluation only
     actions.append(Node(
         package='ros_gz_bridge', executable='parameter_bridge', name='truth_bridge', output='screen',
-        arguments=['/model/burger/pose@geometry_msgs/msg/PoseStamped[gz.msgs.Pose'],
-        remappings=[('/model/burger/pose', '/ground_truth')]))
+        arguments=['/model/%s/pose@geometry_msgs/msg/PoseStamped[gz.msgs.Pose' % ROBOT_NAME],
+        remappings=[('/model/%s/pose' % ROBOT_NAME, '/ground_truth')]))
 
     # The scenario's obstacles, from the same table the controller reads
     for i, (ox, oy, radius) in enumerate(cfg['obstacles'], start=1):

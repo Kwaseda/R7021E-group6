@@ -10,6 +10,11 @@ sourced and the same `ROS_DOMAIN_ID`.
 Plain Burger, empty world, no plank yet. Proves the copy builds, registers and drives before
 anything new is added.
 
+> **Historical.** These commands are for the verbatim Lab 2 copy at commit `a610d80`. The
+> project node no longer has `task` or `plot_run.py --task`. To rerun a Lab 2 task on today's
+> node: `project_sim.launch.py scenario:=lab2_t4 plank:=false`, then
+> `mpc_node --ros-args -p scenario:=lab2_t4 -p footprint:=burger -p use_sim_time:=true`.
+
 ### 0. Before every launch (trap 3: stray Gazebo)
 
 ```bash

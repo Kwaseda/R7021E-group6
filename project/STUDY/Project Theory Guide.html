@@ -580,6 +580,8 @@ x<sub>k+1</sub> = f(x<sub>k</sub>, u<sub>k</sub>) &nbsp;&nbsp; x<sub>0</sub> = m
 <tr><td>0.28</td><td>yes, tighter heading</td><td>reject</td><td>pass, 10 mm each side</td></tr>
 </table></div>
 
+<div class="box warn">Update after the Gazebo runs (LOG D9): a 2 cm <b>safety margin</b> was added to every keep-out after the three-disc plank grazed the obstacle in s1a, where odometry was 2.8 cm off the truth. Each footprint now needs 2(r + 0.02): one disc 0.579 m, three discs <b>0.300 m</b>. So the 0.28 row becomes "reject" for three discs too, and 0.30 is exactly the limit. The study guide has the measured table.</div>
+
 <div class="box key">The 0.50 m row is the headline. The real plank has 15 cm to spare on each side, and the one-disc controller still refuses the gap. That's the cost of a conservative footprint.</div>
 
 <p><b>What "passes" means.</b> The goal is reached <em>and</em> the true rectangle clearance stays above zero for the whole run. Soft constraints can squeeze a too-big disc model through a gap by paying slack, so "reached the goal" alone isn't enough. If the one-disc run squeezes through at 0.50 m, that's a finding too, about ρ, and we report it.</p>

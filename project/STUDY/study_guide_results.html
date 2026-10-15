@@ -1,0 +1,37 @@
+<!-- Hand-written interpretation, pasted into the study guide by build_study_guide.py. -->
+
+<!--S1_TEXT-->
+<div class="box result">Both footprints complete both paths without touching the obstacle (all with the 2 cm margin). The difference is how far they have to leave the path to go round it:
+<b>circle</b>: max path error 0.207 m with one disc against 0.075 m with three, 2.8× less (Theory Guide §11 predicted 0.21 against 0.07 before the margin).
+<b>figure-8</b>: 0.302 m against 0.027 m, 11× less. Next to the crossing, the one-disc model (0.389 m keep-out) has to swing wide on both passes, while three discs barely notice the obstacle.</div>
+<p>The price is clearance. The three-disc plank passes the s1a obstacle with 11 mm of real clearance, against 89 mm for one disc. Three discs spend the room that one disc wasted, and that room was also what absorbed odometry error. Without the margin, the 11 mm became −2 mm (below).</p>
+<!--/S1_TEXT-->
+
+<!--RESULTS_TEXT-->
+<h3>What the scenario 2 table says</h3>
+<p>All runs above use the 2 cm safety margin (LOG D9). Predictions from Theory Guide §12 with the margin added: one disc needs 0.579 m, three discs need 0.300 m.</p>
+<ul>
+<li><b>One disc rejects every gap of 0.50 m or less.</b> At 0.50 m the real plank has 0.15 m to spare on each side, and the controller still refuses, because its model of the body does not fit. That's the cost of a conservative footprint, and the headline of research question 1.</li>
+<li><b>Three discs pass every gap down to 0.30 m</b>, the gap the proposal named, with real clearance (gap − 0.20)/2. At 0.28 m they stop, which is the margin's price. Without the margin (<code>bags/margin0/</code>) three discs passed 0.28 m too, but the same footprint grazed the obstacle in s1a.</li>
+<li>A rejected run is <b>safe</b>, not a crash. The robot stops where its keep-out rings touch the posts and never touches anything.</li>
+</ul>
+{{img|plots/margin0/s1a_pair.png|Without the margin: s1a, red one disc, blue three discs. The blue run grazed the obstacle at the top (−2.1 mm), slipped, and its odometry drifted 1.03 m from the truth, which is why the blue truth path wanders off the circle.}}
+
+<h3>Gate 1 (your bags)</h3>
+<div class="tablewrap"><table>
+<tr><th>bag</th><th>result</th></tr>
+<tr><td>gate1_t4</td><td class="pass">PASS: about two laps (10.13 m), closest 0.2195 m to a 0.225 keep-out (5.5 mm soft slack), mean circle error 4.4 mm</td></tr>
+<tr><td>gate1_t3</td><td class="fail">no motion: goal never received (§14)</td></tr>
+<tr><td>gate1_t3-version2</td><td class="fail">no motion: same</td></tr>
+<tr><td>reproduction (Claude)</td><td class="pass">goal published after the node started: reached (1.78, 0.01)</td></tr>
+</table></div>
+
+<h3>The horizon sweep (desk, Gazebo window closed)</h3>
+<div class="tablewrap"><table>
+<tr><th>case</th><th>N = 20 (0.44 m)</th><th>N = 40 (0.88 m)</th><th>N = 60 (1.32 m)</th></tr>
+<tr><td>s2_030, three discs: median / p95 ms</td><td><b>33 / 59</b></td><td>67 / 174</td><td>105 / 367</td></tr>
+<tr><td>s1a, three discs</td><td><b>23 / 39</b></td><td>51 / 82</td><td>85 / 131</td></tr>
+<tr><td>s2_030, one disc</td><td><b>20 / 30</b></td><td>44 / 59</td><td>64 / 87</td></tr>
+</table></div>
+<p>Q6's rule was "the largest N whose p95 stays under 50 ms". Strictly, only one disc meets it at N = 20, and the hardest three-disc case reaches 59 ms. N = 40 is far over. So N = 20 is the only horizon that stays inside the 100 ms tick everywhere. Its reach of 0.44 m covers every detour in scenarios 1 and 2 (the largest is about 0.2 m). With the Gazebo window open, the same N = 20 solves took 110–120 ms median. <b>Never quote a solve time without saying whether the GUI was running.</b></p>
+<!--/RESULTS_TEXT-->

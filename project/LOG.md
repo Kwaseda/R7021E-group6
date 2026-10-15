@@ -85,7 +85,11 @@ The Lab 2 RViz config has no RobotModel display and nothing that draws the body.
 axes, Odometry arrows, scan, obstacle markers and the predicted path. Fixed in
 `rviz/project.rviz`: a RobotModel display (from `/robot_description`), plus a MarkerArray on
 the new `/mpc_footprint` topic, where the node draws the plank and the discs it believes in at
-the measured pose. Also run RViz with `use_sim_time:=true` in sim (RUNSHEET).
+the measured pose. Verified headless (RViz window captured): with the new config RViz shows the
+Burger, plank, discs, posts and walls, both with and without `use_sim_time`, so sim time was
+**not** the cause. The likeliest cause is the missing body display. A terminal on another
+`ROS_DOMAIN_ID` (trap 1) would also show an empty RViz, and the bags can't tell the two apart.
+`use_sim_time:=true` stays in the RUNSHEET because it's correct in sim, not because it fixes this.
 
 ### Decisions made without Dominic (blocker rule: course tools only, proposal goals only)
 
@@ -114,3 +118,63 @@ the measured pose. Also run RViz with `use_sim_time:=true` in sim (RUNSHEET).
 - `analysis/plot_run.py`: grades bags from ground truth against the exact rectangle, and plots a
   run or a pair.
 - `desk/sim_scenario.py`: local only, gitignored.
+
+### Scenario runs, first pass (no safety margin), and what they showed
+
+All 16 runs recorded headless, GUI off, graded from ground truth (`analysis/plot_run.py`). These
+bags are kept in `bags/margin0/` as evidence.
+
+- **Scenario 2 matched every prediction.** One disc rejects every gap ≤ 0.50 m and stops
+  1.1–1.3 m short without touching anything. Three discs pass every gap down to 0.28 m with real
+  clearance (gap − 0.20)/2.
+- **s1a with three discs failed.** The real plank grazed the obstacle by 2.1 mm at t = 22.4 s.
+  At that moment odometry said (0.356, 0.715) and ground truth said (0.337, 0.695), 2.8 cm apart.
+  The three-disc plan rode its keep-out with about 4 mm of real clearance to spare (desk
+  prediction +3.7 mm), so odometry error used up the margin. The contact made the wheels slip,
+  odometry then drifted **1.03 m** from truth, and the robot tracked its circle in the wrong
+  place for the rest of the lap (mean path error 0.37 m).
+- s1a with one disc was fine: 7.9 cm of real clearance. The big disc's waste is also its safety
+  margin.
+
+### More decisions made without Dominic
+
+| # | Decision | Why |
+|---|---|---|
+| D9 | **`safety_margin` = 0.02 m** added to every keep-out (`SAFETY_MARGIN`, also a parameter). All 16 runs re-recorded with it. | The s1a graze above. Course precedent: Lab 3's `inflation_radius` 0.120 against the robot's 0.105. Cost: three discs now need 2 × (0.130 + 0.02) = **0.30 m**, and one disc 0.579 m. Desk with margin: s1a three-disc clearance +18 mm, s2_030 passes, s2_028 rejected. So the narrowest gap three discs pass becomes exactly the proposal's 0.30 m. |
+| D10 | Code review fixes (`code-review` skill, 6 findings, all fixed). (1) `stop()` resets `last_cmd`, so delay compensation doesn't push the pose with a command the robot is no longer running. (2) Lab 2's "detour bigger than reach" startup warning is back. (3) Topic goals are clipped to the shrunk box. (4) "Reached in" is timed from the first non-zero command, not from bag start (12.7 s became 8.9 s, same as the desk). (5) The smoke test uses the node's N. (6) The robot entity name is one constant in the launch file. | Before the bags that count were recorded, as CLAUDE.md requires. |
+
+### Results with the 2 cm margin (the runs that count)
+
+16 Gazebo runs, GUI off, graded by `analysis/plot_run.py` from ground truth against the exact
+rectangle. Every node shut down cleanly (no "context is invalid"). Figures are in `plots/`, and
+the full tables are in `STUDY/Project Study Guide.html` §13.
+
+**Scenario 2: narrowest gap passed: one disc 0.60 m, three discs 0.30 m.**
+
+| gap | one disc | three discs |
+|---|---|---|
+| 0.60 | pass, clearance 0.200 | pass, 0.200 |
+| 0.50 | stopped 1.18 m short, safe (0.150) | pass, 0.150 |
+| 0.40 | stopped, safe (0.100) | pass, 0.100 |
+| 0.34 | stopped, safe (0.075) | pass, 0.070 |
+| 0.30 | stopped, safe (0.061) | **pass, 0.050**, the proposal's gap |
+| 0.28 | stopped, safe (0.053) | stopped, safe (0.037), the margin's price |
+
+All passes reach the goal in 8.9–9.1 s from the first command, the same as the desk.
+
+**Scenario 1: both footprints complete both paths with no contact.**
+
+| | path error max, one | path error max, three | real clearance, one | real clearance, three |
+|---|---|---|---|---|
+| s1a circle | 0.207 m | 0.075 m (2.8× less) | 0.089 m | 0.011 m |
+| s1b figure-8 | 0.302 m | 0.027 m (11× less) | 0.025 m | 0.043 m |
+
+**Solve time:** median of the per-run medians, 22 ms with one disc and 33 ms with three (1.5×).
+The worst p95 was 83 ms. Everything stays inside the 100 ms tick with the GUI off.
+
+### Where this leaves the timeline
+
+12–19 Oct goals done in simulation: plank in Gazebo, three-disc footprint, Lab 2 tasks rerun as
+gates (t4 passed; t3's failure was the goal publish, reproduced and passed), scenarios 1 and 2
+with pairs. Next, 20–23 Oct: scenario 3, the obstacle centre as a TVP. Still open from today:
+Dominic should rerun at least one s2 pair and s1a himself from `RUNSHEET.md` before the oral.

@@ -25,6 +25,7 @@ What it reads from the bag
 /odom             nav_msgs/Odometry           what the robot believed, for the drift line
 /mpc_solve_time   std_msgs/Float64            seconds per make_step
 /new_position     geometry_msgs/Pose          the goal, for scenarios whose goal is a topic
+/cmd_vel          geometry_msgs/TwistStamped  first non-zero command starts the 'reached in' clock
 """
 
 import argparse
@@ -95,9 +96,10 @@ def read_bag(path):
     types_ = {t.name: t.type for t in reader.get_all_topics_and_types()}
 
     truth, odom, solve, goals = [], [], [], []
+    first_move = None
     while reader.has_next():
         topic, data, t = reader.read_next()
-        if topic not in ('/ground_truth', '/odom', '/mpc_solve_time', '/new_position'):
+        if topic not in ('/ground_truth', '/odom', '/mpc_solve_time', '/new_position', '/cmd_vel'):
             continue
         msg = deserialize_message(data, get_message(types_[topic]))
 
@@ -109,10 +111,13 @@ def read_bag(path):
             odom.append((t * 1e-9, p.position.x, p.position.y))
         elif topic == '/mpc_solve_time':
             solve.append(msg.data)
+        elif topic == '/cmd_vel':
+            if first_move is None and (abs(msg.twist.linear.x) > 1e-3 or abs(msg.twist.angular.z) > 1e-3):
+                first_move = t * 1e-9
         else:
             goals.append((msg.position.x, msg.position.y))
 
-    return np.array(truth), np.array(odom), np.array(solve), goals
+    return np.array(truth), np.array(odom), np.array(solve), goals, first_move
 
 
 def reference_curve(mc, shape):
@@ -125,7 +130,7 @@ def grade(path, scenario, footprint):
     mc = MC
     cfg = mc.SCENARIOS[scenario]
     fp = mc.FOOTPRINTS[footprint]
-    truth, odom, solve, goals = read_bag(path)
+    truth, odom, solve, goals, first_move = read_bag(path)
 
     if len(truth) == 0:
         raise SystemExit('%s has no /ground_truth messages' % path)
@@ -150,7 +155,9 @@ def grade(path, scenario, footprint):
     if res['goal'] is not None:
         d = np.hypot(xy[:, 0] - res['goal'][0], xy[:, 1] - res['goal'][1])
         hit = np.nonzero(d < GOAL_REACHED)[0]
-        res['reached'] = (truth[hit[0], 0] - truth[0, 0]) if len(hit) else None
+        # Timed from the first non-zero command, so start-up time is not counted.
+        start = first_move if first_move is not None else truth[0, 0]
+        res['reached'] = (truth[hit[0], 0] - start) if len(hit) else None
         res['final_error'] = float(d[-1])
     else:
         ref = reference_curve(mc, goal)
@@ -243,9 +250,10 @@ def plot(results, out):
     for i, (ox, oy, r) in enumerate(cfg['obstacles']):
         ax.add_patch(plt.Circle((ox, oy), r, color='0.35', zorder=3, label='obstacle' if i == 0 else None))
         for res, colour in zip(results, colours):
-            ax.add_patch(plt.Circle((ox, oy), r + res['fp']['radius'], color=colour, fill=False,
-                                    ls=':', zorder=3,
-                                    label='keep-out, %s' % res['footprint'] if i == 0 else None))
+            ax.add_patch(plt.Circle((ox, oy), r + res['fp']['radius'] + MC.SAFETY_MARGIN, color=colour,
+                                    fill=False, ls=':', zorder=3,
+                                    label='keep-out incl. %.2f margin, %s' % (MC.SAFETY_MARGIN, res['footprint'])
+                                    if i == 0 else None))
 
     if 'ref' in results[0]:
         ref = results[0]['ref']
