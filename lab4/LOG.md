@@ -329,3 +329,11 @@ Time per step grows linearly with N: about 35 ms at N = 1, 230 ms at N = 10, 830
 ### What this means for the hall
 
 Start the hall at N = 10 (ATE 0.13 m mean in simulation, about 230 ms per step). N = 20 also fits the step time. Do not go to 50.
+
+## 2026-10-16: ready for the hall
+
+- Comments: the TODO and NOTE blocks of the template and the step() sketch are removed from the five student files. Code unchanged (the AST without docstrings is identical). Desk checks pass, a replay runs (FS2, N = 10, ATE 0.186 m) [gazebo].
+- Size against the classmates' five files: ours 45 to 194 lines, theirs 48 to 241. We changed only the five student files and `params.yaml`.
+- `params.yaml` is in hall mode: `odom_noise_sigma` [0, 0, 0], `scan_queue_depth` 1, `ground_truth_topic` '', `num_particles` 10. The sim values are in the .json of every sim run. (The previous commit message said hall mode, but the change failed; this commit makes it.)
+- We did not do the comparison run with the classmates' package (handover step C13). The PDF does not ask for it, and Dominic asked for no extra work.
+- Task 8 tuning order and ranges: `RUNSHEET.md`.

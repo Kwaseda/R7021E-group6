@@ -7,7 +7,7 @@
 grid_slam_node:
   ros__parameters:      
     ## --- particle filter ---
-    num_particles: 1
+    num_particles: 10
     seed: 1
     use_measurement_update: true       # false: occupancy mapping only
     use_improved_proposal: true        # false: FastSLAM 1.0 baseline
@@ -20,7 +20,7 @@ grid_slam_node:
     ## Simulation only: noise ADDED to the odometry before the filter sees
     ## it. Opposite role to the line above. SET TO ZEROS ON HARDWARE, where
     ## the wheel odometry is already as bad as it is going to get.
-    odom_noise_sigma: [0.003, 0.003, 0.003]  # sim only; set [0,0,0] for the hall
+    odom_noise_sigma: [0.0, 0.0, 0.0]   # hall: real odometry. Sim sweep used [0.003, 0.003, 0.003]
 
     ## --- occupancy grid (tune in Task 1) ---
     map_size_m: 20.0                       # square, centred on the start pose
@@ -67,7 +67,7 @@ grid_slam_node:
     update_max_rate: 10.0        # Hz, 0 for no limit
     update_min_dist: 0.2         # meters; 0.05 gave 559 steps and a heading random walk (LOG 2026-10-15)
     update_min_angle: 0.2        # rad, about 11 degrees; was 1 degree
-    scan_queue_depth: 1000       # sim replay: keep every scan. Hall: 1
+    scan_queue_depth: 1          # hall: drop the backlog. Sim replays used 1000
 
     ## --- run log ---
     ## The node writes <log_dir>/<run_name>.npz on shutdown. Every report
@@ -77,4 +77,4 @@ grid_slam_node:
     ## whatever directory you launched from. An absolute path is used as given.
     log_dir: 'runs'
     run_name: 'mapping_only'
-    ground_truth_topic: /ground_truth   # sim only: Gazebo true pose in the drive bag. Hall: ''
+    ground_truth_topic: ''   # hall: no ground truth. Sim replays used /ground_truth
