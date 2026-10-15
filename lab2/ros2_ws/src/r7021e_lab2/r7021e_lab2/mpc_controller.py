@@ -395,28 +395,6 @@ class MpcNode(Node):
         self.publish_cmd(now, v, omega)
         self.publish_prediction(now)
 
-        """   
-    ef publish_obstacles(self):
-        # Drawn at the inflated radius, which is what the solver actually enforces.
-        markers = MarkerArray()
-        for i, (ox, oy, radius) in enumerate(self.obstacles):
-            m = Marker()
-            m.header.frame_id = 'odom'
-            m.ns = 'mpc_obstacles'
-            m.id = i
-            m.type = Marker.CYLINDER
-            m.pose.position.x = ox
-            m.pose.position.y = oy
-            m.pose.position.z = 0.1
-            m.pose.orientation.w = 1.0
-            m.scale.x = m.scale.y = 2.0 * radius
-            m.scale.z = 0.2
-            m.color.r, m.color.g, m.color.b, m.color.a = 0.9, 0.2, 0.2, 0.35
-            markers.markers.append(m)
-        if markers.markers:
-            self.obstacle_pub.publish(markers)
-
-        """
 
     def publish_cmd(self, now, v, omega):
         cmd = TwistStamped()
