@@ -1,254 +1,304 @@
 #!/usr/bin/env python3
-"""Plot a Lab 2 run from a recorded rosbag.
+"""Grade a recorded project run, or a pair of runs, from the bag. The evaluation harness.
 
-Adapted from animate_trajectory() in the course notebook (do_mpc.ipynb cell 34).
-The notebook version animates a list of [x, y] it already had in memory; this one
-reads the same information back out of a bag, and knows about the boundary box and
-the task's obstacles.
+Distances come from Gazebo ground truth (/ground_truth) and the exact plank rectangle, not
+from /odom and not from the discs the controller believes in (decision Q4).
 
 Needs ROS sourced, because it imports rosbag2_py:
     source /opt/ros/jazzy/setup.bash
 
-    python3 plot_rosbag.py ../bags/task2 --task 2
-    python3 plot_rosbag.py ../bags/task4 --task 4 --animate
+    python3 plot_run.py ../bags/s2_030_three --scenario s2_030
+    python3 plot_run.py ../bags/s1a_one ../bags/s1a_three --scenario s1a -o ../plots/s1a_pair.png
+    python3 plot_run.py ../bags/s2_050_one --scenario s2_050 --line
 
 Arguments
 ---------
-bag          path to the bag DIRECTORY (the folder holding metadata.yaml)
---task N     1-4. Selects the obstacles and boundary drawn, from TASKS below.
--o FILE      output image. Default: <bagname>_task<N>.png
---animate    also write an animated GIF beside the PNG
---interval   GIF frame interval in ms (default 60)
-
-Outputs
--------
-A PNG (always) and optionally a GIF. Prints the numbers you need for the report:
-path length, duration, final position, closest approach to each obstacle, and
-mean tracking error against the goal.
+bags          one or two bag DIRECTORIES. Two are drawn on the same axes: the run pair.
+--scenario    a key of SCENARIOS in mpc_node.py
+--footprint   burger | one | three. Default: the bag name's last word (s2_030_three -> three)
+-o FILE       output image. Default: ../plots/<bag>.png
+--line        print one summary line per bag instead of the full report, and no plot
 
 What it reads from the bag
 --------------------------
-/odom            nav_msgs/Odometry      the path actually driven
-/new_position    geometry_msgs/Pose     the goals you published (tasks 1-3)
-/mpc_prediction  nav_msgs/Path          the last predicted horizon, if recorded
+/ground_truth     geometry_msgs/PoseStamped   Gazebo's exact pose: every distance
+/odom             nav_msgs/Odometry           what the robot believed, for the drift line
+/mpc_solve_time   std_msgs/Float64            seconds per make_step
+/new_position     geometry_msgs/Pose          the goal, for scenarios whose goal is a topic
 """
 
 import argparse
+import importlib.util
 import math
 import os
 import sys
+import types
 
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')          # no display needed; write straight to a file
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 
-# Read straight out of the node, so the two can never drift apart.
-import importlib.util as _u
-_spec = _u.spec_from_file_location('_node', os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    '../ros2_ws/src/r7021e_project/r7021e_project/mpc_node.py'))
-_src = open(_spec.origin).read()
-_ns = {'__name__': '_node'}
-exec(compile(_src[:_src.index('class MpcNode')].replace('import rclpy', 'pass')
-             .replace('from rclpy', '#from rclpy').replace('from geometry_msgs', '#from geometry_msgs')
-             .replace('from nav_msgs', '#from nav_msgs').replace('from visualization_msgs', '#from visualization_msgs')
-             .replace('from rcl_interfaces', '#from rcl_interfaces'), _spec.origin, 'exec'), _ns)
-ROBOT_INFLATION = _ns['ROBOT_INFLATION']
-TASKS = {k: dict(bound=v['bound'], obstacles=v['obstacles']) for k, v in _ns['TASKS'].items()}
-CIRCLE = dict(radius=_ns['CIRCLE']['radius'], centre_x=_ns['CIRCLE']['centre_x'],
-              centre_y=_ns['CIRCLE']['centre_y'])
+NODE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                    '../ros2_ws/src/r7021e_project/r7021e_project/mpc_node.py')
+
+GOAL_REACHED = 0.08   # m of ground truth. Node stops at 0.05 of odom, odom is ~0.01 off truth.
+
+
+def load_node():
+    """Import the node module for its tables and geometry, with the ROS pieces stubbed out."""
+    stubs = {
+        'rclpy': [], 'rclpy.node': ['Node'], 'rclpy.qos': ['qos_profile_sensor_data'],
+        'rclpy.signals': ['SignalHandlerOptions'],
+        'geometry_msgs': [], 'geometry_msgs.msg': ['Point', 'Pose', 'PoseStamped', 'TwistStamped'],
+        'nav_msgs': [], 'nav_msgs.msg': ['Odometry', 'Path'],
+        'std_msgs': [], 'std_msgs.msg': ['Float64'],
+        'visualization_msgs': [], 'visualization_msgs.msg': ['Marker', 'MarkerArray'],
+        'do_mpc': [], 'casadi': [],
+    }
+
+    saved = {m: sys.modules.get(m) for m in stubs}
+    for module, names in stubs.items():
+        sys.modules[module] = types.ModuleType(module)
+        for n in names:
+            setattr(sys.modules[module], n, object)
+
+    spec = importlib.util.spec_from_file_location('mc', NODE)
+    mc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mc)
+
+    # Put the real modules back so rosbag2_py and rclpy work afterwards.
+    for module, original in saved.items():
+        if original is None:
+            del sys.modules[module]
+        else:
+            sys.modules[module] = original
+    return mc
+
+
+MC = load_node()
+
+
+def yaw_of(q):
+    return math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z))
 
 
 def read_bag(path):
-    """Return {topic: [(t_seconds, message), ...]} for the topics we care about."""
-    try:
-        import rosbag2_py
-        from rclpy.serialization import deserialize_message
-        from rosidl_runtime_py.utilities import get_message
-    except ImportError:
-        sys.exit('error: ROS is not sourced.  Run:  source /opt/ros/jazzy/setup.bash')
-
-    if not os.path.isdir(path):
-        sys.exit('error: %s is not a directory. Pass the bag FOLDER, not the .mcap file.' % path)
+    import rosbag2_py
+    from rclpy.serialization import deserialize_message
+    from rosidl_runtime_py.utilities import get_message
 
     reader = rosbag2_py.SequentialReader()
-    reader.open(
-        rosbag2_py.StorageOptions(uri=path, storage_id=''),
-        rosbag2_py.ConverterOptions('', ''),
-    )
-    types = {t.name: t.type for t in reader.get_all_topics_and_types()}
-    wanted = ('/odom', '/new_position', '/mpc_prediction')
-    out = {t: [] for t in wanted}
-    t0 = None
+    reader.open(rosbag2_py.StorageOptions(uri=path, storage_id='mcap'),
+                rosbag2_py.ConverterOptions('', ''))
+    types_ = {t.name: t.type for t in reader.get_all_topics_and_types()}
 
+    truth, odom, solve, goals = [], [], [], []
     while reader.has_next():
-        topic, raw, stamp = reader.read_next()
-        if topic not in out:
+        topic, data, t = reader.read_next()
+        if topic not in ('/ground_truth', '/odom', '/mpc_solve_time', '/new_position'):
             continue
-        if t0 is None:
-            t0 = stamp
-        msg = deserialize_message(raw, get_message(types[topic]))
-        out[topic].append(((stamp - t0) * 1e-9, msg))
-    return out
+        msg = deserialize_message(data, get_message(types_[topic]))
 
-
-def extract(bag):
-    """Pull the arrays out of the raw messages."""
-    odom = bag['/odom']
-    t = np.array([s for s, _ in odom])
-    xy = np.array([[m.pose.pose.position.x, m.pose.pose.position.y] for _, m in odom])
-
-    goals, goal_t = [], []
-    for s, m in bag['/new_position']:
-        p = (m.position.x, m.position.y)
-        if not goals or p != goals[-1]:      # only the distinct ones
-            goals.append(p)
-            goal_t.append(s)
-
-    pred = []
-    if bag['/mpc_prediction']:
-        last = bag['/mpc_prediction'][-1][1]
-        pred = [(p.pose.position.x, p.pose.position.y) for p in last.poses]
-
-    return t, xy, goals, goal_t, pred
-
-
-def report(t, xy, goals, obstacles, task):
-    """Print the numbers that go in the report."""
-    if len(xy) < 2:
-        print('warning: fewer than two /odom samples - is the bag empty?')
-        return
-    steps = np.linalg.norm(np.diff(xy, axis=0), axis=1)
-    print('samples            %d over %.1f s' % (len(xy), t[-1] - t[0]))
-    print('path length        %.3f m' % steps.sum())
-    print('final position     x=%.3f  y=%.3f' % (xy[-1, 0], xy[-1, 1]))
-    print('extent             x [%.3f, %.3f]  y [%.3f, %.3f]'
-          % (xy[:, 0].min(), xy[:, 0].max(), xy[:, 1].min(), xy[:, 1].max()))
-
-    for i, (ox, oy, r) in enumerate(obstacles, start=1):
-        d = np.linalg.norm(xy - np.array([ox, oy]), axis=1)
-        inflated = r + ROBOT_INFLATION
-        if d.min() < r:
-            note = '   *** HIT THE OBSTACLE ***'
-        elif d.min() < inflated:
-            note = '   soft slack used %.1f mm of the %.0f mm inflation' % (
-                (inflated - d.min()) * 1000.0, ROBOT_INFLATION * 1000.0)
+        if topic == '/ground_truth':
+            p = msg.pose
+            truth.append((t * 1e-9, p.position.x, p.position.y, yaw_of(p.orientation)))
+        elif topic == '/odom':
+            p = msg.pose.pose
+            odom.append((t * 1e-9, p.position.x, p.position.y))
+        elif topic == '/mpc_solve_time':
+            solve.append(msg.data)
         else:
-            note = '   clear by %.1f mm' % ((d.min() - inflated) * 1000.0)
-        print('obstacle %d         closest approach %.4f m against a %.3f m constraint radius%s'
-              % (i, d.min(), inflated, note))
+            goals.append((msg.position.x, msg.position.y))
 
-    if task == 4:
-        rad = np.linalg.norm(xy - np.array([CIRCLE['centre_x'], CIRCLE['centre_y']]), axis=1)
-        err = np.abs(rad - CIRCLE['radius'])
-        print('circle tracking    mean error %.4f m, max %.4f m' % (err.mean(), err.max()))
-    elif goals:
-        gx, gy = goals[-1]
-        print('final goal error   %.4f m' % math.hypot(xy[-1, 0] - gx, xy[-1, 1] - gy))
+    return np.array(truth), np.array(odom), np.array(solve), goals
 
 
-def draw_static(ax, bound, obstacles, goals, pred, task):
-    """Everything that does not move: boundary, obstacles, goals, reference."""
-    ax.plot([-bound, bound, bound, -bound, -bound],
-            [-bound, -bound, bound, bound, -bound],
-            'r--', lw=1, label='boundary')
+def reference_curve(mc, shape):
+    c = mc.CIRCLE if shape == 'circle' else mc.FIGURE8
+    t = np.linspace(0, c['lap_period'], 2000)
+    return np.array([mc.path_point(shape, c['start_delay'] + s) for s in t])
 
-    for i, (ox, oy, r) in enumerate(obstacles):
-        ax.add_patch(plt.Circle((ox, oy), r, color='0.35', zorder=3,
-                                label='obstacle' if i == 0 else None))
-        ax.add_patch(plt.Circle((ox, oy), r + ROBOT_INFLATION, color='0.35',
-                                fill=False, ls=':', zorder=3,
-                                label='inflated by %.3f m' % ROBOT_INFLATION if i == 0 else None))
 
-    if task == 4:
-        a = np.linspace(0, 2 * math.pi, 240)
-        ax.plot(CIRCLE['centre_x'] + CIRCLE['radius'] * np.cos(a),
-                CIRCLE['centre_y'] + CIRCLE['radius'] * np.sin(a),
-                'g--', lw=1, label='reference circle')
-    elif goals:
-        g = np.array(goals)
-        ax.scatter(g[:, 0], g[:, 1], c='g', marker='o', s=90, zorder=4, label='goal')
+def grade(path, scenario, footprint):
+    mc = MC
+    cfg = mc.SCENARIOS[scenario]
+    fp = mc.FOOTPRINTS[footprint]
+    truth, odom, solve, goals = read_bag(path)
 
-    if pred:
-        p = np.array(pred)
-        ax.plot(p[:, 0], p[:, 1], color='orange', lw=2, alpha=0.9,
-                label='last predicted horizon')
+    if len(truth) == 0:
+        raise SystemExit('%s has no /ground_truth messages' % path)
 
+    res = dict(name=os.path.basename(os.path.normpath(path)), scenario=scenario,
+               footprint=footprint, fp=fp, cfg=cfg, truth=truth)
+
+    xy = truth[:, 1:3]
+    res['duration'] = truth[-1, 0] - truth[0, 0]
+    res['length'] = float(np.linalg.norm(np.diff(xy, axis=0), axis=1).sum())
+
+    # Closest real-plank clearance to each obstacle over the whole run.
+    res['clearance'] = [min(mc.rectangle_clearance(x, y, th, ox, oy, r) for _, x, y, th in truth)
+                        for ox, oy, r in cfg['obstacles']]
+
+    # Goal or path
+    goal = cfg['goal']
+    if goal == 'topic':
+        goal = goals[-1] if goals else None
+    res['goal'] = goal if isinstance(goal, tuple) else None
+
+    if res['goal'] is not None:
+        d = np.hypot(xy[:, 0] - res['goal'][0], xy[:, 1] - res['goal'][1])
+        hit = np.nonzero(d < GOAL_REACHED)[0]
+        res['reached'] = (truth[hit[0], 0] - truth[0, 0]) if len(hit) else None
+        res['final_error'] = float(d[-1])
+    else:
+        ref = reference_curve(mc, goal)
+        res['ref'] = ref
+        # Distance to the path, not to a moving point: no clock alignment needed.
+        err = np.array([np.hypot(ref[:, 0] - x, ref[:, 1] - y).min() for x, y in xy])
+        on = np.nonzero(err < 0.05)[0]
+        err = err[on[0]:] if len(on) else err
+        res['path_error_mean'] = float(err.mean())
+        res['path_error_max'] = float(err.max())
+
+    if len(solve):
+        res['solve'] = (float(np.median(solve)), float(np.percentile(solve, 95)),
+                        float(solve.max()), len(solve))
+
+    if len(odom):
+        res['drift'] = float(math.hypot(odom[-1, 1] - truth[-1, 1], odom[-1, 2] - truth[-1, 2]))
+
+    return res
+
+
+def passed(res):
+    """Scenario 2 rule (Q10): goal reached and the real plank never touched anything."""
+    ok_clear = all(c > 0 for c in res['clearance'])
+    if res['goal'] is None:
+        return ok_clear
+    return ok_clear and res['reached'] is not None
+
+
+def report(res):
+    print('=== %s | scenario %s | footprint %s (%d disc, r=%.3f) ==='
+          % (res['name'], res['scenario'], res['footprint'], len(res['fp']['offsets']), res['fp']['radius']))
+    print('duration           %.1f s' % res['duration'])
+    print('path length        %.3f m' % res['length'])
+
+    for i, ((ox, oy, r), c) in enumerate(zip(res['cfg']['obstacles'], res['clearance']), start=1):
+        print('obstacle %d         real plank clearance %+.4f m%s'
+              % (i, c, '   *** CONTACT ***' if c <= 0 else ''))
+
+    if res['goal'] is not None:
+        if res['reached'] is not None:
+            print('goal               reached in %.1f s' % res['reached'])
+        else:
+            print('goal               NOT reached, final error %.3f m' % res['final_error'])
+    else:
+        print('path error         mean %.4f m, max %.4f m (truth to reference curve)'
+              % (res['path_error_mean'], res['path_error_max']))
+
+    if 'solve' in res:
+        median, p95, worst, ticks = res['solve']
+        print('solve time         median %.1f ms, p95 %.1f ms, max %.1f ms over %d ticks'
+              % (median * 1e3, p95 * 1e3, worst * 1e3, ticks))
+    if 'drift' in res:
+        print('odom vs truth      %.3f m at the end' % res['drift'])
+    print('PASS' if passed(res) else 'FAIL')
+
+
+def line(res):
+    clear = min(res['clearance']) if res['clearance'] else float('nan')
+    if res['goal'] is not None:
+        outcome = 'reached %5.1f s' % res['reached'] if res['reached'] is not None else 'stopped, %.2f m short' % res['final_error']
+    else:
+        outcome = 'path err mean %.4f max %.4f' % (res['path_error_mean'], res['path_error_max'])
+    solve = 'solve med %5.1f p95 %5.1f ms' % (res['solve'][0] * 1e3, res['solve'][1] * 1e3) if 'solve' in res else ''
+    print('%-16s %-6s | %-28s | min clearance %+.4f m | %s | %s'
+          % (res['name'], res['footprint'], outcome, clear, solve, 'PASS' if passed(res) else 'FAIL'))
+
+
+def plank_outline(x, y, th):
+    hl, hw = MC.PLANK_LENGTH / 2, MC.PLANK_WIDTH / 2
+    c, s = math.cos(th), math.sin(th)
+    pts = [(hl, hw), (-hl, hw), (-hl, -hw), (hl, -hw), (hl, hw)]
+    return [x + c * a - s * b for a, b in pts], [y + s * a + c * b for a, b in pts]
+
+
+def plot(results, out):
+    cfg = results[0]['cfg']
+    colours = ['tab:red', 'tab:blue']
+
+    fig, ax = plt.subplots(figsize=(9, 6.5))
+
+    x_min, x_max, y_min, y_max = cfg['box']
+    ax.plot([x_min, x_max, x_max, x_min, x_min], [y_min, y_min, y_max, y_max, y_min],
+            'k--', lw=0.8, label='box')
+
+    if cfg['walls']:
+        for y in (cfg['walls'], -cfg['walls']):
+            ax.plot([x_min, x_max], [y, y], color='0.4', lw=3)
+
+    for i, (ox, oy, r) in enumerate(cfg['obstacles']):
+        ax.add_patch(plt.Circle((ox, oy), r, color='0.35', zorder=3, label='obstacle' if i == 0 else None))
+        for res, colour in zip(results, colours):
+            ax.add_patch(plt.Circle((ox, oy), r + res['fp']['radius'], color=colour, fill=False,
+                                    ls=':', zorder=3,
+                                    label='keep-out, %s' % res['footprint'] if i == 0 else None))
+
+    if 'ref' in results[0]:
+        ref = results[0]['ref']
+        ax.plot(ref[:, 0], ref[:, 1], 'g--', lw=1, label='reference')
+    elif results[0]['goal'] is not None:
+        ax.scatter(*results[0]['goal'], c='g', s=90, zorder=4, label='goal')
+
+    for res, colour in zip(results, colours):
+        truth = res['truth']
+        step = max(1, len(truth) // 30)
+        for k, (_, x, y, th) in enumerate(truth[::step]):
+            px, py = plank_outline(x, y, th)
+            ax.plot(px, py, color=colour, lw=0.6, alpha=0.45)
+        ax.plot(truth[:, 1], truth[:, 2], color=colour, lw=1.8,
+                label='%s (%s)' % (res['footprint'], 'PASS' if passed(res) else 'FAIL'))
+
+    ax.set_aspect('equal')
+    ax.grid(True, alpha=0.3)
     ax.set_xlabel('x [m]')
     ax.set_ylabel('y [m]')
-    ax.grid(True, alpha=0.3)
-    ax.set_aspect('equal')
+    ax.set_title('%s, Gazebo ground truth, plank outline every %d samples'
+                 % (results[0]['scenario'], max(1, len(results[0]['truth']) // 30)))
+    ax.legend(loc='best', fontsize=8)
+
+    fig.tight_layout()
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    print('wrote %s' % out)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('bag')
-    ap.add_argument('--task', type=int, required=True, choices=sorted(TASKS))
+    ap.add_argument('bags', nargs='+')
+    ap.add_argument('--scenario', required=True)
+    ap.add_argument('--footprint')
     ap.add_argument('-o', '--out')
-    ap.add_argument('--animate', action='store_true')
-    ap.add_argument('--obstacle', action='append', default=[],
-                    help='override as x,y,r  (repeatable, for runs that used -p overrides)')
-    ap.add_argument('--bound', type=float)
-    ap.add_argument('--interval', type=int, default=60)
-    args = ap.parse_args()
+    ap.add_argument('--line', action='store_true')
+    a = ap.parse_args()
 
-    cfg = dict(TASKS[args.task])
-    if args.obstacle:
-        cfg['obstacles'] = [tuple(float(v) for v in o.split(',')) for o in args.obstacle]
-    if args.bound:
-        cfg['bound'] = args.bound
-    bag = read_bag(args.bag.rstrip('/'))
-    t, xy, goals, goal_t, pred = extract(bag)
-    if len(xy) == 0:
-        sys.exit('error: no /odom messages in the bag. Was it recorded on the right domain?')
+    results = []
+    for bag in a.bags:
+        name = os.path.basename(os.path.normpath(bag))
+        footprint = a.footprint or name.split('_')[-1]
+        results.append(grade(bag, a.scenario, footprint))
 
-    name = os.path.basename(args.bag.rstrip('/'))
-    out = args.out or '%s_task%d.png' % (name, args.task)
+    for res in results:
+        line(res) if a.line else report(res)
 
-    print('=== %s, task %d ===' % (name, args.task))
-    report(t, xy, goals, cfg['obstacles'], args.task)
-
-    lim = cfg['bound'] + 0.3
-    fig, ax = plt.subplots(figsize=(7, 7))
-    draw_static(ax, cfg['bound'], cfg['obstacles'], goals, pred, args.task)
-    ax.plot(xy[:, 0], xy[:, 1], 'b-', lw=1.6, label='driven path')
-    ax.scatter(xy[0, 0], xy[0, 1], c='c', marker='o', s=90, zorder=5, label='start')
-    ax.scatter(xy[-1, 0], xy[-1, 1], c='b', marker='X', s=110, zorder=5, label='end')
-    ax.set_title('Lab 2 task %d - %s' % (args.task, name))
-    ax.set_xlim(-lim, lim)
-    ax.set_ylim(-lim, lim)
-    ax.legend(loc='best', fontsize=8)
-    fig.tight_layout()
-    fig.savefig(out, dpi=160)
-    print('wrote %s' % out)
-
-    if args.animate:
-        gif = os.path.splitext(out)[0] + '.gif'
-        fig2, ax2 = plt.subplots(figsize=(7, 7))
-        draw_static(ax2, cfg['bound'], cfg['obstacles'], goals, [], args.task)
-        ax2.set_xlim(-lim, lim)
-        ax2.set_ylim(-lim, lim)
-        ax2.set_title('Lab 2 task %d - %s' % (args.task, name))
-        ax2.legend(loc='best', fontsize=8)
-        line, = ax2.plot([], [], 'b-', lw=1.6)
-        dot, = ax2.plot([], [], 'bo', ms=8)
-
-        stride = max(1, len(xy) // 300)        # cap at ~300 frames
-        frames = range(0, len(xy), stride)
-
-        def update(i):
-            line.set_data(xy[:i + 1, 0], xy[:i + 1, 1])
-            dot.set_data([xy[i, 0]], [xy[i, 1]])
-            return line, dot
-
-        anim = animation.FuncAnimation(fig2, update, frames=frames,
-                                       interval=args.interval, blit=True)
-        anim.save(gif, writer=animation.PillowWriter(fps=max(1, 1000 // args.interval)))
-        print('wrote %s' % gif)
+    if not a.line:
+        here = os.path.dirname(os.path.abspath(__file__))
+        out = a.out or os.path.join(here, '..', 'plots', '%s.png' % results[-1]['name'])
+        plot(results[:2], out)
 
 
 if __name__ == '__main__':

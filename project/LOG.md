@@ -55,3 +55,62 @@ Newest entry at the bottom. What was done, what was decided, what went wrong.
 | solver failures | 0 | 0 |
 
 The copy behaves like Lab 2 (one lap here, two laps in the notes). Next is gate 1 in Gazebo, run by Dominic: see `RUNSHEET.md`.
+
+---
+
+## 2026-10-15 (evening): gate 1 results, the project node, scenarios 1 and 2
+
+Dominic ran gate 1 and then handed over for the rest of the day. Claude ran Gazebo headless on
+`ROS_DOMAIN_ID=99` with its own `GZ_PARTITION`, so nothing touched Dominic's terminals.
+
+### Gate 1 (Dominic's bags)
+
+| bag | result | why |
+|---|---|---|
+| `gate1_t4` | **pass**. About two laps (10.13 m), closest approach 0.2195 m to the 0.225 keep-out (5.5 mm of soft slack), mean circle error 4.4 mm | The copy behaves like Lab 2. |
+| `gate1_t3` | fail: robot never moved | Every `/cmd_vel` was exactly zero and `/mpc_prediction` had 0 messages, so the node never had a goal. The robot sat at (0.8, 0), where t4 left it, until Gazebo restarted at 83 s. |
+| `gate1_t3-version2` | fail: same | Sat at the origin for 163 s, all-zero commands. |
+
+`/new_position` is missing from both t3 bags, so the recorder never saw a goal publisher. The goal was
+published either before the node was up (`ros2 topic pub` messages are not stored, so a late
+subscriber never sees them) or from a terminal on a different `ROS_DOMAIN_ID` (trap 1).
+**Reproduced:** with the goal published 10 s *after* the node started, the same node and
+command drove to (1.78, 0.01). Task 3 also solves at the desk with N=20 (0 failures, 8.3 s).
+So it was the order of operations, not the code. Project scenarios with a point goal now carry
+the goal in `SCENARIOS`, so no project run depends on publish timing.
+
+### RViz "showed nothing of the robot"
+
+The Lab 2 RViz config has no RobotModel display and nothing that draws the body. It only has TF
+axes, Odometry arrows, scan, obstacle markers and the predicted path. Fixed in
+`rviz/project.rviz`: a RobotModel display (from `/robot_description`), plus a MarkerArray on
+the new `/mpc_footprint` topic, where the node draws the plank and the discs it believes in at
+the measured pose. Also run RViz with `use_sim_time:=true` in sim (RUNSHEET).
+
+### Decisions made without Dominic (blocker rule: course tools only, proposal goals only)
+
+| # | Decision | Why |
+|---|---|---|
+| D1 | **N = 20 stays** (reach 0.44 m). Q6's rule applied on a quiet machine: N=20 p95 59 ms (s2_030 three), N=40 p95 174 ms, N=60 p95 367 ms. | Only N=20 keeps the p95 inside the 100 ms tick. The first sweep read 100+ ms even for Lab 2's own task, because Dominic's Gazebo GUI was still open: **the GUI roughly triples solve time.** Timed runs use `gui:=false`. |
+| D2 | s1b obstacle moved from (0, 0.25) to **(0, 0.36), r 0.08**. | At (0, 0.25) the robot's start (the origin) was inside the one-disc keep-out (0.349 m). At 0.36 both start outside, three discs need no detour, and one disc needs about 9 cm. |
+| D3 | Box is `(x_min, x_max, y_min, y_max)`, not a single ±B. | The scenario 2 corridor is long in x and narrow in y. A square box can't describe it. Same four soft constraints as Q5. |
+| D4 | Footprint `burger` (one disc, 0.105) kept, beside `one` and `three`. | So the Lab 2 tasks can still be rerun as gates with Lab 2's own body. |
+| D5 | Circle runs are **one lap** (Lab 2 used two). | Halves run time. One lap passes the obstacle once, which is all the pair needs. |
+| D6 | `rclpy.init(signal_handler_options=SignalHandlerOptions.NO)`. | **Bug inherited from Lab 2:** on Ctrl-C, Jazzy shut rclpy down before `finally: node.stop()`, the zero command failed with "publisher's context is invalid", and the robot kept its last command. Seen in the first headless run. Now Ctrl-C arrives as a plain KeyboardInterrupt, `stop()` publishes, and then rclpy shuts down. |
+| D7 | Ground truth from Gazebo's PosePublisher plugin on the robot model, bridged to `/ground_truth` (PoseStamped). | One plugin and one bridge argument. The controller never subscribes to it. |
+| D8 | Desk folder kept out of git: `project/.gitignore` → `desk/`, like `lab4/.gitignore`. The unpushed skeleton commit was rebuilt without `desk/sim_scenario.py`. | Dominic's instruction. |
+
+### What was built today
+
+- `mpc_node.py`: `FOOTPRINTS` (burger / one / three, radii from `disc_chain(n)`), `SCENARIOS`
+  (lab2_t3, lab2_t4, s1a, s1b, s2_060 ... s2_028), soft box, a keep-out per obstacle per disc,
+  `/mpc_footprint` markers, `/mpc_solve_time`, `rectangle_clearance()` for grading, figure-8
+  reference, stop on shutdown.
+- `worlds/burger_plank.sdf` (course Burger plus plank link plus ground-truth plugin) and
+  `burger_bare.sdf` (Burger plus ground truth only). Both pass `gz sdf -k`. The plank inertia
+  first failed validation: rounding broke ixx + iyy ≥ izz.
+- `launch/project_sim.launch.py`: the sim's bringup. It imports `SCENARIOS` and spawns the
+  obstacles and walls from it.
+- `analysis/plot_run.py`: grades bags from ground truth against the exact rectangle, and plots a
+  run or a pair.
+- `desk/sim_scenario.py`: local only, gitignored.
