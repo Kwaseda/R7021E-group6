@@ -65,8 +65,8 @@ grid_slam_node:
     ## Step at the scanner's rate. The two minimums below are now only a
     ## parked-robot guard, so they sit at the smallest motion worth a step.
     update_max_rate: 10.0        # Hz, 0 for no limit
-    update_min_dist: 0.05        # meters
-    update_min_angle: 0.0175     # rad
+    update_min_dist: 0.2         # meters; 0.05 gave 559 steps and a heading random walk (LOG 2026-10-15)
+    update_min_angle: 0.2        # rad, about 11 degrees; was 1 degree
     scan_queue_depth: 1000       # sim replay: keep every scan. Hall: 1
 
     ## --- run log ---

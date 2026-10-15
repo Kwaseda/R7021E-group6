@@ -185,3 +185,74 @@ The node adds odometry noise on each /odom message that it receives. The odometr
 Decision (Dominic): keep the noise in the node, as the course does, and state this limitation. We read the run logs of the classmates to check the course level: their `mapping_shipped` had 4 steps and noise 0.001, and their `mapping_tuned` had 151 steps and noise 0.005. Their two maps were not made from the same trajectory either.
 
 Note: the bag has almost no standing time at the start. The robot moves 4.4 s after `/ground_truth` starts. The sim time of about 51 s at the first step is the Gazebo clock, not a wait.
+
+## 2026-10-15: Task 7 tuning, baseline
+
+All tuning runs: `runs/maze_drive`, N = 10, seed 1, replay at 0.5 times real time (the node then keeps up better, so it drops fewer /odom messages), logs in `desk/runs`. Summary script: `desk/t7_summary.py`, which uses the course's `evaluation.absolute_trajectory_error`.
+
+Baseline with the first values in `params.yaml` [gazebo]:
+
+| Run | ATE rmse / max (m) | Raw odometry rmse (m) | Yaw error at end (rad) | N_eff mean, resamples | Step time median (ms) |
+|---|---|---|---|---|---|
+| FS2 | 0.472 / 0.774 | 0.581 | -0.411 | 4.0, 441 of 570 | 233 |
+| FS1 | 0.112 / 0.239 | 0.348 | -0.045 | 4.2, 413 of 578 | 106 |
+
+The raw odometry of the two runs is different (0.58 m against 0.35 m), because of the noise limitation in the Task 1 entry. So this comparison is not paired.
+
+What FS2 does with the heading: in the first 23 s the yaw error of the estimate follows the odometry to -0.24 rad. After that the filter holds it near -0.2 to -0.3 rad while the odometry goes to -0.97 rad. So the filter corrects drift after the map exists, but the early error is in the map.
+
+Our explanation: the scan matcher adds a prior toward the odometry prediction. Its heading sigma comes from `odometry_sigmas` (hypot(0.02, 0.02) = 0.028 rad). The match score is a mean probability in [0, 1], so a heading correction of 0.025 rad costs about as much prior penalty as it gains in score. The match then stays at the odometry heading, and FS2 builds all particles around that match. FS1 instead spreads each particle by 0.02 rad for each step, and the measurement selects the best one.
+
+Next test, one change: `odometry_sigmas` [0.05, 0.02, 0.05] (heading terms 0.02 to 0.05). This makes the heading prior weaker. The hall maze has more turns than the Lab 3 maze, so the heading terms are important there too.
+
+## 2026-10-15: Task 7, the noise makes single runs unreadable, and the split
+
+Test `odometry_sigmas` [0.05, 0.02, 0.05], FS2, N = 10, seed 1 [gazebo]: ATE rmse 0.360 m, raw odometry rmse 0.300 m, yaw error at end -0.390 rad. Baseline FS2: ATE 0.472 m, raw odometry 0.581 m. We cannot read this result. The raw odometry changed from 0.58 m to 0.30 m with the same bag and the same seed.
+
+Cause: the node uses one random generator for the odometry noise and for the filter. When a filter value changes, the filter uses a different count of random numbers (fallbacks, samples). After that, the odometry noise gets different numbers. So each change of a parameter also changes the noise. The dropped /odom messages (Task 1 entry) add to this. One run per setting cannot show if a change helped.
+
+What the sources say:
+
+- Classmates: noise in the node (0.001 in the sweep, 0.005 for `mapping_tuned`), seeds 1 to 3, no control of this effect. They did not tune one value at a time.
+- Lecture 9: no guidance about simulation noise, seeds or evaluation. It does support our diagnosis of the FS2 heading. For a laser, p(z | x, m) "is typically peaked and dominates the product". The measurement limits the area locally, and the odometry limits it only globally. In our baseline the odometry prior controlled the heading.
+- Lectures 8 and 10: nothing about this.
+- Lab PDF section 4.1: "Simulated odometry is too good", so the node corrupts it, and the clean pose is the ground truth. On our drive this assumption is not true: Gazebo /odom is 0.17 m from the true pose. The PDF asks for the sweep with at least three seeds, "so the plot includes a spread".
+
+Decision (Dominic), a split:
+
+1. Tuning (our process, not a deliverable): `odom_noise_sigma` [0, 0, 0]. The odometry error is then the error of Gazebo's own wheel odometry against `/ground_truth`. It is in the bag, so it is the same in every replay, and one run for each setting is sufficient.
+2. Deliverables (sweep, Neff figure, maps figure): `odom_noise_sigma` 0.003, as PDF section 4.1 asks. The seeds give the spread. The change of the noise between runs is then part of that spread, and we state it as a limitation.
+3. Risk: values tuned on a smaller odometry error can be too narrow for the sweep at 0.003. So we keep the heading sigmas wide, and we do one FS2 check at 0.003 before the sweep.
+
+## 2026-10-15: Task 7, why FS2 loses its heading
+
+FS2, N = 10, seed 1, `odom_noise_sigma` 0 (Gazebo odometry only) [gazebo]: ATE rmse 0.309 m, raw odometry rmse 0.193 m, yaw error at end -0.336 rad. FS2 makes the pose worse than the raw odometry.
+
+Heading error that FS2 added, split by the motion of the robot [gazebo]:
+
+| Motion | True turn (rad) | Added by FS2 (rad) | Added by odometry (rad) |
+|---|---|---|---|
+| Turn left | +7.04 | +0.178 | +0.067 |
+| Turn right | -13.39 | -0.319 | -0.225 |
+| Straight | +0.05 | -0.220 | +0.021 |
+
+Hypothesis 1: ties in the scan matcher (argmax takes the first of equal scores, and the lattice starts at the most negative offset). Desk test, 200 matches from noisy start poses on a map built at true poses [desk]: mean heading error -0.0015 rad, with 50 % of the errors negative and 50 % positive. Not confirmed.
+
+Finding from the same test: the matcher removes almost none of the start error. Start error 0.020 m and 0.020 rad (standard deviation). After the match: 0.020 m and 0.016 rad [desk]. The finest step of the matcher is 5 cm and 0.025 rad, larger than the error, and the prior pulls toward the start. Other values [desk]: windows 0.1 m / 0.05 rad gives 0.015 rad; `odometry_sigmas` 0.05 (weaker prior) gives 0.012 rad. The matcher is coarse by design (it reads cell centres).
+
+Hypothesis 2: each FS2 step leaves a heading error of about 0.01 to 0.02 rad, and the errors add as a random walk. The node does a step every 0.05 m or 0.0175 rad (1 degree): 559 steps on 13.9 m. 0.01 x sqrt(559) = 0.24 rad. That is the size of the drift we see. gmapping (the implementation by Grisetti, the paper in Lecture 9) updates every 1 m or 0.5 rad by default. Test, one change: `update_min_dist` 0.2 and `update_min_angle` 0.2.
+
+A run was spoiled: two replays ran at the same time for about one second (both publish /clock and /scan on domain 34). We deleted the FS1 run of that time and ran it again alone. `desk/replay.sh` now refuses to start when another replay runs.
+
+Result of the test, FS2, N = 10, seed 1, `odom_noise_sigma` 0 [gazebo]:
+
+| Run | Steps | ATE rmse / max (m) | Yaw error at end (rad) |
+|---|---|---|---|
+| Raw Gazebo odometry | | 0.192 / 0.315 | |
+| FS2, steps every 0.05 m or 0.0175 rad | 559 | 0.309 / 0.541 | -0.336 |
+| FS1, steps every 0.05 m or 0.0175 rad | 559 | 0.147 / 0.284 | -0.091 |
+| FS2, steps every 0.2 m or 0.2 rad | 136 | 0.085 / 0.186 | -0.058 |
+
+The raw odometry error is now the same in all runs (0.192 to 0.193 m), so this comparison is paired. Hypothesis 2 is confirmed. With fewer steps, fewer small heading errors add up. FS2 is now better than the odometry and better than FS1 with the old thresholds.
+
+Change in `params.yaml`: `update_min_dist` 0.05 to 0.2, `update_min_angle` 0.0175 to 0.2. These two values are not in the Task 7 list of the PDF, but they are in `params.yaml`. They also make each run 4 times cheaper, which helps the sweep and the hall laptop at large N.
