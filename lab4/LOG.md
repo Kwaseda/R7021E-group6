@@ -256,3 +256,30 @@ Result of the test, FS2, N = 10, seed 1, `odom_noise_sigma` 0 [gazebo]:
 The raw odometry error is now the same in all runs (0.192 to 0.193 m), so this comparison is paired. Hypothesis 2 is confirmed. With fewer steps, fewer small heading errors add up. FS2 is now better than the odometry and better than FS1 with the old thresholds.
 
 Change in `params.yaml`: `update_min_dist` 0.05 to 0.2, `update_min_angle` 0.0175 to 0.2. These two values are not in the Task 7 list of the PDF, but they are in `params.yaml`. They also make each run 4 times cheaper, which helps the sweep and the hall laptop at large N.
+
+## 2026-10-15: Task 7, FS1 check and the check at 0.003
+
+With steps every 0.2 m or 0.2 rad, N = 10, seed 1 [gazebo]:
+
+| Run | Noise | ATE rmse / max (m) | Raw odometry rmse (m) | Yaw error at end (rad) |
+|---|---|---|---|---|
+| FS2 | Gazebo odometry | 0.085 / 0.186 | 0.192 | -0.058 |
+| FS1 | Gazebo odometry | 0.103 / 0.226 | 0.192 | -0.075 |
+| FS2 | 0.003 | 0.452 / 0.751 | 0.343 | -0.209 |
+
+Paired, FS2 is better than FS1, and both are better than the odometry.
+
+At 0.003 FS2 is worse than the odometry. Cause: the node adds the noise on each /odom message. One step of 0.2 m is now about 60 messages at 44 Hz. The noise in one step is then about 0.0042 x sqrt(60) = 0.033 rad in heading and 0.003 x sqrt(60) = 0.023 m in translation. `odometry_sigmas` 0.02 is narrower than this. With larger steps, the motion model must be wider.
+
+Next test, one change: `odometry_sigmas` [0.05, 0.04, 0.05], at 0.003 and at Gazebo odometry.
+
+Result, FS2, N = 10, seed 1, `odometry_sigmas` [0.05, 0.04, 0.05] [gazebo]:
+
+| Noise | Before: ATE rmse / max (m) | After: ATE rmse / max (m) | Raw odometry rmse (m), before / after |
+|---|---|---|---|
+| 0.003 | 0.452 / 0.751 | 0.196 / 0.338 | 0.343 / 0.579 |
+| Gazebo odometry | 0.085 / 0.186 | 0.105 / 0.162 | 0.192 / 0.192 |
+
+At 0.003 the run pair is not paired (the raw odometry is different). But the ratio ATE / raw odometry goes from 1.32 to 0.34, which is much larger than that effect. At Gazebo odometry (paired) the mean gets a little worse and the maximum gets better. We keep the wider values: they are necessary at 0.003, and they are the safe side for the turns in the hall.
+
+Change in `params.yaml`: `odometry_sigmas` [0.02, 0.02, 0.02] to [0.05, 0.04, 0.05].

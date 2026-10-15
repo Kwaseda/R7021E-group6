@@ -16,7 +16,7 @@ grid_slam_node:
 
     ## --- motion model: [sd_rot1, sd_trans, sd_rot2] in [rad, m, rad] ---
     ## The filter's BELIEF about how noisy the odometry is, PER FILTER STEP.
-    odometry_sigmas: [0.02, 0.02, 0.02]
+    odometry_sigmas: [0.05, 0.04, 0.05]   # per 0.2 m step: wider than the 0.033 rad, 0.023 m that 0.003 noise adds per step
     ## Simulation only: noise ADDED to the odometry before the filter sees
     ## it. Opposite role to the line above. SET TO ZEROS ON HARDWARE, where
     ## the wheel odometry is already as bad as it is going to get.
