@@ -28,3 +28,8 @@ bags/*
 /lab3/Lab_Instructions_Exploration.pdf
 # hall and sim bags stay on this laptop
 lab3/ros2_ws/bags/
+
+lab4/ros2_ws/src/r7021e_fast_slam/runs
+
+# saved Canvas pages hold session keys; keep them local
+project/*.html
