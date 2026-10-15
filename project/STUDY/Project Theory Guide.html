@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project Theory Guide</title>
+<style>
+:root{
+  --ink:#1c2230;--ink-soft:#48506a;--paper:#f7f5ef;--card:#ffffff;--line:#e2ded2;--line-strong:#b9b4a3;
+  --accent:#1d4ed8;--accent-soft:#e0e7ff;--teal:#0f766e;--teal-soft:#d7ede9;
+  --red:#b11a3a;--red-soft:#fbe0e6;--amber:#b45309;--amber-soft:#fdeccf;
+  --green:#15803d;--green-soft:#dcf1e1;--violet:#6d28d9;--violet-soft:#ede4fb;
+  --th:#ece7db;--th-ink:#5a5540;--codebg:#f0ede4;
+  --cover1:#1e3a8a;--cover2:#1d4ed8;--cover3:#0f766e;--cover-ink:#eef2ff;
+  --shadow:0 1px 2px rgba(20,25,40,.06),0 8px 24px rgba(20,25,40,.06);--radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e6e8ee;--ink-soft:#aab1c3;--paper:#12151c;--card:#1a1f2a;--line:#2b3242;--line-strong:#4a5368;
+    --accent:#8aa9ff;--accent-soft:#1b2547;--teal:#3fc1b3;--teal-soft:#123430;
+    --red:#ef6b8a;--red-soft:#3a1a24;--amber:#f0a35a;--amber-soft:#3a2a12;
+    --green:#5fd38a;--green-soft:#14301e;--violet:#b79cff;--violet-soft:#2a2147;
+    --th:#232a38;--th-ink:#aab1c3;--codebg:#232a38;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e6e8ee;--ink-soft:#aab1c3;--paper:#12151c;--card:#1a1f2a;--line:#2b3242;--line-strong:#4a5368;
+  --accent:#8aa9ff;--accent-soft:#1b2547;--teal:#3fc1b3;--teal-soft:#123430;
+  --red:#ef6b8a;--red-soft:#3a1a24;--amber:#f0a35a;--amber-soft:#3a2a12;
+  --green:#5fd38a;--green-soft:#14301e;--violet:#b79cff;--violet-soft:#2a2147;
+  --th:#232a38;--th-ink:#aab1c3;--codebg:#232a38;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:32px 16px 90px}
+header.cover{background:linear-gradient(135deg,var(--cover1),var(--cover2) 55%,var(--cover3));color:var(--cover-ink);border-radius:20px;padding:34px 30px;box-shadow:var(--shadow)}
+header.cover .kick{font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+header.cover h1{margin:6px 0 10px;font-size:32px;line-height:1.2}
+header.cover p{margin:0;opacity:.92;max-width:640px;color:var(--cover-ink)}
+nav.toc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 22px;margin:26px 0;box-shadow:var(--shadow)}
+nav.toc ol{margin:6px 0 0;padding-left:22px;columns:2;column-gap:28px}
+nav.toc a{color:var(--accent);text-decoration:none}
+nav.toc li{break-inside:avoid}
+h2{margin:46px 0 10px;font-size:25px;line-height:1.25;border-bottom:2px solid var(--line);padding-bottom:6px}
+h2 .n{color:var(--accent);margin-right:8px}
+h3{margin:28px 0 6px;font-size:19px}
+p,li{color:var(--ink)}
+code{background:var(--codebg);padding:1px 6px;border-radius:5px;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre{background:var(--codebg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.eq{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0;text-align:center;overflow-x:auto;font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:19px;line-height:1.8}
+.eq .cap{display:block;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink-soft);margin-top:4px}
+.box{border-radius:12px;padding:14px 18px;margin:16px 0;border:1px solid var(--line)}
+.eli5{background:var(--amber-soft);border-color:transparent}
+.eli5::before{content:"ELI5  ";font-weight:700;color:var(--amber);font-size:13px;letter-spacing:.06em}
+.key{background:var(--accent-soft);border-color:transparent}
+.key::before{content:"Say this in the oral  ";font-weight:700;color:var(--accent);font-size:13px;letter-spacing:.06em}
+.warn{background:var(--red-soft);border-color:transparent}
+.warn::before{content:"Lab 2 lesson  ";font-weight:700;color:var(--red);font-size:13px;letter-spacing:.06em}
+.ok{background:var(--green-soft);border-color:transparent}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px;background:var(--card);border-radius:10px;overflow:hidden}
+th{background:var(--th);color:var(--th-ink);text-align:left;font-weight:600}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tablewrap{overflow-x:auto}
+figure{margin:18px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:13.5px;color:var(--ink-soft);margin-top:8px}
+figure.white{background:#fff}
+figure.white figcaption{color:#48506a}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+details summary{cursor:pointer;font-weight:600}
+details[open] summary{margin-bottom:8px}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--teal-soft);color:var(--teal);font-weight:600}
+/* svg palette */
+.s-ink{stroke:var(--ink);fill:none}
+.s-soft{stroke:var(--ink-soft);fill:none}
+.t{fill:var(--ink);font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.ts{fill:var(--ink-soft);font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.tb{fill:var(--ink);font:600 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.f-plank{fill:var(--amber-soft);stroke:var(--amber);stroke-width:2}
+.f-disc{fill:var(--accent);fill-opacity:.12;stroke:var(--accent);stroke-width:2}
+.f-big{fill:var(--red);fill-opacity:.10;stroke:var(--red);stroke-width:2}
+.f-obs{fill:var(--ink-soft);fill-opacity:.35;stroke:var(--ink);stroke-width:1.5}
+.f-wall{fill:var(--line-strong)}
+.l-acc{stroke:var(--accent);fill:none;stroke-width:2}
+.l-red{stroke:var(--red);fill:none;stroke-width:2}
+.l-green{stroke:var(--green);fill:none;stroke-width:2.5}
+.l-teal{stroke:var(--teal);fill:none;stroke-width:2}
+.dash{stroke-dasharray:6 5}
+.dot-acc{fill:var(--accent)}
+.dot-teal{fill:var(--teal)}
+.dot-red{fill:var(--red)}
+.dot-hollow{fill:var(--card);stroke:var(--teal);stroke-width:2}
+@media (max-width:640px){nav.toc ol{columns:1}header.cover h1{font-size:26px}.eq{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="cover">
+  <div class="kick">R7021E final project · read this before the code exists</div>
+  <h1>Carrying a plank with MPC: the theory guide</h1>
+  <p>Every idea, picture and equation you will defend, connected to the Lab 2 controller you already know. The big study guide comes after the code and follows the same section order.</p>
+</header>
+
+<nav class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#big">The project in one page</a></li>
+    <li><a href="#decisions">Decisions made so far</a></li>
+    <li><a href="#lab2">Lab 2 MPC, recapped</a></li>
+    <li><a href="#tvp">Time-varying parameters</a></li>
+    <li><a href="#footprint">From a dot to a plank</a></li>
+    <li><a href="#rotate">Discs that turn with the robot</a></li>
+    <li><a href="#keepout">The keep-out constraint</a></li>
+    <li><a href="#soft">Hard vs soft constraints</a></li>
+    <li><a href="#box">The soft boundary box</a></li>
+    <li><a href="#reach">Horizon, reach and solve time</a></li>
+    <li><a href="#s1">Scenario 1: known path</a></li>
+    <li><a href="#s2">Scenario 2: the gap</a></li>
+    <li><a href="#s3">Scenario 3 preview: moving obstacle</a></li>
+    <li><a href="#s4">Scenario 4 preview: moving goal</a></li>
+    <li><a href="#truth">Measuring the truth</a></li>
+    <li><a href="#carry">What Lab 2 hands us</a></li>
+    <li><a href="#qs">Questions you will be asked</a></li>
+    <li><a href="#gloss">Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="big"><span class="n">1</span>The project in one page</h2>
+
+<div class="box eli5">You are carrying a long plank through a house. If you pretend the plank is a giant ball as wide as its longest diagonal, you won't fit through any door, even though you obviously can if you walk straight through with the plank pointing forward. If you pretend it's three small balls in a row, you fit through the door, and you still notice when swinging around would knock the wall. That is research question 1.
+<br><br>Now someone walks across the hallway. If you only look at where they <em>are</em>, you walk into the spot they are about to step into. If you guess where they <em>will be</em>, you wait or go behind them. That is research question 2.</div>
+
+<p>Lab 2 gave us an MPC that drives a TurtleBot Burger to a goal and keeps it out of circles. Two things in it are frozen:</p>
+<ol>
+  <li>The robot is a single disc of 0.105 m.</li>
+  <li>Every obstacle stands still, fixed before the solver is built.</li>
+</ol>
+<p>The project un-freezes both, one step at a time:</p>
+
+<div class="tablewrap"><table>
+<tr><th>Scenario</th><th>What is new</th><th>Run pair (with vs without the new information)</th></tr>
+<tr><td>1. Known goal path</td><td>Plank footprint as three discs, on a circle then a figure-8</td><td>one disc vs three discs</td></tr>
+<tr><td>2. Static obstacles</td><td>Nothing new in code, the gaps get narrower</td><td>narrowest gap passed, one disc vs three</td></tr>
+<tr><td>3. Moving obstacle</td><td>Obstacle centre becomes a time-varying parameter, fed forward</td><td>future positions vs position now</td></tr>
+<tr><td>4. Estimated goal</td><td>Constant-velocity fit to the goal's observed motion</td><td>estimate vs last seen position</td></tr>
+</table></div>
+
+<p>The proposal's block diagram. White boxes come from earlier labs, coloured ones are new:</p>
+<figure class="white">
+<svg style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 505" width="1120" height="505" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="bdarrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a1a1a"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1120" height="505" fill="#ffffff"/>
+
+  <rect x="420" y="6" width="280" height="24" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="560" y="23" font-size="13" text-anchor="middle" fill="#1a1a1a">Control stack for R7021E project</text>
+
+  <!-- sources -->
+  <rect x="24" y="52" width="220" height="48" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="134" y="71" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Gazebo</text>
+  <text x="134" y="89" font-size="10.5" text-anchor="middle" fill="#1a1a1a">plank on the Burger, moving obstacle</text>
+
+  <rect x="310" y="52" width="140" height="48" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="380" y="71" font-size="12.5" text-anchor="middle" fill="#1a1a1a">ros_gz_bridge</text>
+  <text x="380" y="89" font-size="10.5" text-anchor="middle" fill="#1a1a1a">(provided)</text>
+
+  <line x1="244" y1="76" x2="302" y2="76" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+
+  <path d="M 450 76 H 478 V 112 H 920" fill="none" stroke="#1a1a1a" stroke-width="1.3"/>
+  <rect x="512" y="104" width="56" height="16" fill="#ffffff"/>
+  <text x="540" y="116" font-size="10" text-anchor="middle" fill="#1a1a1a">gz topics</text>
+  <line x1="570" y1="112" x2="570" y2="120" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <line x1="745" y1="112" x2="745" y2="120" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <line x1="920" y1="112" x2="920" y2="120" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+
+  <rect x="500" y="128" width="140" height="48" rx="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="570" y="147" font-size="12.5" text-anchor="middle" fill="#1a1a1a">/odom</text>
+  <text x="570" y="165" font-size="10.5" text-anchor="middle" fill="#1a1a1a">robot pose</text>
+
+  <rect x="670" y="128" width="150" height="48" rx="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="745" y="147" font-size="12.5" text-anchor="middle" fill="#1a1a1a">/obstacle_pose</text>
+  <text x="745" y="165" font-size="10.5" text-anchor="middle" fill="#1a1a1a">where it is now</text>
+
+  <rect x="850" y="128" width="140" height="48" rx="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="920" y="147" font-size="12.5" text-anchor="middle" fill="#1a1a1a">/goal_pose</text>
+  <text x="920" y="165" font-size="10.5" text-anchor="middle" fill="#1a1a1a">where it is now</text>
+
+  <!-- our node -->
+  <rect x="88" y="206" width="944" height="200" fill="none" stroke="#1a1a1a" stroke-width="1.1" stroke-dasharray="5 4"/>
+  <text x="560" y="222" font-size="11.5" text-anchor="middle" fill="#1a1a1a">mpc_node (written by us)</text>
+
+  <rect x="150" y="248" width="240" height="60" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+  <text x="270" y="272" font-size="12.5" text-anchor="middle" fill="#1a1a1a">obstacle motion model</text>
+  <text x="270" y="291" font-size="10.5" text-anchor="middle" fill="#1a1a1a">known path, N steps ahead</text>
+
+  <rect x="440" y="248" width="240" height="60" fill="#f8cecc" stroke="#b85450" stroke-width="1.3"/>
+  <text x="560" y="272" font-size="12.5" text-anchor="middle" fill="#1a1a1a">goal estimator</text>
+  <text x="560" y="291" font-size="10.5" text-anchor="middle" fill="#1a1a1a">constant velocity fit</text>
+
+  <rect x="730" y="248" width="240" height="60" fill="#e6d98f" stroke="#b89b2e" stroke-width="1.3"/>
+  <text x="850" y="272" font-size="12.5" text-anchor="middle" fill="#1a1a1a">body footprint</text>
+  <text x="850" y="291" font-size="10.5" text-anchor="middle" fill="#1a1a1a">three discs on the plank</text>
+
+  <rect x="380" y="344" width="360" height="50" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="560" y="364" font-size="12.5" text-anchor="middle" fill="#1a1a1a">MPC solve (do-mpc)</text>
+  <text x="560" y="382" font-size="10.5" text-anchor="middle" fill="#1a1a1a">keep-out per disc, bounds, IPOPT as in Lab 2</text>
+
+  <!-- feeds in -->
+  <path d="M 745 176 V 196 H 200 V 240" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="430" y="188" width="70" height="16" fill="#ffffff"/>
+  <text x="465" y="200" font-size="10" text-anchor="middle" fill="#1a1a1a">obstacle now</text>
+
+  <path d="M 920 176 V 228 H 490 V 240" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="690" y="220" width="56" height="16" fill="#ffffff"/>
+  <text x="718" y="232" font-size="10" text-anchor="middle" fill="#1a1a1a">goal now</text>
+
+  <path d="M 570 176 V 190 H 104 V 369 H 372" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="190" y="361" width="90" height="16" fill="#ffffff"/>
+  <text x="235" y="373" font-size="10" text-anchor="middle" fill="#1a1a1a">x, y, theta</text>
+
+  <!-- new blocks into the solver -->
+  <path d="M 270 308 V 324 H 460 V 336" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="320" y="310" width="82" height="16" fill="#ffffff"/>
+  <text x="361" y="322" font-size="10" text-anchor="middle" fill="#1a1a1a">future centres</text>
+
+  <line x1="560" y1="308" x2="560" y2="336" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="570" y="314" width="66" height="16" fill="#ffffff"/>
+  <text x="603" y="326" font-size="10" text-anchor="middle" fill="#1a1a1a">future goal</text>
+
+  <path d="M 850 308 V 324 H 660 V 336" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="712" y="310" width="80" height="16" fill="#ffffff"/>
+  <text x="752" y="322" font-size="10" text-anchor="middle" fill="#1a1a1a">keep-out discs</text>
+
+  <!-- outputs -->
+  <rect x="300" y="430" width="240" height="52" rx="10" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.2"/>
+  <text x="420" y="450" font-size="12.5" text-anchor="middle" fill="#1a1a1a">/cmd_vel</text>
+  <text x="420" y="468" font-size="10.5" text-anchor="middle" fill="#1a1a1a">forward speed and turn rate</text>
+
+  <path d="M 460 394 V 412 H 420 V 422" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="468" y="404" width="60" height="16" fill="#ffffff"/>
+  <text x="498" y="416" font-size="10" text-anchor="middle" fill="#1a1a1a">first input</text>
+
+  <path d="M 300 456 H 56 V 106" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="120" y="448" width="104" height="16" fill="#ffffff"/>
+  <text x="172" y="460" font-size="10" text-anchor="middle" fill="#1a1a1a">through the bridge</text>
+
+  <rect x="640" y="420" width="360" height="72" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+  <text x="820" y="443" font-size="12.5" text-anchor="middle" fill="#1a1a1a">evaluation harness</text>
+  <text x="820" y="462" font-size="10.5" text-anchor="middle" fill="#1a1a1a">clearance, narrowest gap, tracking error,</text>
+  <text x="820" y="479" font-size="10.5" text-anchor="middle" fill="#1a1a1a">solve time per tick</text>
+
+  <line x1="700" y1="394" x2="700" y2="412" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="708" y="396" width="58" height="16" fill="#ffffff"/>
+  <text x="737" y="408" font-size="10" text-anchor="middle" fill="#1a1a1a">solve time</text>
+
+  <path d="M 134 52 V 38 H 1060 V 456 H 1008" fill="none" stroke="#1a1a1a" stroke-width="1.3" marker-end="url(#bdarrow)"/>
+  <rect x="848" y="30" width="78" height="16" fill="#ffffff"/>
+  <text x="887" y="42" font-size="10" text-anchor="middle" fill="#1a1a1a">ground truth</text>
+</svg>
+
+<figcaption>Everything in the dashed box lives in <b>one</b> node file, <code>mpc_node.py</code>. The purple evaluation harness runs offline on the recorded bags.</figcaption>
+</figure>
+
+<div class="box key">Each scenario adds exactly one thing, so when a run fails there is only one suspect. Every scenario is run twice, with and without the new information, and the difference between the pair <em>is</em> the result.</div>
+
+<!-- ============================================================ -->
+<h2 id="decisions"><span class="n">2</span>Decisions made so far</h2>
+<p>Decided with you on 15 Oct during the planning interview. Each one is something you can be asked "why?" about, so the reason is listed with it.</p>
+<div class="tablewrap"><table>
+<tr><th>#</th><th>Decision</th><th>Why</th></tr>
+<tr><td>Q1</td><td>New package <code>project/ros2_ws/src/r7021e_project</code>. Lab 2 code is <b>copied</b>, not moved.</td><td>Lab 2 is a graded artefact and must still run as submitted.</td></tr>
+<tr><td>Q2</td><td>Plank 0.50 × 0.20 m, long axis <b>along the heading</b>, three discs.</td><td>The robot can't drive sideways, so a plank across it could never pass a 0.30 m gap, whatever model we used.</td></tr>
+<tr><td>Q3</td><td>Plank centred on the wheel axle, the point <code>/odom</code> reports.</td><td>Symmetric disc offsets (−0.167, 0, +0.167) give the cleanest equations.</td></tr>
+<tr><td>Q4</td><td>Plank has collision in Gazebo. Clearance is measured from ground-truth pose against the <b>exact rectangle</b>.</td><td>Grading the disc model with the disc model would be circular.</td></tr>
+<tr><td>Q5</td><td>Boundary box becomes 4 <b>soft</b> constraints on the axle point, shrunk by 0.269 m.</td><td>Hard bounds on a measured state deadlocked Lab 2 task 4.</td></tr>
+<tr><td>Q6</td><td><code>n_horizon</code> picked by measurement: N ∈ {20, 40, 60}, largest whose 95th-percentile solve is under 50 ms.</td><td>Three discs multiply the constraints. One default in one place.</td></tr>
+<tr><td>Q7</td><td>Two regression gates before any new code: (1) copied node reproduces Lab 2, (2) plank model loads and drives.</td><td>Each later failure then points at one change.</td></tr>
+<tr><td>Q8</td><td><code>SCENARIOS</code> table and a separate <code>footprint:=one|three</code> parameter.</td><td>Footprint is the independent variable, so it gets its own switch.</td></tr>
+<tr><td>Q9</td><td>Scenario 1 = circle with Lab 2's obstacle, then a figure-8 with an obstacle by the crossing.</td><td>With no obstacle the footprint never enters a constraint and the pair would show nothing.</td></tr>
+<tr><td>Q10</td><td>Scenario 2 = corridor walls plus two posts, gap swept over 0.60 to 0.28 m.</td><td>Free-standing posts let the robot drive around them, which would mix reach into the result.</td></tr>
+<tr><td>Q11</td><td>Claude writes the code. You study this guide now and the full study guide afterwards. You run every ROS command.</td><td>Time. The guides carry the learning.</td></tr>
+</table></div>
+
+<!-- ============================================================ -->
+<h2 id="lab2"><span class="n">3</span>Lab 2 MPC, recapped</h2>
+
+<h3>The model: a unicycle</h3>
+<p>Three states, the pose: <code>x</code>, <code>y</code>, <code>θ</code>. Two inputs: forward speed <code>v</code> and turn rate <code>ω</code>.</p>
+<div class="eq">ẋ = v cos θ &nbsp;&nbsp;&nbsp; ẏ = v sin θ &nbsp;&nbsp;&nbsp; θ̇ = ω
+<span class="cap">The robot only moves where it points. There is no sideways velocity term: that is the non-holonomic constraint.</span></div>
+
+<div class="box eli5">A shopping trolley with fixed wheels. You can push it forward and twist it, but you can't slide it sideways. To move sideways you have to turn, drive, and turn back.</div>
+
+<h3>The optimisation problem, solved 10 times a second</h3>
+<p>At every tick, from the current pose, find the best <code>N</code> future inputs:</p>
+<div class="eq">
+min<sub>u₀…u<sub>N−1</sub></sub> &nbsp; Σ<sub>k=0</sub><sup>N−1</sup> q ‖p<sub>k</sub> − r<sub>k</sub>‖² &nbsp;+&nbsp; q<sub>N</sub> ‖p<sub>N</sub> − r<sub>N</sub>‖² &nbsp;+&nbsp; Σ<sub>k</sub> R ‖u<sub>k</sub> − u<sub>k−1</sub>‖² &nbsp;+&nbsp; ρ Σ ε
+<span class="cap">p<sub>k</sub> = predicted (x, y) at step k · r<sub>k</sub> = reference at step k · ε = slack on soft constraints</span></div>
+<p>subject to:</p>
+<div class="eq">
+x<sub>k+1</sub> = f(x<sub>k</sub>, u<sub>k</sub>) &nbsp;&nbsp; x<sub>0</sub> = measured pose (delay-compensated)<br>
+0 ≤ v ≤ 0.22 m/s &nbsp;&nbsp; |ω| ≤ ω<sub>max</sub> &nbsp;&nbsp; keep-out<sub>k</sub> − ε ≤ 0, &nbsp; ε ≥ 0
+</div>
+
+<div class="tablewrap"><table>
+<tr><th>Term</th><th>Lab 2 value</th><th>In plain words</th></tr>
+<tr><td><code>q</code> (lterm)</td><td>1.0</td><td>"be near the reference all along the way"</td></tr>
+<tr><td><code>q<sub>N</sub></code> (mterm)</td><td>1.0</td><td>"and especially at the end of the plan"</td></tr>
+<tr><td><code>R</code> (rterm)</td><td>0.01</td><td>penalises <b>changes</b> in input, not size: smoothness</td></tr>
+<tr><td><code>ρ</code> (penalty)</td><td>10 000</td><td>price of breaking a soft constraint by one unit</td></tr>
+<tr><td><code>t_step</code></td><td>0.1 s</td><td>control period and prediction step</td></tr>
+<tr><td><code>v<sub>max</sub></code></td><td>0.22 m/s</td><td>the Burger's real top speed, not the tutorial's 0.8</td></tr>
+</table></div>
+
+<h3>Receding horizon</h3>
+<figure>
+<svg viewBox="0 0 760 250" role="img" aria-label="Receding horizon">
+  <text class="tb" x="20" y="24">tick k</text>
+  <path class="l-teal dash" d="M60 110 C 200 40, 360 40, 520 90 S 700 160, 740 150"/>
+  <g class="dot-hollow"><circle cx="110" cy="88" r="5"/><circle cx="170" cy="70" r="5"/><circle cx="230" cy="58" r="5"/><circle cx="290" cy="54" r="5"/><circle cx="350" cy="58" r="5"/><circle cx="410" cy="66" r="5"/></g>
+  <path class="l-acc" d="M60 110 L110 96 L170 80 L230 68 L290 63 L350 66 L410 74"/>
+  <g class="dot-acc"><circle cx="110" cy="96" r="4"/><circle cx="170" cy="80" r="4"/><circle cx="230" cy="68" r="4"/><circle cx="290" cy="63" r="4"/><circle cx="350" cy="66" r="4"/><circle cx="410" cy="74" r="4"/></g>
+  <path d="M52 118 L72 110 L52 102 Z" fill="var(--ink)"/>
+  <path class="l-red" d="M62 110 L108 97" stroke-width="5"/>
+  <text class="ts" x="80" y="140">u₀ is the only input applied</text>
+  <text class="ts" x="270" y="34">predicted path (filled) chases reference (hollow), N steps</text>
+  <text class="tb" x="20" y="184">tick k+1</text>
+  <path class="l-teal dash" d="M110 210 C 250 150, 410 150, 560 190 S 720 240, 750 235"/>
+  <path d="M100 218 L120 210 L100 202 Z" fill="var(--ink)"/>
+  <path class="l-acc" d="M110 210 L170 194 L230 180 L290 172 L350 170 L410 174 L470 182"/>
+  <g class="dot-acc"><circle cx="170" cy="194" r="4"/><circle cx="230" cy="180" r="4"/><circle cx="290" cy="172" r="4"/><circle cx="350" cy="170" r="4"/><circle cx="410" cy="174" r="4"/><circle cx="470" cy="182" r="4"/></g>
+  <text class="ts" x="490" y="215">window slides one step, solve again from the new measurement</text>
+</svg>
+<figcaption>The plan is thrown away after one step. Re-planning from the new measurement every tick is what makes MPC a <b>closed-loop</b> controller even though each plan is open-loop.</figcaption>
+</figure>
+
+<div class="box eli5">Driving at night with headlights that reach 40 m. You plan the next 40 m, turn the wheel a little, and a moment later you plan the next 40 m again from where you are now. You never drive the whole old plan.</div>
+
+<h3>How do-mpc turns ẋ = f(x, u) into steps</h3>
+<p>We give do-mpc a <em>continuous</em> model. By default it discretises with <b>orthogonal collocation</b> (Radau, degree 2): inside each 0.1 s step it fits a small polynomial through the states and forces the polynomial's slope to match ẋ = f(x, u) at the collocation points. It is more accurate than Euler (<code>x + dt·f</code>) for the same step. One sentence is enough if you're asked; it is a library default we didn't change.</p>
+
+<!-- ============================================================ -->
+<h2 id="tvp"><span class="n">4</span>Time-varying parameters, the one mechanism we keep reusing</h2>
+<p>A TVP is a number the solver treats as fixed while it solves, but that we can overwrite <b>before every solve</b>, separately for <b>every horizon step</b>. Rebuilding the solver takes seconds, and overwriting a TVP costs nothing.</p>
+
+<div class="tablewrap"><table>
+<tr><th>horizon step k</th><th>0</th><th>1</th><th>2</th><th>…</th><th>N</th><th>Used in</th></tr>
+<tr><td>goal x<sub>des</sub>, y<sub>des</sub></td><td>r(t)</td><td>r(t+Δ)</td><td>r(t+2Δ)</td><td>…</td><td>r(t+NΔ)</td><td>Lab 2 task 4, scenario 1</td></tr>
+<tr><td>obstacle o<sub>x</sub>, o<sub>y</sub></td><td>o(t)</td><td>o(t+Δ)</td><td>o(t+2Δ)</td><td>…</td><td>o(t+NΔ)</td><td>scenario 3 (new)</td></tr>
+<tr><td>goal from estimator</td><td>ĝ(t)</td><td>ĝ(t+Δ)</td><td>ĝ(t+2Δ)</td><td>…</td><td>ĝ(t+NΔ)</td><td>scenario 4 (new)</td></tr>
+</table></div>
+
+<div class="box eli5">A conveyor belt of sticky notes, one per future moment. Before every plan you rewrite the notes: "at step 3 the goal will be here, the obstacle will be there." The solver reads the notes and never asks where they came from.</div>
+
+<div class="box key">Scenarios 3 and 4 add no new solver machinery. They only change what we write on the notes. In Lab 2 task 4 we already wrote a different goal into each horizon step, so the obstacle TVP is the same mechanism pointed at a different variable.</div>
+
+<!-- ============================================================ -->
+<h2 id="footprint"><span class="n">5</span>From a dot to a plank</h2>
+<p>The MPC model is a <b>point</b> (the axle centre). Real bodies have size. The trick is to grow the obstacle by the body's size, or equivalently to describe the body as discs and require every disc to stay out of every obstacle.</p>
+
+<h3>One disc vs three discs</h3>
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Single disc vs three discs over a plank">
+  <line class="l-red dash" x1="20" y1="90" x2="740" y2="90"/>
+  <line class="l-red dash" x1="20" y1="210" x2="740" y2="210"/>
+  <text class="ts" x="24" y="84">0.30 m gap edge</text>
+  <text class="ts" x="24" y="228">0.30 m gap edge</text>
+  <rect class="f-plank" x="90" y="110" width="200" height="80" rx="3"/>
+  <circle class="f-big" cx="190" cy="150" r="107.7"/>
+  <circle cx="190" cy="150" r="3" fill="var(--ink)"/>
+  <text class="tb" x="122" y="290">one disc: r = 0.269 m</text>
+  <text class="ts" x="128" y="272">crosses both edges, rejected</text>
+  <rect class="f-plank" x="470" y="110" width="200" height="80" rx="3"/>
+  <circle class="f-disc" cx="503.2" cy="150" r="52.1"/>
+  <circle class="f-disc" cx="570" cy="150" r="52.1"/>
+  <circle class="f-disc" cx="636.8" cy="150" r="52.1"/>
+  <g fill="var(--ink)"><circle cx="503.2" cy="150" r="3"/><circle cx="570" cy="150" r="3"/><circle cx="636.8" cy="150" r="3"/></g>
+  <text class="tb" x="488" y="290">three discs: r = 0.130 m</text>
+  <text class="ts" x="500" y="272">fits with 20 mm each side</text>
+  <text class="ts" x="160" y="146" style="font-weight:600">plank</text>
+</svg>
+<figcaption>Plank 0.50 × 0.20 m drawn to scale (400 px per metre). Each disc must cover its slice of the plank, corners included.</figcaption>
+</figure>
+
+<h3>How big must each disc be?</h3>
+<p>Cut the plank (length L, width W) into n equal slices along its length. Each slice is a small rectangle L/n by W. The smallest disc covering a rectangle has radius equal to half its diagonal:</p>
+<div class="eq">r<sub>n</sub> = √( (L / 2n)² + (W / 2)² )
+<span class="cap">n = 1: r = √(0.25² + 0.10²) = 0.269 m &nbsp;·&nbsp; n = 3: r = √(0.0833² + 0.10²) = 0.130 m</span></div>
+
+<div class="tablewrap"><table>
+<tr><th>discs n</th><th>radius r<sub>n</sub></th><th>gap needed 2r<sub>n</sub></th><th>wasted width (2r<sub>n</sub> − 0.20)</th><th>constraints per obstacle per step</th></tr>
+<tr><td>1</td><td>0.269 m</td><td>0.539 m</td><td>0.339 m</td><td>1</td></tr>
+<tr><td>2</td><td>0.160 m</td><td>0.320 m <span class="pill">fails 0.30</span></td><td>0.120 m</td><td>2</td></tr>
+<tr><td><b>3</b></td><td><b>0.130 m</b></td><td><b>0.260 m</b></td><td>0.060 m</td><td><b>3</b></td></tr>
+<tr><td>4</td><td>0.118 m</td><td>0.236 m</td><td>0.036 m</td><td>4</td></tr>
+<tr><td>5</td><td>0.112 m</td><td>0.224 m</td><td>0.024 m</td><td>5</td></tr>
+<tr><td>∞</td><td>0.100 m</td><td>0.200 m</td><td>0</td><td>∞</td></tr>
+</table></div>
+
+<div class="box key">Why three? Three is the smallest n that fits the proposal's 0.30 m gap, since two discs need 0.32 m. After that, returns fall fast: the fourth disc saves 24 mm and costs a third more constraints. The radius can never drop below W/2 = 0.10 m, however many discs you use.</div>
+
+<div class="box warn">Lab 2's single 0.105 m disc was centred on the axle, but the Burger's chassis box is centred 32 mm <em>behind</em> the axle. Its rear corners sit at (−0.102, ±0.07), which is 0.124 m from the axle. So Lab 2 under-inflated the real body by about 19 mm. It never mattered, because the soft margins were bigger, but it is a good example of why the reference point matters. In the project the plank is the widest thing, and it is centred on the axle by design (Q3).</div>
+
+<!-- ============================================================ -->
+<h2 id="rotate"><span class="n">6</span>Discs that turn with the robot</h2>
+<p>The discs sit at fixed offsets d<sub>i</sub> along the robot's own x-axis (body frame). To get their world position, rotate the offset by θ and add the robot position:</p>
+<div class="eq">c<sub>x,i</sub> = x + d<sub>i</sub> cos θ &nbsp;&nbsp;&nbsp; c<sub>y,i</sub> = y + d<sub>i</sub> sin θ &nbsp;&nbsp;&nbsp; d<sub>i</sub> ∈ { −0.167, 0, +0.167 } m
+<span class="cap">This is the same rotation as Lab 1's body-to-world transform, with the sideways offset equal to zero.</span></div>
+
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Rotated plank with disc centres">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink-soft)"/></marker></defs>
+  <line class="s-soft" x1="40" y1="250" x2="420" y2="250" marker-end="url(#ah)"/>
+  <line class="s-soft" x1="60" y1="280" x2="60" y2="20" marker-end="url(#ah)"/>
+  <text class="ts" x="410" y="270">world x</text>
+  <text class="ts" x="68" y="28">world y</text>
+  <g transform="translate(230 160) rotate(-30)">
+    <rect class="f-plank" x="-75" y="-30" width="150" height="60" rx="3"/>
+    <circle class="f-disc" cx="-50" cy="0" r="39"/>
+    <circle class="f-disc" cx="0" cy="0" r="39"/>
+    <circle class="f-disc" cx="50" cy="0" r="39"/>
+    <line class="s-ink" x1="-110" y1="0" x2="120" y2="0" stroke-dasharray="3 4"/>
+    <g fill="var(--ink)"><circle cx="-50" cy="0" r="3.5"/><circle cx="50" cy="0" r="3.5"/></g>
+    <circle cx="0" cy="0" r="5" fill="var(--red)"/>
+  </g>
+  <line class="s-soft" x1="230" y1="160" x2="330" y2="160" stroke-dasharray="3 4"/>
+  <path class="l-red" d="M290 160 A60 60 0 0 0 282 130" stroke-width="1.6"/>
+  <text class="t" x="296" y="148">θ</text>
+  <text class="ts" x="196" y="182" style="fill:var(--red)">(x, y) axle</text>
+  <text class="ts" x="270" y="100">d₃ = +0.167</text>
+  <text class="ts" x="132" y="226">d₁ = −0.167</text>
+  <text class="tb" x="470" y="70">In do-mpc these are symbols</text>
+  <text class="t" x="470" y="98">cx = x + d·ca.cos(th)</text>
+  <text class="t" x="470" y="120">cy = y + d·ca.sin(th)</text>
+  <text class="ts" x="470" y="150">built once, before mpc.setup()</text>
+  <text class="ts" x="470" y="170">CasADi differentiates them for IPOPT</text>
+  <text class="ts" x="470" y="200">turning in place: outer discs sweep</text>
+  <text class="ts" x="470" y="218">a circle of radius 0.167 + 0.130 = 0.297 m</text>
+</svg>
+<figcaption>Plank at θ = 30°. The middle disc sits on the axle, and the outer two swing with heading. That's why three discs catch the "turning knocks the wall" case and a single centred disc would too, only far too conservatively.</figcaption>
+</figure>
+
+<div class="box eli5">Holding a broom by the middle. Walk forward and the broom stays in your lane. Spin around and the ends sweep a big circle. The three discs are three hands' worth of broom, and the MPC knows where each hand is for any heading.</div>
+
+<h3>How straight must the plank be inside a 0.30 m gap?</h3>
+<p>Seen from the side of the gap, a plank tilted by φ from the gap axis sticks out by</p>
+<div class="eq">half-width(φ) = (L/2) sin φ + (W/2) cos φ = 0.25 sin φ + 0.10 cos φ</div>
+<p>For the real rectangle to fit a 0.30 m gap, half-width must be ≤ 0.15 m, so φ ≤ about 12°. The three-disc model is a little stricter than that. So the gap <em>forces</em> the robot to line up with it. We don't add a heading term to the cost, because the discs already supply the heading information.</p>
+
+<!-- ============================================================ -->
+<h2 id="keepout"><span class="n">7</span>The keep-out constraint</h2>
+<p>For disc i (radius r<sub>d</sub>) and obstacle j (centre o<sub>j</sub>, radius r<sub>o</sub>), the distance between their centres must be at least r<sub>o</sub> + r<sub>d</sub>. Squared on both sides:</p>
+<div class="eq">g<sub>ij</sub> = (r<sub>o,j</sub> + r<sub>d</sub>)² − [ (c<sub>x,i</sub> − o<sub>x,j</sub>)² + (c<sub>y,i</sub> − o<sub>y,j</sub>)² ] ≤ 0
+<span class="cap">≤ 0 means "outside". One of these per disc, per obstacle, per horizon step.</span></div>
+
+<div class="tablewrap"><table>
+<tr><th>Why squared?</th><th></th></tr>
+<tr><td>No square root</td><td>√ has an infinite slope at zero distance, and IPOPT needs smooth gradients everywhere.</td></tr>
+<tr><td>Cheaper</td><td>Squares are multiplications.</td></tr>
+<tr><td>Same feasible set</td><td>Both sides are positive, so d ≥ R ⇔ d² ≥ R².</td></tr>
+</table></div>
+
+<p>Count for one solve: <b>discs × obstacles × horizon steps</b>. Scenario 2 with 3 discs, 2 posts and N = 40 gives 240 keep-out constraints, against 40 in Lab 2 task 2. That's why solve time is one of our four metrics.</p>
+
+<p>Code shape. The Lab 2 loop over obstacles, plus an inner loop over discs:</p>
+<pre>for j, (ox, oy, r_obs) in enumerate(obstacles):
+    for i, d in enumerate(disc_offsets):          # (0.0,) for one disc, (-0.167, 0, 0.167) for three
+        cx = x + d * ca.cos(th)
+        cy = y + d * ca.sin(th)
+        keep = r_obs + disc_radius
+        mpc.set_nl_cons('obs%d_disc%d' % (j, i),
+                        keep ** 2 - ((cx - ox) ** 2 + (cy - oy) ** 2),
+                        ub=0.0, soft_constraint=True, penalty_term_cons=penalty)</pre>
+<p>Switching <code>footprint:=one</code> makes the offsets <code>(0.0,)</code> and the radius 0.269. The same loop then produces the Lab 2 constraint shape, which is why one parameter gives us the whole comparison.</p>
+
+<!-- ============================================================ -->
+<h2 id="soft"><span class="n">8</span>Hard vs soft constraints</h2>
+<p>A <b>hard</b> constraint must hold. If no input can satisfy it, the problem is <em>infeasible</em> and the solver returns nothing useful. A <b>soft</b> constraint can be broken, at a price. do-mpc adds a slack ε ≥ 0:</p>
+<div class="eq">g(x, u) − ε ≤ 0, &nbsp; ε ≥ 0, &nbsp; cost += ρ · ε
+<span class="cap">do-mpc adds the slack linearly to the cost. ρ = <code>penalty_term_cons</code> = 10 000 in Lab 2.</span></div>
+
+<figure>
+<svg viewBox="0 0 760 230" role="img" aria-label="Hard vs soft constraint cost">
+  <line class="s-soft" x1="60" y1="190" x2="340" y2="190"/><line class="s-soft" x1="200" y1="200" x2="200" y2="30"/>
+  <text class="ts" x="240" y="212">violation g →</text><text class="ts" x="64" y="212">← safely outside</text>
+  <rect x="200" y="30" width="140" height="160" fill="var(--red)" fill-opacity=".12"/>
+  <line class="l-red" x1="60" y1="190" x2="200" y2="190" stroke-width="3"/><line class="l-red" x1="200" y1="190" x2="200" y2="30" stroke-width="3"/>
+  <text class="tb" x="60" y="24">hard</text><text class="ts" x="214" y="110">infeasible:</text><text class="ts" x="214" y="126">no answer at all</text>
+  <line class="s-soft" x1="430" y1="190" x2="710" y2="190"/><line class="s-soft" x1="570" y1="200" x2="570" y2="30"/>
+  <text class="ts" x="610" y="212">violation g →</text>
+  <line class="l-green" x1="430" y1="190" x2="570" y2="190" stroke-width="3"/><line class="l-green" x1="570" y1="190" x2="700" y2="40" stroke-width="3"/>
+  <text class="tb" x="430" y="24">soft</text><text class="ts" x="430" y="110">slope ρ = 10 000:</text><text class="ts" x="430" y="126">expensive, never impossible</text>
+</svg>
+<figcaption>With a hard wall, one bad measurement and the solver has no answer. With a soft one there is always an answer, and the price only gets paid when there is no other way.</figcaption>
+</figure>
+
+<div class="box warn">Finding 7d. A constraint is enforced at every horizon step <b>including step 0</b>, and step 0 is the measurement, which the optimiser cannot change. If odometry or delay puts the measured pose 1 mm inside a hard keep-out, then every input sequence is infeasible, forever. Lab 2 task 4 deadlocked at 0.2248 m against a 0.225 m radius and never moved again.</div>
+
+<h3>Why "soft is identical to hard when hard is possible"</h3>
+<p>A <b>linear</b> penalty is an <em>exact penalty</em>. If ρ is larger than the constraint's Lagrange multiplier (roughly, how much the cost would improve per unit of violation), the optimum puts ε = 0 whenever that is feasible. Lab 2 measured this: soft and hard runs agreed to within 1 mm whenever the hard run was feasible. The slack only gets spent when the alternative is no answer at all.</p>
+
+<div class="box eli5">A hard rule is "never step on the grass, and if you're already on it, freeze forever". A soft rule is "stepping on the grass costs €10 000 a step". You never pay unless you're already on it, and then you pay a little to walk off.</div>
+
+<div class="box key">The slack is spent against the <em>inflation margin</em>, not against the real object. The disc radii are conservative (the corners of each slice are covered with room to spare), so a few millimetres of slack still leaves the real plank clear. That's exactly why we measure the <b>real</b> rectangle distance from ground truth (Q4): it tells us whether slack ever turned into contact.</div>
+
+<!-- ============================================================ -->
+<h2 id="box"><span class="n">9</span>The soft boundary box</h2>
+<p>Lab 2 used <code>mpc.bounds['lower','_x','x'] = −B</code>, which is hard. Task 1 overshot to x = 1.061 against B = 1.0, and task 4 started outside its box. Both were then unrecoverable. The project replaces the bounds with four soft constraints on the axle point:</p>
+<div class="eq">x − B′ ≤ 0 &nbsp;&nbsp; −B′ − x ≤ 0 &nbsp;&nbsp; y − B′ ≤ 0 &nbsp;&nbsp; −B′ − y ≤ 0 &nbsp;&nbsp;&nbsp; with B′ = B − 0.269
+<span class="cap">Shrunk by the plank's sweep radius, so the plank stays inside B at any heading. 4 constraints, not 12 (Q5).</span></div>
+<p>The box also does double duty in scenario 2: its y-limits are the corridor walls that stop the robot going around the posts.</p>
+
+<!-- ============================================================ -->
+<h2 id="reach"><span class="n">10</span>Horizon, reach and solve time</h2>
+<div class="eq">reach = N · Δt · v<sub>max</sub>
+<span class="cap">N = 20 → 0.44 m &nbsp;·&nbsp; N = 40 → 0.88 m &nbsp;·&nbsp; N = 60 → 1.32 m (Δt = 0.1 s, v<sub>max</sub> = 0.22 m/s)</span></div>
+
+<div class="box warn">Finding 7b/7c: an obstacle is only avoidable if the detour it forces is smaller than the reach. Lab 2 task 2's 1.105 m keep-out needed about 2.2 m of swing against 0.44 m of reach, so the robot drove to the edge and stopped. No cost weight fixes that.</div>
+
+<p>The tension: a longer horizon sees further (scenario 3 needs to see the obstacle coming), but the number of constraints grows with N and with the number of discs, and the solve must finish inside one 0.1 s tick. Our rule (Q6): sweep N ∈ {20, 40, 60} at the desk with the scenario-2 geometry, take the largest N whose 95th-percentile solve time is under <b>50 ms</b>, half the tick. The other half leaves room for ROS, the odometry callback and slow outliers.</p>
+
+<div class="tablewrap"><table>
+<tr><th>N</th><th>reach</th><th>keep-out constraints (3 discs × 2 posts)</th><th>looks</th></tr>
+<tr><td>20</td><td>0.44 m</td><td>~120</td><td>2.0 s ahead</td></tr>
+<tr><td>40</td><td>0.88 m</td><td>~240</td><td>4.0 s ahead</td></tr>
+<tr><td>60</td><td>1.32 m</td><td>~360</td><td>6.0 s ahead</td></tr>
+</table></div>
+<p class="ts">These counts are approximate, because collocation adds internal points. The measured solve times will replace the "looks" column once the desk sweep runs.</p>
+
+<div class="box warn">Lab 2's node defaulted to <code>n_horizon = 100</code> while the launch file passed 20, so <code>ros2 run</code> and <code>ros2 launch</code> silently ran different controllers. The project has one default, in the node, and the launch file doesn't override it.</div>
+
+<!-- ============================================================ -->
+<h2 id="s1"><span class="n">11</span>Scenario 1: known goal path</h2>
+<p>The reference is known in advance, so we write r(t + kΔt) into every horizon step exactly as in Lab 2 task 4.</p>
+<div class="eq">circle: r(t) = ( R cos ωt, R sin ωt ), &nbsp; R = 0.8 m, ω = 2π / 60 s
+<span class="cap">figure-8 (lemniscate of Gerono): r(t) = ( a sin ωt, a sin ωt cos ωt ). Size chosen to fit the arena.</span></div>
+
+<p>The obstacle is Lab 2's <code>(0, 0.62)</code>, r = 0.12, which is 0.18 m inside the top of the circle. What we expect from the pair:</p>
+<div class="tablewrap"><table>
+<tr><th>footprint</th><th>keep-out radius r<sub>o</sub> + r<sub>d</sub></th><th>outward detour at the top</th><th>vs reach 0.88 m (N=40)</th></tr>
+<tr><td>one disc</td><td>0.12 + 0.269 = 0.389 m</td><td>0.389 − 0.18 ≈ 0.21 m</td><td>fits</td></tr>
+<tr><td>three discs</td><td>0.12 + 0.130 = 0.250 m</td><td>0.250 − 0.18 ≈ 0.07 m</td><td>fits</td></tr>
+</table></div>
+<p>Prediction: both complete the lap, and the three-disc run leaves the circle three times less. Metrics are mean and max tracking error, maximum detour, and the minimum true plank-to-obstacle clearance.</p>
+
+<!-- ============================================================ -->
+<h2 id="s2"><span class="n">12</span>Scenario 2: the gap</h2>
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Corridor with two posts and keep-out rings">
+  <rect class="f-wall" x="20" y="0" width="720" height="10"/><rect class="f-wall" x="20" y="290" width="720" height="10"/>
+  <circle class="f-obs" cx="380" cy="50" r="40"/><circle class="f-obs" cx="380" cy="250" r="40"/>
+  <circle class="l-acc dash" cx="380" cy="50" r="92"/><circle class="l-acc dash" cx="380" cy="250" r="92"/>
+  <circle class="l-red dash" cx="380" cy="50" r="148"/><circle class="l-red dash" cx="380" cy="250" r="148"/>
+  <line class="s-ink" x1="40" y1="150" x2="720" y2="150" stroke-dasharray="2 5"/>
+  <path d="M60 158 L80 150 L60 142Z" fill="var(--ink)"/><text class="t" x="40" y="140">start</text>
+  <circle cx="700" cy="150" r="6" fill="var(--green)"/><text class="t" x="690" y="140">goal</text>
+  <line class="s-ink" x1="380" y1="90" x2="380" y2="210" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text class="tb" x="300" y="140">w = 0.30</text>
+</svg>
+<figcaption><b style="color:var(--accent)">Blue rings</b>: three-disc keep-out, centreline stays open. <b style="color:var(--red)">Red rings</b>: one-disc keep-out, they overlap the centreline, so it is blocked. Posts r = 0.10 touching the corridor walls, gap w between their surfaces, drawn to scale. The axle's path down the centreline is a distance r<sub>p</sub> + w/2 from each post centre, so the gap is open when r<sub>p</sub> + w/2 ≥ r<sub>p</sub> + r<sub>d</sub>, that is when <b>w ≥ 2 r<sub>d</sub></b>.</figcaption>
+</figure>
+
+<div class="tablewrap"><table>
+<tr><th>gap w</th><th>real plank (0.20) fits?</th><th>one disc (needs 0.539)</th><th>three discs (needs 0.260)</th></tr>
+<tr><td>0.60</td><td>yes</td><td>pass</td><td>pass</td></tr>
+<tr><td>0.50</td><td>yes, 0.15 each side</td><td><b>reject</b></td><td>pass</td></tr>
+<tr><td>0.40</td><td>yes</td><td>reject</td><td>pass</td></tr>
+<tr><td>0.34</td><td>yes</td><td>reject</td><td>pass</td></tr>
+<tr><td>0.30</td><td>yes, if heading within ~12°</td><td>reject</td><td>pass, 20 mm each side</td></tr>
+<tr><td>0.28</td><td>yes, tighter heading</td><td>reject</td><td>pass, 10 mm each side</td></tr>
+</table></div>
+
+<div class="box key">The 0.50 m row is the headline. The real plank has 15 cm to spare on each side, and the one-disc controller still refuses the gap. That's the cost of a conservative footprint.</div>
+
+<p><b>What "passes" means.</b> The goal is reached <em>and</em> the true rectangle clearance stays above zero for the whole run. Soft constraints can squeeze a too-big disc model through a gap by paying slack, so "reached the goal" alone isn't enough. If the one-disc run squeezes through at 0.50 m, that's a finding too, about ρ, and we report it.</p>
+<p><b>Symmetry (finding 7a).</b> In Lab 2 an obstacle sitting exactly on the start-to-goal axis deadlocked the robot, because left and right detours cost the same. Here the <em>gap</em> is on the axis and the posts are off it, so the straight line is the unique best path and there's no tie to break.</p>
+
+<!-- ============================================================ -->
+<h2 id="s3"><span class="n">13</span>Scenario 3 preview: the moving obstacle</h2>
+<p>The obstacle centre stops being a constant baked into the solver and becomes a TVP, written per horizon step from its known trajectory:</p>
+<div class="eq">g<sub>ij,k</sub> = (r<sub>o</sub> + r<sub>d</sub>)² − ‖c<sub>i,k</sub> − ô<sub>j</sub>(t + kΔt)‖² ≤ 0
+<span class="cap">"with future": ô(t + kΔt) = the true path · "without": ô(t + kΔt) = o(t) for every k (frozen at now)</span></div>
+
+<figure>
+<svg viewBox="0 0 760 240" role="img" aria-label="Moving obstacle predicted vs frozen">
+  <g><circle class="f-obs" cx="420" cy="40" r="22" fill-opacity=".12"/><circle class="f-obs" cx="420" cy="80" r="22" fill-opacity=".18"/><circle class="f-obs" cx="420" cy="120" r="22" fill-opacity=".26"/><circle class="f-obs" cx="420" cy="160" r="22" fill-opacity=".36"/><circle class="f-obs" cx="420" cy="200" r="22" fill-opacity=".5"/></g>
+  <text class="ts" x="452" y="44">obstacle now (k=0)</text><text class="ts" x="452" y="204">where it will be at k=4</text>
+  <line class="s-soft" x1="460" y1="60" x2="460" y2="180" marker-end="url(#ah)"/>
+  <path d="M40 168 L60 160 L40 152Z" fill="var(--ink)"/>
+  <path class="l-red" d="M60 160 L400 160 L700 160"/>
+  <text class="ts" x="60" y="190" style="fill:var(--red)">"now only": straight line looks clear, obstacle is far up</text>
+  <path class="l-green" d="M60 160 C 220 160, 300 100, 420 100 S 620 150, 700 160"/>
+  <text class="ts" x="60" y="120" style="fill:var(--green)">"with future": passes behind it</text>
+  <circle cx="700" cy="160" r="6" fill="var(--green)"/>
+</svg>
+<figcaption>Same obstacle, same solver. The only difference is what is written on the sticky notes for each horizon step.</figcaption>
+</figure>
+<div class="box eli5">Crossing a road. Looking only at where the car is now says "the road is empty in front of me". Knowing its speed says "it'll be right here in two seconds, so wait".</div>
+<p>Metric: the smallest real distance to the moving obstacle, future vs now-only. Details belong to 20–23 Oct, after scenarios 1 and 2.</p>
+
+<!-- ============================================================ -->
+<h2 id="s4"><span class="n">14</span>Scenario 4 preview: the estimated goal</h2>
+<p>The goal moves, but its future is <em>not</em> handed to us. We fit a constant velocity to the last few observed positions (least squares on a line) and extend it across the horizon:</p>
+<div class="eq">v̂ = Σ (t<sub>m</sub> − t̄)(p<sub>m</sub> − p̄) / Σ (t<sub>m</sub> − t̄)² &nbsp;&nbsp;&nbsp; ĝ(t + kΔt) = p<sub>last</sub> + v̂ · kΔt
+<span class="cap">The slope of the best straight line through position vs time, done separately for x and y.</span></div>
+<figure>
+<svg viewBox="0 0 760 200" role="img" aria-label="Constant velocity fit">
+  <line class="s-soft" x1="40" y1="170" x2="720" y2="170"/><text class="ts" x="690" y="190">time</text>
+  <g class="dot-teal"><circle cx="80" cy="150" r="5"/><circle cx="140" cy="128" r="5"/><circle cx="200" cy="118" r="5"/><circle cx="260" cy="94" r="5"/><circle cx="320" cy="80" r="5"/></g>
+  <line class="l-teal" x1="70" y1="154" x2="320" y2="79"/>
+  <line class="l-teal dash" x1="320" y1="79" x2="680" y2="-29"/>
+  <g class="dot-hollow"><circle cx="400" cy="55" r="5"/><circle cx="480" cy="31" r="5"/><circle cx="560" cy="7" r="5"/></g>
+  <text class="ts" x="80" y="190">observed goal positions (noisy)</text>
+  <text class="ts" x="420" y="90">fitted line, extended: ĝ for each horizon step</text>
+</svg>
+<figcaption>Fitting over several points averages out noise, whereas differencing the last two points would amplify it. The comparison run holds the last seen position constant across the horizon.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="truth"><span class="n">15</span>Measuring the truth</h2>
+<p>The controller <em>believes</em> discs. The world contains a rectangle. If we graded the run with disc distances, we'd be asking the model whether the model was right. So the analysis uses Gazebo's ground-truth pose and the exact rectangle (Q4).</p>
+<h3>Distance from a rectangle to a circle</h3>
+<ol>
+  <li>Move the obstacle centre into the plank's frame: <code>p = Rᵀ(θ) · (o − (x, y))</code></li>
+  <li>Clamp it onto the rectangle: <code>q = ( clamp(pₓ, −L/2, L/2), clamp(p_y, −W/2, W/2) )</code></li>
+  <li>Distance between the surfaces: <code>‖p − q‖ − r<sub>o</sub></code>. If it's ≤ 0 there was contact.</li>
+</ol>
+<figure>
+<svg viewBox="0 0 760 220" role="img" aria-label="Rectangle to circle distance">
+  <rect class="f-plank" x="160" y="80" width="250" height="100"/>
+  <circle class="f-obs" cx="560" cy="40" r="30"/>
+  <circle cx="560" cy="40" r="3" fill="var(--ink)"/><text class="t" x="520" y="92">p = obstacle centre (plank frame)</text>
+  <circle cx="410" cy="80" r="5" fill="var(--red)"/><text class="t" x="330" y="70" style="fill:var(--red)">q = clamp(p)</text>
+  <line class="l-red" x1="410" y1="80" x2="531" y2="48"/>
+  <text class="ts" x="420" y="110">‖p − q‖ − r<tspan baseline-shift="sub" font-size="9">o</tspan> = true clearance</text>
+  <circle cx="285" cy="130" r="4" fill="var(--ink)"/><text class="ts" x="250" y="160">axle (plank centre)</text>
+</svg>
+<figcaption>Clamping finds the nearest point of the rectangle: an edge, a corner, or the inside if the obstacle centre is over the plank.</figcaption>
+</figure>
+
+<div class="tablewrap"><table>
+<tr><th>Metric</th><th>Scenario</th><th>Source</th></tr>
+<tr><td>narrowest gap passed</td><td>2</td><td>gap sweep, "pass" = goal reached and clearance &gt; 0</td></tr>
+<tr><td>min true clearance</td><td>1, 2, 3</td><td>ground-truth pose + rectangle formula</td></tr>
+<tr><td>tracking error to goal</td><td>1, 4</td><td>ground truth vs reference</td></tr>
+<tr><td>solve time per tick</td><td>all</td><td>timed around <code>make_step</code>, logged per tick</td></tr>
+</table></div>
+<p>Every run goes to a bag file, so the numbers can be recomputed without re-running Gazebo.</p>
+
+<!-- ============================================================ -->
+<h2 id="carry"><span class="n">16</span>What Lab 2 hands us, unchanged</h2>
+<div class="tablewrap"><table>
+<tr><th>Piece</th><th>What it does</th><th>Where it came from</th></tr>
+<tr><td>Unicycle model with goal TVP</td><td>the prediction model</td><td><code>build_TBmodel</code></td></tr>
+<tr><td>Soft obstacle constraints, ρ = 1e4</td><td>never infeasible</td><td>finding 7d</td></tr>
+<tr><td>Delay compensation, <code>delay_steps = 1</code></td><td>solve from where the robot <em>will</em> be when the command lands</td><td>report notes, t_step half of the instructor's remark</td></tr>
+<tr><td>Hold last command for up to 3 failed solves</td><td>no stop-go jerk on transient failures</td><td>jagged-circle finding</td></tr>
+<tr><td>Stale-odometry stop, stop on shutdown</td><td>safety</td><td>Lab 1/2 rules</td></tr>
+<tr><td><code>/mpc_prediction</code> Path, <code>/mpc_obstacles</code> markers</td><td>see the plan and the keep-outs in RViz</td><td>Lab 2 node</td></tr>
+<tr><td>Desk closed-loop simulator</td><td>prototype without ROS</td><td><code>lab2/plots/sim_task.py</code></td></tr>
+</table></div>
+
+<!-- ============================================================ -->
+<h2 id="qs"><span class="n">17</span>Questions you will be asked</h2>
+<details><summary>Why three discs, not two or five?</summary>Three is the smallest number that fits a 0.30 m gap: two need 0.32 m, three need 0.26 m. Each extra disc adds one constraint per obstacle per step and saves less and less width. The radius can never go below W/2 = 0.10 m.</details>
+<details><summary>Why not model the rectangle exactly?</summary>Distance to a rectangle has corners and edges, so its gradient jumps, and IPOPT wants smooth functions. Discs give smooth quadratic constraints. We do use the exact rectangle in the <em>evaluation</em>, where smoothness doesn't matter.</details>
+<details><summary>What is the non-holonomic constraint and why does it matter here?</summary>The robot can't move sideways (ẏ<sub>body</sub> = 0). It's why the plank must be along the heading, and why lining up with a gap takes distance, which costs reach.</details>
+<details><summary>Why are constraints squared?</summary>No square root, so the gradient stays smooth near zero and the evaluation is cheap. Both sides are positive, so the feasible set is identical.</details>
+<details><summary>Soft constraints mean you might hit the obstacle. Why accept that?</summary>With a linear penalty and a large ρ, the slack is zero whenever a collision-free plan exists, which is the exact-penalty property, and Lab 2 confirmed it to 1 mm. Slack only appears when the measured state is already inside, and then the alternative is a permanently infeasible solver. And the disc radii are conservative, so slack eats margin before it reaches the real object. We check that with ground-truth rectangle distance.</details>
+<details><summary>What is a TVP and why not just rebuild the solver?</summary>A parameter overwritten before each solve, one value per horizon step. Rebuilding takes seconds and the control tick is 0.1 s.</details>
+<details><summary>How did you choose the horizon?</summary>We measured it. Reach N·Δt·v<sub>max</sub> must exceed the largest detour, and the 95th-percentile solve time must stay under half a tick. We took the largest N in {20, 40, 60} meeting both.</details>
+<details><summary>Why is the boundary box soft and shrunk by 0.269?</summary>A hard bound on a measured state is unrecoverable once it is crossed, which is Lab 2 task 4. 0.269 m is the plank's sweep radius, so the plank stays inside at any heading.</details>
+<details><summary>Where does the robot pose come from, and is it trustworthy?</summary>The controller uses <code>/odom</code>, which comes from wheel encoders through the diff-drive plugin and drifts in reality. The <em>evaluation</em> uses Gazebo ground truth, which is why the project is simulation-only: a repeatable truth and repeatable obstacle timing.</details>
+<details><summary>What does closed loop mean for an MPC whose plans are open loop?</summary>Each plan is open loop, but only its first input is used, and the next plan starts from a fresh measurement. Feedback enters through x₀.</details>
+<details><summary>What happens if the gap is narrower than 0.26 m?</summary>The three-disc model rejects it, even though the real plank (0.20 m) would fit down to about 0.20 m if perfectly straight. That's the remaining conservatism. More discs would shrink it toward 0.20.</details>
+
+<!-- ============================================================ -->
+<h2 id="gloss"><span class="n">18</span>Glossary</h2>
+<div class="tablewrap"><table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Footprint</td><td>The shape the controller thinks the robot occupies.</td></tr>
+<tr><td>Inflation</td><td>Growing an obstacle by the robot's radius so the robot can be treated as a point.</td></tr>
+<tr><td>Body frame / world frame</td><td>Coordinates fixed to the robot vs fixed to the floor. Rotate by θ to convert.</td></tr>
+<tr><td>Horizon N</td><td>Number of future steps the MPC plans.</td></tr>
+<tr><td>Reach</td><td>N · Δt · v<sub>max</sub>, the furthest the plan can travel.</td></tr>
+<tr><td>TVP</td><td>Time-varying parameter: a per-step value rewritten before each solve.</td></tr>
+<tr><td>Slack ε</td><td>How much a soft constraint is broken by. It costs ρ·ε.</td></tr>
+<tr><td>Exact penalty</td><td>A linear penalty large enough that slack is zero whenever possible.</td></tr>
+<tr><td>Infeasible</td><td>No input satisfies all constraints, so the solver has no answer.</td></tr>
+<tr><td>IPOPT</td><td>The interior-point nonlinear solver do-mpc calls through CasADi.</td></tr>
+<tr><td>Collocation</td><td>Discretising ẋ = f(x, u) by fitting polynomials inside each step.</td></tr>
+<tr><td>Ground truth</td><td>The simulator's exact pose, not the robot's own estimate.</td></tr>
+<tr><td>Regression gate</td><td>A check that old behaviour still works before new code goes in.</td></tr>
+</table></div>
+
+<p class="ts" style="margin-top:40px">Written 2026-10-15, before any project code exists. Values marked as predictions get replaced by measurements in the full study guide.</p>
+</div>
+</body>
+</html>
