@@ -36,3 +36,37 @@ Earlier entries (desk version, frontier clusters, all Gazebo debugging): `../lab
   `lab3_maze_blind_a` (5.6 m) twice: both full and finished, 30.4 and 30.3 m2 of 31.4, after 456
   and 441 s, 0 stalls, 0 and 3 back-offs.
 - RUNSHEET rewritten as a terminal-by-terminal procedure for the hall and for Gazebo.
+
+## 2026-10-15: info_weight comparison in Gazebo
+
+Done after the hall runs, as a check of the info_weight 0.10 used in the hall. Not done before
+choosing it. World lab3_maze_blind_a (5.6 by 5.6 m, 31.4 m2, about the hall size). Everything
+else fixed at the hall values: min_gain 8, inflation_radius 0.12. Two runs per value. All
+numbers [gazebo]. Times are sim seconds after the first plan.
+
+| run | finished | plans | stalls | back-offs | final m2 | 90 % at (s) | within 0.2 m2 of final at (s) |
+|---|---|---|---|---|---|---|---|
+| iw0.0-1 | yes | 173 | 2 | 2 | 29.9 | 394 | 493 |
+| iw0.0-2 | yes | 196 | 1 | 6 | 30.9 | 464 | 515 |
+| iw0.10-1 | yes | 49 | 0 | 0 | 30.4 | 389 | 437 |
+| iw0.10-2 | yes | 49 | 0 | 0 | 30.8 | 298 | 403 |
+| iw0.30-1 | yes | 45 | 1 | 8 | 30.2 | 301 | 451 |
+| iw0.30-2 | yes | 37 | 1 | 2 | 29.2 | 364 | 450 |
+
+Mean of the two runs (90 % time + time to final, the PDF competition score):
+
+| info_weight | score | plans | stalls | back-offs |
+|---|---|---|---|---|
+| 0.0 (nearest leaf that sees 8 cells) | 933 s | 185 | 1.5 | 4 |
+| 0.10 (hall value) | 764 s | 49 | 0 | 0 |
+| 0.30 (greedier) | 783 s | 41 | 1 | 5 |
+
+- All six runs explored the maze fully (29.2 to 30.9 m2 of 31.4) and ended with
+  exploration finished.
+- 0.0 is the slowest in both runs and makes about 4 times more plans. With no reward for gain it
+  takes many short hops to the nearest leaf.
+- 0.10 and 0.30 cannot be separated with two runs: the spread inside one value (298 to 389 s for
+  0.10) is larger than the difference between them. 0.10 was the only value with no stalls and no
+  back-offs in both runs.
+- Conclusion for the report: some weight on gain clearly helps; the hall value 0.10 is as good as
+  0.30 here and drove more cleanly.
