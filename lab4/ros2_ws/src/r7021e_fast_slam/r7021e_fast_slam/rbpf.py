@@ -95,11 +95,11 @@ class GridFastSLAM:
         ep_w = ep_hit[::cfg.likelihood_stride]
 
         for p in self.particles:
-            ## (3) predict from odometry
+            ## predict from odometry
             x_bar = sample_motion_model_odometry(
                 u, p.pose[None, :], cfg.odometry_sigmas, self.rng)[0]
 
-            ## (5) scan-match against THIS particle's own map
+            ## scan-match against THIS particle's own map
             if cfg.use_improved_proposal:
                 t0 = perf_counter()
                 x_star, score = scan_match(x_bar, p.grid, ep_match, cfg)
@@ -110,8 +110,8 @@ class GridFastSLAM:
 
             t0 = perf_counter()
             if score >= cfg.match_score_min:
-                ## (6-10) Gaussian proposal around the match, (11) sample it,
-                ## (12) weight by the proposal's normaliser.
+                ## Gaussian proposal around the match, sample it,
+                ## weight by the proposal's normaliser.
                 log_eta, mu, sigma = improved_proposal(
                     x_star, p.pose, u, ep_w, p.grid, cfg)
                 x_new = self.rng.multivariate_normal(mu, sigma)
@@ -128,24 +128,25 @@ class GridFastSLAM:
             timings['likelihood'] += perf_counter() - t0
             p.pose = x_new
 
-            ## (22) The map is updated LAST: every likelihood above has to
+            ## The map is updated last. Every likelihood above has to
             ## see m_{t-1}, not a map that already holds this scan.
             t0 = perf_counter()
             p.grid.integrate_scan(x_new, endpoints, ranges, cfg.range_max)
             timings['map_integrate'] += perf_counter() - t0
 
-        ## (24-25) normalise, then N_eff. N_eff is read BEFORE resampling.
+        ## Normalise, then N_eff. N_eff is read before resampling.
         weights, n_eff = self._normalize()
 
         ## Read the heaviest particle now: after a resample every weight is 1/N.
         best_index = int(np.argmax(weights))
 
-        ## (26-27) resample if N_eff is below the threshold
+        ## resample if N_eff is below the threshold
         resampled = self._maybe_resample(weights, n_eff)
 
         return StepInfo(n_eff=n_eff, resampled=resampled,
                         n_fallback=n_fallback, timings=timings,
                         best_index=best_index)
+
 
     def _normalize(self):
         """Normalize the particle weights and compute the effective sample size.

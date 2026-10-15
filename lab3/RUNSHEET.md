@@ -54,17 +54,8 @@ confirmed robot number.
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-```
-
-```bash
 export TURTLEBOT3_MODEL=burger
-```
-
-```bash
 export ROS_DOMAIN_ID=34
-```
-
-```bash
 source ~/R7021E-group6/lab3/ros2_ws/install/setup.bash
 ```
 
@@ -95,17 +86,8 @@ Replace `34` if the confirmed robot is not turtle4:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-```
-
-```bash
 export TURTLEBOT3_MODEL=burger
-```
-
-```bash
 export ROS_DOMAIN_ID=34
-```
-
-```bash
 printenv ROS_DOMAIN_ID
 ```
 

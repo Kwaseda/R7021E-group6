@@ -61,25 +61,10 @@ Replace `34` with 3 times the robot number.
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-```
-
-```bash
 export TURTLEBOT3_MODEL=burger
-```
-
-```bash
 export ROS_DOMAIN_ID=34
-```
-
-```bash
 source ~/R7021E-group6/lab4/ros2_ws/install/setup.bash
-```
-
-```bash
 cd ~/R7021E-group6/lab4/ros2_ws/src/r7021e_fast_slam
-```
-
-```bash
 printenv ROS_DOMAIN_ID
 ```
 
