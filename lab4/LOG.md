@@ -337,3 +337,38 @@ Start the hall at N = 10 (ATE 0.13 m mean in simulation, about 230 ms per step).
 - `params.yaml` is in hall mode: `odom_noise_sigma` [0, 0, 0], `scan_queue_depth` 1, `ground_truth_topic` '', `num_particles` 10. The sim values are in the .json of every sim run. (The previous commit message said hall mode, but the change failed; this commit makes it.)
 - We did not do the comparison run with the classmates' package (handover step C13). The PDF does not ask for it, and Dominic asked for no extra work.
 - Task 8 tuning order and ranges: `RUNSHEET.md`.
+
+
+## 2026-10-16: Comments from the hall
+
+1. So, it seems like changing N from 10 to 20 didn't really do much to the SLAM result seen. Check out bags hall_run1_nasser (N=10) and hall_run2_nasser (N=20), for what happened. Changing N back to N=10.
+
+2. Next to tune is the odometry_sigma. Changed from [0.05, 0.04, 0.05] to [0.03, 0.02, 0.06], to really no perceivable changes. Analyze bag run/hall_run3_odom_sigmas_nasser to see what changed. N = 10, of course.
+
+3. For the official screen-recorded run 1, I will leave the values at [0.03, 0.02, 0.06] and N = 20, as they seem to be good enough for now. 
+
+4. run 2 went equally well. Check out the official run 2 rosbags, and since we have no screen-recording for that run, we now needed to do a rosbag replay and capture that for our report.
+
+5. What happens when wheels in air. Nothing much really. I think that it is just that the particle clouds seem to assume that we are moving, but since they see the same walls, they don't really have that happen. I cannot explain why though. Check out the bag run/hall_run4_wheels_in_air_nasser to see what happened. N = 10, odometry_sigmas [0.03, 0.02, 0.06].
+## 2026-10-16: analysis of the hall runs
+
+Source: the run logs (`runs/hall_*.npz`, `.json`) and the bags [hall].
+
+Corrections to the hall comments above:
+
+1. Every hall run used N = 10. The `.json` of each run says `num_particles` 10, and the step time is the same (76 to 77 ms median) in the runs that were meant to be N = 10 and N = 20. The N = 20 setting did not take effect.
+2. Task 9 was not "nothing much". The filter followed the wheels (numbers below).
+
+| Run | `odometry_sigmas` | Steps | End gap est / odom (m) | Fallbacks per step | Step ms median |
+|---|---|---|---|---|---|
+| `hall_tune_1_nasser` | [0.05, 0.04, 0.05] | 156 | 0.44 / 0.36 | 0.06 | 76 |
+| `hall_tune_2_nasser` | [0.05, 0.04, 0.05] | 101 | 0.09 / 0.09 | 0.10 | 77 |
+| `hall_tune_3_nasser` | [0.03, 0.02, 0.06] | 82 | 0.11 / 0.21 | 0.12 | 76 |
+| `hall_official_1_nasser` | [0.03, 0.02, 0.06] | 93 | 1.90 / 2.01 | 0.11 | 112 |
+| `hall_official_2_nasser` | [0.03, 0.02, 0.06] | 146 | 0.38 / 0.42 | 0.08 | 76 |
+| `hall_wheels_up_nasser` | [0.03, 0.02, 0.06] | 46 | 1.40 / 1.72 | 5.5 | 92 |
+
+- Official run 1 did not end at the start. The bag's own odometry ends 2.06 m from the start, so the robot was stopped early. The bag (256 s) is shorter than the run log (282 s).
+- All driving maps have single, sharp walls (`figures/hall_maps.png`). The estimate stays within 0.04 to 0.12 m of the odometry at the end. The real odometry is much better than the simulated odometry with noise 0.003.
+- Task 9: the odometry path was 9.3 m back and forth (1.72 m net). The estimate moved 95 % (median) of each odometry step: 8.8 m path, 1.40 m net. The map smeared into streaks. 5.5 of 10 particles fell back per step; all 10 on 13 of 46 steps. Cause: the motion prior. With `odometry_sigmas` translation 0.02, the matcher's prior costs 0.1 x 0.5 x (0.2 / 0.02)^2 = 5 to move a match back 0.2 m, and the score is at most 1. The proposal lattice reaches only +-5 cm. So no stage can undo a 0.2 m odometry step.
+- Video for run 2 (no screen recording): `video/replay_record.sh` and `video/bag_to_video.py`, output `~/Videos/lab4/task8_run2_replay.mp4`. In that replay 92 % of the scans land on the map walls (median hit rate 0.87); the rest are short moments in turns.
