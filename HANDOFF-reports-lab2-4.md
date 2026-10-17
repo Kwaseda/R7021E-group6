@@ -5,10 +5,10 @@ is already in this repo; do not re-derive results, do not re-run the robot.
 
 ## Read these first, in this order
 
-1. `lab1/report_notes.md` — how Dominic writes. Match this voice exactly.
-2. `lab1/make_report.py` — the builder script. Copy it per lab, change the content.
-3. `lab1/Lab_1_report_group6.docx` — the finished output.
-4. `lab1/plots/make_block_diagram.py` — the diagram style. Copy it per lab.
+1. `lab1/report_notes.md`, how Dominic writes. Match this voice exactly.
+2. `lab1/make_report.py`, the builder script. Copy it per lab, change the content.
+3. `lab1/Lab_1_report_group6.docx`, the finished output.
+4. `lab1/plots/make_block_diagram.py`, the diagram style. Copy it per lab.
 
 ## How Dominic writes, and it is not optional
 
