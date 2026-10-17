@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="2460" viewBox="0 0 1400 2460" role="img" aria-labelledby="title desc">
+  <title id="title">How this Lab 3 RRT* function grows and rewires its tree</title>
+  <desc id="desc">A step-by-step diagram of the actual rrt_star function, from its parallel arrays through sampling, steering, collision checking, parent choice, rewiring, and return. Includes the stopping conditions and a warning that descendant costs are not propagated after rewiring.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#536579"/>
+    </marker>
+    <style>
+      .bg { fill: #f5f7fa; }
+      .card { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 18; }
+      .title { font: 700 34px sans-serif; fill: #132238; }
+      .subtitle { font: 18px sans-serif; fill: #46566c; }
+      .heading { font: 700 24px sans-serif; fill: #17324d; }
+      .body { font: 18px sans-serif; fill: #27364a; }
+      .small { font: 16px sans-serif; fill: #46566c; }
+      .code { font: 17px monospace; fill: #142b43; }
+      .badge { font: 700 16px sans-serif; fill: #ffffff; }
+      .line { stroke: #536579; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .tree { stroke: #3182a3; stroke-width: 5; fill: none; }
+      .candidate { stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 8 7; fill: none; }
+      .newedge { stroke: #1b8a5a; stroke-width: 5; fill: none; }
+      .rewire { stroke: #d97706; stroke-width: 5; fill: none; }
+      .blocked { stroke: #c2413b; stroke-width: 5; stroke-dasharray: 8 6; fill: none; }
+      .node { fill: #247ba0; stroke: #ffffff; stroke-width: 3; }
+      .newnode { fill: #15803d; stroke: #ffffff; stroke-width: 3; }
+      .sample { fill: #7c3aed; stroke: #ffffff; stroke-width: 3; }
+      .wall { fill: #334155; }
+      .pill { fill: #e8eef5; stroke: #bdc9d7; stroke-width: 1.5; rx: 12; }
+      .warn { fill: #fff7ed; stroke: #f0b36e; stroke-width: 2; rx: 14; }
+      .greenbox { fill: #ecfdf3; stroke: #83c99e; stroke-width: 2; rx: 14; }
+      .redbox { fill: #fff1f0; stroke: #e5a19b; stroke-width: 2; rx: 14; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1400" height="2460"/>
+  <text class="title" x="58" y="70">RRT* in this Lab 3 code</text>
+  <text class="subtitle" x="60" y="108">One loop grows a collision-checked tree. RRT* also tries to lower route costs by changing parents.</text>
+  <text class="subtitle" x="60" y="138">Read top to bottom. The names and values below match navigation_node.py.</text>
+
+  <rect class="card" x="50" y="165" width="1300" height="180"/>
+  <circle cx="86" cy="203" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="209">0</text>
+  <text class="heading" x="122" y="211">Start the tree: three lists describe the same nodes</text>
+  <text class="code" x="90" y="253">nodes  = [root]</text>
+  <text class="code" x="90" y="283">parent = [-1]</text>
+  <text class="code" x="90" y="313">cost   = [0.0]</text>
+  <text class="body" x="460" y="255">Index i ties the entries together:</text>
+  <text class="body" x="460" y="286">nodes[i] is a point; parent[i] is its parent index;</text>
+  <text class="body" x="460" y="317">cost[i] is its stored distance cost back to the root.</text>
+  <rect class="pill" x="1040" y="230" width="255" height="66"/>
+  <text class="small" x="1063" y="257">root has no parent</text>
+  <text class="code" x="1084" y="282">parent[0] = -1</text>
+
+  <path class="line" d="M700 347 L700 374"/>
+  <rect class="card" x="50" y="382" width="1300" height="185"/>
+  <circle cx="86" cy="420" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="426">1</text>
+  <text class="heading" x="122" y="428">Prepare random samples from safe map cells</text>
+  <text class="code" x="90" y="468">free = np.argwhere(mask)</text>
+  <text class="body" x="90" y="501">If free is empty, return the root-only tree.</text>
+  <text class="code" x="90" y="535">r, c = free[rng.integers(len(free))]</text>
+  <text class="code" x="740" y="468">sample = grid.world(r, c)</text>
+  <text class="body" x="740" y="501">This is the chosen cell's world-space centre.</text>
+  <text class="body" x="740" y="535">No goal bias or random offset inside the cell.</text>
+
+  <path class="line" d="M700 569 L700 596"/>
+  <rect class="card" x="50" y="604" width="1300" height="260"/>
+  <circle cx="86" cy="642" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="648">2</text>
+  <text class="heading" x="122" y="650">Find the nearest tree point, then steer toward the sample</text>
+  <text class="code" x="90" y="690">near_i = argmin(distance(nodes, sample))</text>
+  <text class="code" x="90" y="720">d = distance(nodes[near_i], sample)</text>
+  <text class="code" x="90" y="750">s = min(1, step_size / d)</text>
+  <text class="code" x="90" y="780">new = nodes[near_i] + s * (sample - nodes[near_i])</text>
+  <text class="body" x="90" y="824">With step_size = 0.30 m, new is at most 0.30 m from its nearest node.</text>
+
+  <g transform="translate(920 687)">
+    <path class="tree" d="M20 115 L125 62 L220 111"/>
+    <path class="tree" d="M125 62 L210 20"/>
+    <circle class="node" cx="20" cy="115" r="12"/>
+    <circle class="node" cx="125" cy="62" r="12"/>
+    <circle class="node" cx="220" cy="111" r="12"/>
+    <circle class="node" cx="210" cy="20" r="12"/>
+    <circle class="sample" cx="350" cy="43" r="13"/>
+    <path class="candidate" d="M210 20 L350 43"/>
+    <circle class="newnode" cx="267" cy="29" r="13"/>
+    <path class="newedge" d="M210 20 L267 29"/>
+    <text class="small" x="-6" y="153">existing tree</text>
+    <text class="small" x="239" y="11">new point</text>
+    <text class="small" x="331" y="75">sample</text>
+  </g>
+
+  <path class="line" d="M700 866 L700 893"/>
+  <rect class="card" x="50" y="901" width="1300" height="250"/>
+  <circle cx="86" cy="939" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="945">3</text>
+  <text class="heading" x="122" y="947">Reject a blocked connection before adding the point</text>
+  <text class="code" x="90" y="990">if not segment_free(mask, grid, nearest_node, new):</text>
+  <text class="code" x="130" y="1021">continue  # discard this sample; start next iteration</text>
+  <text class="body" x="90" y="1060">The endpoint can be free while the straight edge crosses an inflated wall.</text>
+  <text class="body" x="90" y="1092">segment_free checks points along the edge, not just its endpoint.</text>
+  <g transform="translate(930 966)">
+    <path class="candidate" d="M25 75 L360 75"/>
+    <rect class="wall" x="170" y="32" width="74" height="88" rx="6"/>
+    <circle class="node" cx="25" cy="75" r="12"/>
+    <circle class="sample" cx="360" cy="75" r="12"/>
+    <path class="blocked" d="M175 75 L238 75"/>
+    <text class="small" x="151" y="148">inflated wall</text>
+    <text class="small" x="20" y="35">a is free</text>
+    <text class="small" x="315" y="35">new is free</text>
+  </g>
+
+  <path class="line" d="M700 1153 L700 1180"/>
+  <rect class="card" x="50" y="1188" width="1300" height="320"/>
+  <circle cx="86" cy="1226" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="1232">4</text>
+  <text class="heading" x="122" y="1234">Choose the cheapest collision-free parent nearby</text>
+  <text class="code" x="90" y="1276">near = existing nodes within rewire_radius (0.60 m)</text>
+  <text class="code" x="90" y="1308">candidate_cost = cost[j] + distance(nodes[j], new)</text>
+  <text class="body" x="90" y="1342">Keep the candidate only if its edge to new is collision-free.</text>
+  <text class="body" x="90" y="1374">Choose the candidate with the smallest accumulated cost.</text>
+  <rect class="greenbox" x="90" y="1401" width="695" height="70"/>
+  <text class="code" x="112" y="1431">nodes.append(new); parent.append(best); cost.append(best_cost)</text>
+  <text class="small" x="112" y="1458">k = index of the newly appended node</text>
+  <g transform="translate(900 1264)">
+    <path class="tree" d="M25 166 L115 114 L220 164"/>
+    <path class="tree" d="M115 114 L190 45"/>
+    <path class="candidate" d="M220 164 L280 93"/>
+    <path class="newedge" d="M190 45 L280 93"/>
+    <path class="candidate" d="M115 114 L280 93"/>
+    <circle class="node" cx="25" cy="166" r="12"/>
+    <circle class="node" cx="115" cy="114" r="12"/>
+    <circle class="node" cx="220" cy="164" r="12"/>
+    <circle class="node" cx="190" cy="45" r="12"/>
+    <circle class="newnode" cx="280" cy="93" r="14"/>
+    <text class="small" x="268" y="68">new</text>
+    <text class="small" x="25" y="205">solid teal: old tree</text>
+    <text class="small" x="25" y="231">green: selected parent edge</text>
+    <text class="small" x="25" y="257">dashed: other possible edges</text>
+  </g>
+
+  <path class="line" d="M700 1510 L700 1537"/>
+  <rect class="card" x="50" y="1545" width="1300" height="365"/>
+  <circle cx="86" cy="1583" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="1589">5</text>
+  <text class="heading" x="122" y="1591">Rewire nearby nodes if the new route is cheaper</text>
+  <text class="code" x="90" y="1633">for j in near:</text>
+  <text class="code" x="130" y="1665">via_new = best_cost + distance(new, nodes[j])</text>
+  <text class="code" x="130" y="1697">if via_new &lt; cost[j] and segment_free(new, nodes[j]):</text>
+  <text class="code" x="170" y="1729">parent[j], cost[j] = k, via_new</text>
+  <text class="body" x="90" y="1770">Meaning: change j's parent to the new node and lower j's stored cost.</text>
+  <g transform="translate(900 1637)">
+    <path class="tree" d="M25 170 L120 108 L220 160"/>
+    <path class="tree" d="M120 108 L190 42"/>
+    <path class="tree" d="M220 160 L320 115"/>
+    <path class="newedge" d="M190 42 L275 75"/>
+    <path class="rewire" d="M275 75 L320 115"/>
+    <circle class="node" cx="25" cy="170" r="12"/>
+    <circle class="node" cx="120" cy="108" r="12"/>
+    <circle class="node" cx="220" cy="160" r="12"/>
+    <circle class="node" cx="190" cy="42" r="12"/>
+    <circle class="newnode" cx="275" cy="75" r="14"/>
+    <circle class="node" cx="320" cy="115" r="12"/>
+    <text class="small" x="274" y="158">nearby j</text>
+    <text class="small" x="25" y="210">orange edge shows j reparented</text>
+  </g>
+  <rect class="warn" x="90" y="1792" width="1218" height="90"/>
+  <text class="body" x="112" y="1825">Source limitation: the code updates j, but does not propagate its new cost to j's descendants.</text>
+  <text class="body" x="112" y="1857">Their stored costs can be stale, so a later “cheapest” comparison may be inaccurate.</text>
+
+  <path class="line" d="M700 1912 L700 1939"/>
+  <rect class="card" x="50" y="1947" width="1300" height="235"/>
+  <circle cx="86" cy="1985" r="20" fill="#315a7d"/>
+  <text class="badge" x="81" y="1991">6</text>
+  <text class="heading" x="122" y="1993">Repeat until a stopping check passes or the cap is reached</text>
+  <text class="code" x="90" y="2035">for it in range(max_iterations):  # default maximum: 8000</text>
+  <text class="code" x="90" y="2067">if it &gt;= 1500 and it % 500 == 0 and enough(nodes, parent): break</text>
+  <text class="body" x="90" y="2110">The enough() check runs at 1500, 2000, 2500, ... before that iteration's sample.</text>
+  <text class="body" x="90" y="2142">Task 2: a node is within 0.15 m of the clicked goal. NBV: a leaf sees at least 7 frontiers.</text>
+
+  <path class="line" d="M700 2184 L700 2211"/>
+  <rect class="greenbox" x="50" y="2219" width="1300" height="180"/>
+  <circle cx="86" cy="2257" r="20" fill="#15803d"/>
+  <text class="badge" x="81" y="2263">7</text>
+  <text class="heading" x="122" y="2265">Return the tree, then the planner picks a node and recovers its branch</text>
+  <text class="code" x="90" y="2310">return np.array(nodes), parent, cost</text>
+  <text class="body" x="90" y="2345">Task 2 picks the cheapest node close to the clicked goal.</text>
+  <text class="body" x="90" y="2377">NBV scores eligible leaves; branch() follows parent links to root, then reverses the list.</text>
+
+  <text class="small" x="60" y="2435">Mental model: sample → nearest → steer → collision check → cheapest parent → add → rewire → repeat.</text>
+</svg>
