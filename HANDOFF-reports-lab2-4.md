@@ -22,6 +22,28 @@ over: no em dashes, no AI vocabulary, sparse bold, sentence-case headings.
 
 He has asked repeatedly for short and direct. Answer first, evidence second.
 
+## Page targets, and they are hard requirements
+
+| lab | target | where it comes from |
+|---|---|---|
+| 1 | about 6 pages | Dominic's instruction. Delivered at 7; page 7 is 71 percent full and cutting more would delete graded answers. |
+| 2 | about 6 pages | Dominic's instruction |
+| 3 | around 3 pages with figures | the lab instructions PDF says so explicitly |
+| 4 | no limit stated | the brief says to include all figures, observations and discussions from every task that was not just code, pre-lab and lab session both. Nine tasks, so expect 8 to 12 pages. Coverage decides the length, not a target. |
+
+Write the content first, then hit the target with these levers, in this order:
+
+1. Cut figures. This is most of it. Keep only what a brief names. Lab 1 went from 12 figures to
+   5 and lost 6 pages.
+2. Shrink the rest. `width=Inches(3.1)` fits two figures and their captions on a page.
+3. Typography: body 10.5 pt, `space_after = Pt(5)`, headings `space_before = Pt(8)` and
+   `space_after = Pt(3)`, captions 9 pt. Worth two pages on its own.
+4. Remove every `add_page_break`.
+5. Only then compress prose, and never compress an answer to a question the brief asks.
+
+Numbers that were in a cut figure move into the sentence next to it. Nothing measured gets
+lost, it just stops having a picture.
+
 ## Toolchain, already solved
 
 - No node, no pandoc. `python-docx` is installed (`pip install --user --break-system-packages python-docx`).
@@ -76,7 +98,8 @@ The brief wants a single PDF with the lab group and members named. The instructi
 4. Problems encountered during real-time implementation.
 
 Around three pages with figures, focused on task 4, briefly covering tasks 1 to 3. A video link
-is required.
+is required. Three pages is the tightest of the four, so answer the four questions and show the
+block diagram, and let everything else go.
 
 **The block diagram is a deliverable here**, not decoration, because question 1 asks for the
 node structure. Build it the same way as Lab 1's, showing the provided nodes
@@ -91,8 +114,15 @@ Source: `lab4/report_notes.md` (185 lines), `lab4/LOG.md`, `lab4/RUNSHEET.md`, `
 Instructions: `~/Documents/R7021E_Lab_4.pdf` (also at `~/r7021e_2026/docs/labs/R7021E_Lab_4.pdf`).
 Read it before writing; it has not been read yet in any session.
 
-Submission is the report as a PDF, **plus the code, plus any video recordings**. So the zip
-contains the `lab4/ros2_ws/src/` tree as well as the PDF.
+Submission is the report as a PDF, **plus the code, plus any video recordings**, and the brief
+also asks for the rosbags, the RViz screen recordings and the config files used for the Task 8
+and 9 runs. So the zip carries the `lab4/ros2_ws/src/` tree and those recordings as well as
+the PDF.
+
+There is no page limit here. The brief asks for every task that was not purely code, pre-lab
+and lab session, with its figures and discussion. Five of the modules were written by the
+group: `motion_model`, `measurement_model`, `proposal`, `resampling` and `rbpf`. Task 7 is a
+parameter sweep and Task 8 and 9 are the hardware runs, so those carry the most figures.
 
 ## Things that are missing and that only Dominic can supply
 
