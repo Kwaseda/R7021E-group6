@@ -1,0 +1,96 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 40
+      Color: 200; 200; 200
+      Alpha: 0.5
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Visual Enabled: true
+      Value: true
+    - Class: rviz_default_plugins/LaserScan
+      Name: LaserScan
+      Enabled: true
+      Topic:
+        Value: /scan
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+      Style: Flat Squares
+      Size (m): 0.04
+      Color Transformer: FlatColor
+      Color: 27; 175; 122
+      Alpha: 1
+      Decay Time: 0
+      Value: true
+    - Class: rviz_default_plugins/Path
+      Name: Path
+      Enabled: true
+      Topic:
+        Value: /replay_path
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Line Style: Billboards
+      Line Width: 0.02
+      Color: 42; 120; 214
+      Alpha: 1
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Name: Goal
+      Enabled: true
+      Topic:
+        Value: /replay_goal
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 250; 250; 248
+    Fixed Frame: odom
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Name: Current View
+      X: @CX@
+      Y: @CY@
+      Scale: @SCALE@
+      Angle: 0
+      Near Clip Distance: 0.01
+      Value: TopDownOrtho (rviz_default_plugins)
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: true
+  Height: @HEIGHT@
+  Width: @WIDTH@
+  Hide Left Dock: true
+  Hide Right Dock: true
+  X: 0
+  Y: 0
