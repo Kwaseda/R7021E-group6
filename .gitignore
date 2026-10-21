@@ -34,3 +34,6 @@ lab4/ros2_ws/src/r7021e_fast_slam/runs
 
 # saved Canvas pages hold session keys; keep them local
 project/*.html
+
+# zip files are large and not needed in the repo
+*.zip
