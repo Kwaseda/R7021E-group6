@@ -1,0 +1,49 @@
+# Closed loop position tracking controller. Near Identity Diffeomorphism outer loop.
+#
+# Physical limits are not repeated here: they come from config/robot.yaml, loaded
+# first by the launch file.
+
+/controller_node:
+  ros__parameters:
+    # Control period, seconds. 20 Hz: faster than the robot's mechanical response,
+    # slower than the 5-10 Hz lidar, so the loop never waits on a sensor it can't use.
+    control_period: 0.05
+
+    # NID offset, metres: the controlled point sits this far ahead of the wheel axle.
+    # The transform divides by L, so a small L demands a large omega for a small
+    # lateral error, and a large L moves the controlled point further from the robot
+    # anyone actually cares about. At L = 0.10 and v capped at 0.22, the largest omega
+    # the transform can ask for is 0.22 / 0.10 = 2.2 rad/s, inside the 2.84 rad/s
+    # bound -- this value and max_linear_velocity are not independent.
+    nid_offset_L: 0.10
+
+    # Proportional gain on position error, 1/s. Demanded speed = k_p * distance to
+    # goal. At 1 m of error that asks for 0.8 m/s, saturating at 0.22 until the error
+    # falls below 0.275 m; below that the approach is a decaying exponential with time
+    # constant 1/k_p = 1.25 s. Higher k_p spends longer saturated and risks overshoot;
+    # lower k_p settles more slowly.
+    k_p_position: 0.8
+
+    # Goal tolerance, metres. Inside this the controller publishes zero velocity and
+    # holds -- the task 1 acceptance criterion.
+    goal_tolerance: 0.05
+
+    # What the setpoint on /new_position means:
+    #
+    #   offset_point  setpoint is where the NID point should end up. The closed loop
+    #                 is exactly linear; the robot's centre settles L behind the
+    #                 setpoint along its final heading.
+    #
+    #   robot_centre  setpoint is where the robot's centre should end up. The goal is
+    #                 shifted forward by L before the transform, so the centre
+    #                 converges on the commanded point, at the cost of exact linearity
+    #                 in the closed loop.
+    goal_defines: offset_point
+
+    # Frame written into the TwistStamped header. Never an empty string -- a stamped
+    # message with no frame and no stamp reads as though it arrived at the epoch.
+    cmd_frame_id: base_link
+
+    # Odometry staleness limit, seconds. If no odometry arrives for this long the
+    # controller stops commanding rather than steering on a stale pose.
+    odom_timeout: 0.5

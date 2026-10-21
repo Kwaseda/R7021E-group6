@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>r7021e_bringup</name>
+  <version>0.1.0</version>
+  <description>
+    Launch files, parameter files and the RViz configuration for R7021E 2026. Holds no
+    nodes: it starts the ones in r7021e_control and decides which of them run together.
+  </description>
+  <maintainer email="domadd-2@student.ltu.se">Dominic Addo</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>r7021e_control</exec_depend>
+  <!-- rviz2 is optional at run time and only started when rviz:=true, so it is an
+       exec_depend rather than a depend. turtlebot3_gazebo is deliberately not declared:
+       it is not installed on either machine yet, and declaring a dependency that cannot
+       be resolved would stop the whole workspace building over a simulator the four
+       nodes do not need in order to run. -->
+  <exec_depend>rviz2</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -113,7 +113,13 @@ def extract(bag):
         last = bag['/mpc_prediction'][-1][1]
         pred = [(p.pose.position.x, p.pose.position.y) for p in last.poses]
 
-    return t, xy, goals, goal_t, pred
+    predictions = [
+        (s, np.array([[p.pose.position.x, p.pose.position.y]
+                      for p in msg.poses]))
+        for s, msg in bag['/mpc_prediction'] if msg.poses
+    ]
+
+    return t, xy, goals, goal_t, pred, predictions
 
 
 def report(t, xy, goals, obstacles, task):
@@ -190,6 +196,7 @@ def main():
     ap.add_argument('--task', type=int, required=True, choices=sorted(TASKS))
     ap.add_argument('-o', '--out')
     ap.add_argument('--animate', action='store_true')
+    ap.add_argument('--video', help='write a bag-derived MP4 animation')
     ap.add_argument('--obstacle', action='append', default=[],
                     help='override as x,y,r  (repeatable, for runs that used -p overrides)')
     ap.add_argument('--bound', type=float)
@@ -202,7 +209,7 @@ def main():
     if args.bound:
         cfg['bound'] = args.bound
     bag = read_bag(args.bag.rstrip('/'))
-    t, xy, goals, goal_t, pred = extract(bag)
+    t, xy, goals, goal_t, pred, predictions = extract(bag)
     if len(xy) == 0:
         sys.exit('error: no /odom messages in the bag. Was it recorded on the right domain?')
 
@@ -226,29 +233,57 @@ def main():
     fig.savefig(out, dpi=160)
     print('wrote %s' % out)
 
-    if args.animate:
+    if args.animate or args.video:
         gif = os.path.splitext(out)[0] + '.gif'
         fig2, ax2 = plt.subplots(figsize=(7, 7))
-        draw_static(ax2, cfg['bound'], cfg['obstacles'], goals, [], args.task)
+        path_length = np.linalg.norm(np.diff(xy, axis=0), axis=1).sum()
+        draw_static(ax2, cfg['bound'], cfg['obstacles'], [], [], args.task)
         ax2.set_xlim(-lim, lim)
         ax2.set_ylim(-lim, lim)
-        ax2.set_title('Lab 2 task %d - %s' % (args.task, name))
+        path_line, = ax2.plot([], [], 'b-', lw=1.6, label='driven path')
+        position_dot, = ax2.plot([], [], 'bo', ms=8, label='robot position')
+        prediction_line, = ax2.plot([], [], color='orange', lw=2,
+                                    label='predicted horizon')
+        goal_points = ax2.scatter([], [], c='g', marker='o', s=90,
+                                  zorder=4, label='goal')
+        ax2.scatter(xy[0, 0], xy[0, 1], c='c', marker='o', s=90,
+                    zorder=5, label='start')
         ax2.legend(loc='best', fontsize=8)
-        line, = ax2.plot([], [], 'b-', lw=1.6)
-        dot, = ax2.plot([], [], 'bo', ms=8)
 
         stride = max(1, len(xy) // 300)        # cap at ~300 frames
-        frames = range(0, len(xy), stride)
+        frames = list(range(0, len(xy), stride))
+        if frames[-1] != len(xy) - 1:
+            frames.append(len(xy) - 1)
 
         def update(i):
-            line.set_data(xy[:i + 1, 0], xy[:i + 1, 1])
-            dot.set_data([xy[i, 0]], [xy[i, 1]])
-            return line, dot
+            path_line.set_data(xy[:i + 1, 0], xy[:i + 1, 1])
+            position_dot.set_data([xy[i, 0]], [xy[i, 1]])
+            visible_goals = [goal for goal, goal_time in zip(goals, goal_t)
+                             if goal_time <= t[i]]
+            goal_points.set_offsets(
+                np.asarray(visible_goals).reshape((-1, 2)))
+            prediction_index = np.searchsorted(
+                [sample[0] for sample in predictions], t[i], side='right') - 1
+            if prediction_index >= 0:
+                predicted_xy = predictions[prediction_index][1]
+                prediction_line.set_data(predicted_xy[:, 0], predicted_xy[:, 1])
+            else:
+                prediction_line.set_data([], [])
+            ax2.set_title('Lab 2 task %d - %s [recorded bag, %.3f m path]   '
+                          't = %.1f s'
+                          % (args.task, name, path_length, t[i]))
+            return path_line, position_dot, prediction_line, goal_points
 
         anim = animation.FuncAnimation(fig2, update, frames=frames,
-                                       interval=args.interval, blit=True)
-        anim.save(gif, writer=animation.PillowWriter(fps=max(1, 1000 // args.interval)))
-        print('wrote %s' % gif)
+                                       interval=args.interval, blit=False)
+        if args.animate:
+            anim.save(gif, writer=animation.PillowWriter(
+                fps=max(1, 1000 // args.interval)))
+            print('wrote %s' % gif)
+        if args.video:
+            anim.save(args.video, writer=animation.FFMpegWriter(
+                fps=max(1, 1000 // args.interval)))
+            print('wrote %s' % args.video)
 
 
 if __name__ == '__main__':

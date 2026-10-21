@@ -24,6 +24,7 @@ import argparse, math, os, sys, types, importlib.util, warnings
 warnings.simplefilter('ignore')
 import numpy as np
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 NODE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                     '../ros2_ws/src/r7021e_lab2/r7021e_lab2/mpc_controller.py')
@@ -64,7 +65,13 @@ def main():
     ap.add_argument('--t_step', type=float, default=0.1)
     ap.add_argument('--n_horizon', type=int, default=20)
     ap.add_argument('-o', '--out')
+    ap.add_argument('--video', help='write an MP4 of the offline simulation')
+    ap.add_argument('--video-speed', type=float, default=4.0,
+                    help='simulation seconds per video second (default: 4)')
+    ap.add_argument('--fps', type=int, default=10)
     a = ap.parse_args()
+    if a.video and (a.video_speed <= 0 or a.fps <= 0):
+        ap.error('--video-speed and --fps must be positive')
 
     mc = load_node()
     cfg = mc.TASKS[a.task]
@@ -148,6 +155,9 @@ def main():
 
     b = cfg['bound']
     lim = b + 0.3
+    sim_title = ('Lab 2 task %d - simulation, goal=(%.1f, %.1f), '
+                 'N=%d, t_step=%.2f s'
+                 % (a.task, goal[0], goal[1], N, TS))
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.plot([-b, b, b, -b, -b], [-b, -b, b, b, -b], 'r--', lw=1, label='boundary')
     for i, (ox, oy, r) in enumerate(cfg['obstacles']):
@@ -171,12 +181,65 @@ def main():
     ax.set_aspect('equal')
     ax.set_xlim(-lim, lim)
     ax.set_ylim(-lim, lim)
-    ax.set_title('Lab 2 task %d - simulation' % a.task)
+    ax.set_title(sim_title)
     ax.legend(loc='best', fontsize=8)
     fig.tight_layout()
     out = a.out or 'task%d_simulation.png' % a.task
     fig.savefig(out, dpi=160)
     print('wrote %s' % out)
+
+    if a.video:
+        video_fig, video_ax = plt.subplots(figsize=(7, 7))
+        video_ax.plot([-b, b, b, -b, -b], [-b, -b, b, b, -b],
+                      'r--', lw=1, label='boundary')
+        for i, (ox, oy, r) in enumerate(cfg['obstacles']):
+            video_ax.add_patch(plt.Circle(
+                (ox, oy), r, color='0.35', zorder=3,
+                label='obstacle' if i == 0 else None))
+            video_ax.add_patch(plt.Circle(
+                (ox, oy), r + mc.ROBOT_INFLATION, color='0.35',
+                fill=False, ls=':',
+                label='inflated by %.3f m' % mc.ROBOT_INFLATION
+                if i == 0 else None))
+        if circle:
+            video_ax.plot(mc.CIRCLE['radius'] * np.cos(t),
+                          mc.CIRCLE['radius'] * np.sin(t),
+                          'g--', lw=1, label='reference circle')
+        else:
+            video_ax.scatter([goal[0]], [goal[1]], c='g', marker='o',
+                             s=90, zorder=4, label='goal')
+        video_ax.scatter(traj[0, 0], traj[0, 1], c='c', marker='o',
+                         s=90, zorder=5, label='start')
+        path_line, = video_ax.plot([], [], 'b-', lw=1.6,
+                                   label='simulated path')
+        robot_dot, = video_ax.plot([], [], 'bo', ms=8,
+                                   label='simulated robot position')
+        video_ax.set_xlabel('x [m]')
+        video_ax.set_ylabel('y [m]')
+        video_ax.grid(True, alpha=0.3)
+        video_ax.set_aspect('equal')
+        video_ax.set_xlim(-lim, lim)
+        video_ax.set_ylim(-lim, lim)
+        video_ax.legend(loc='best', fontsize=8)
+        frame_stride = max(1, round(a.video_speed / (a.fps * TS)))
+        frames = list(range(0, len(traj), frame_stride))
+        if frames[-1] != len(traj) - 1:
+            frames.append(len(traj) - 1)
+
+        def update(frame):
+            path_line.set_data(traj[:frame + 1, 0], traj[:frame + 1, 1])
+            robot_dot.set_data([traj[frame, 0]], [traj[frame, 1]])
+            video_ax.set_title(
+                '%s   t = %.1f s' % (sim_title, frame * TS))
+            return path_line, robot_dot
+
+        video_animation = animation.FuncAnimation(
+            video_fig, update, frames=frames, interval=1000 / a.fps,
+            blit=False)
+        video_animation.save(
+            a.video,
+            writer=animation.FFMpegWriter(fps=a.fps))
+        print('wrote %s' % a.video)
 
 
 if __name__ == '__main__':

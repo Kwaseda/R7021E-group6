@@ -1,0 +1,29 @@
+# TurtleBot3 Burger physical facts. One source of truth for the whole workspace.
+#
+# Every node loads this file first, under the "robot." prefix, before its own
+# parameter file. The "/**" wildcard applies it to every node that loads it.
+#
+# Verify max_linear_velocity on the actual robot's turtlebot3_node before quoting it
+# in the report -- firmware revisions have shipped different values than the Burger's
+# published 0.22 m/s / 2.84 rad/s limits.
+
+/**:
+  ros__parameters:
+    robot:
+      # Actuator bounds. Every commanded velocity is clamped to these before publishing.
+      max_linear_velocity: 0.22     # m/s, Burger published limit
+      max_angular_velocity: 2.84    # rad/s, Burger published limit
+
+      # Drive geometry, for the dynamic model in the report.
+      wheel_radius: 0.033           # m
+      wheel_separation: 0.160       # m
+
+      # Footprint, metres: length by width.
+      footprint_length: 0.178
+      footprint_width: 0.138
+
+      # LDS-01 / LDS-02 usable range. A beam outside this window is not a measurement
+      # -- the lidar returns 0.0 or inf for a beam that hit nothing or hit something
+      # closer than range_min.
+      scan_range_min: 0.12          # m
+      scan_range_max: 3.5           # m

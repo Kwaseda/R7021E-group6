@@ -1,0 +1,195 @@
+"""Grid-FastSLAM 2.0: the filter itself.
+
+The algorithm of hello-slam's `4_grid_based_slam.ipynb`. Each particle carries
+a pose hypothesis and its own occupancy grid. Per particle and per step:
+predict from odometry (3), scan-match against that particle's OWN map (5),
+build a Gaussian proposal around the match (6-10), sample the new pose (11),
+update the weight with the proposal's normalizer (12), and only then integrate
+the scan (22). Then normalize (24), compute N_eff (25) and resample
+selectively (26-27).
+
+No rclpy in here. The ROS node feeds this class odometry increments and beam
+endpoints and does its own publishing.
+
+Occupancy mapping without a filter -- `use_measurement_update: false` -- does
+NOT go through this class at all. The node runs `MappingOnlyFilter` for that,
+so the very first task works before a single line of this file exists.
+"""
+from dataclasses import dataclass
+from time import perf_counter
+from typing import List
+
+import numpy as np
+
+from .evaluation import StepInfo
+from .grid_map import GridMap
+from .measurement_model import measurement_log_likelihood
+from .motion_model import sample_motion_model_odometry
+from .proposal import improved_proposal
+from .resampling import effective_sample_size, systematic_resample
+from .scan_matcher import match as scan_match
+from .utils import logsumexp, wrap_angle
+
+
+@dataclass
+class Particle:
+    """A single particle in the Grid-FastSLAM 2.0 filter.
+    Holds the robot's pose, the particle's log-weight, and its own occupancy grid.
+    """
+    pose: np.ndarray
+    log_weight: float
+    grid: GridMap
+
+
+class GridFastSLAM:
+    def __init__(self, cfg, rng):
+        """Create N particles, all at the origin with equal log-weights.
+
+        Each particle gets its OWN GridMap; they must never share one, or
+        resampling would corrupt every hypothesis at once.
+        """
+        self.cfg = cfg
+        self.rng = rng
+        n = int(cfg.num_particles)
+        ## Initialise the particle set with N particles at the origin, each with its own GridMap.
+        self.particles: List[Particle] = [
+            Particle(np.zeros(3), -np.log(n), GridMap(cfg)) for _ in range(n)
+        ]
+
+    def best_particle(self) -> Particle:
+        """The heaviest particle -- the hypothesis published as the estimate."""
+        return self.particles[int(np.argmax([p.log_weight
+                                             for p in self.particles]))]
+
+    def step(self, u, endpoints, ranges) -> StepInfo:
+        """Run one filter update over the whole particle set.
+
+        The map is integrated LAST on purpose. Every likelihood evaluated
+        during a step must see m_{t-1}: scoring a scan against a map that
+        already contains it is a different, far more optimistic estimator.
+
+        `use_improved_proposal=False` samples from the motion model and
+        weights by the measurement likelihood alone -- FastSLAM 1.0, the
+        baseline the improved proposal is measured against.
+
+        Args:
+            u:         (3,) odometry increment [d_rot1, d_trans, d_rot2].
+            endpoints: (B, 2) beam endpoints in the robot base frame.
+            ranges:    (B,) beam ranges, used to tell a hit from a max-range
+                    return.
+
+        Returns a StepInfo carrying N_eff, whether resampling fired, the
+        scan-match fallback count, the per-stage timings and the index of the
+        best particle. The particle set is updated in place; read it back
+        through `self.particles` and `best_particle()`.
+        """
+        cfg = self.cfg
+        timings = {'scan_match': 0.0, 'likelihood': 0.0, 'map_integrate': 0.0}
+        n_fallback = 0
+
+        ## Split the beams once, outside the particle loop. A max-range return
+        ## maps free space but must not score a pose.
+        hits = ranges < cfg.range_max - 1e-6
+        ep_hit = endpoints[hits]
+        ep_match = ep_hit[::cfg.scan_match_stride]
+        ep_w = ep_hit[::cfg.likelihood_stride]
+
+        for p in self.particles:
+            ## predict from odometry
+            x_bar = sample_motion_model_odometry(
+                u, p.pose[None, :], cfg.odometry_sigmas, self.rng)[0]
+
+            ## scan-match against THIS particle's own map
+            if cfg.use_improved_proposal:
+                t0 = perf_counter()
+                x_star, score = scan_match(x_bar, p.grid, ep_match, cfg)
+                timings['scan_match'] += perf_counter() - t0
+            else:
+                ## FastSLAM 1.0: no match, so the branch below is taken.
+                x_star, score = x_bar, -np.inf
+
+            t0 = perf_counter()
+            if score >= cfg.match_score_min:
+                ## Gaussian proposal around the match, sample it,
+                ## weight by the proposal's normaliser.
+                log_eta, mu, sigma = improved_proposal(
+                    x_star, p.pose, u, ep_w, p.grid, cfg)
+                x_new = self.rng.multivariate_normal(mu, sigma)
+                x_new[2] = wrap_angle(x_new[2])
+                p.log_weight += log_eta
+            else:
+                ## No trusted match (or FastSLAM 1.0): keep the odometry
+                ## sample and weight by the likelihood of the scan alone.
+                x_new = x_bar
+                p.log_weight += measurement_log_likelihood(
+                    x_bar, ep_w, p.grid, cfg)[0]
+                if cfg.use_improved_proposal:
+                    n_fallback += 1
+            timings['likelihood'] += perf_counter() - t0
+            p.pose = x_new
+
+            ## The map is updated last. Every likelihood above has to
+            ## see m_{t-1}, not a map that already holds this scan.
+            t0 = perf_counter()
+            p.grid.integrate_scan(x_new, endpoints, ranges, cfg.range_max)
+            timings['map_integrate'] += perf_counter() - t0
+
+        ## Normalise, then N_eff. N_eff is read before resampling.
+        weights, n_eff = self._normalize()
+
+        ## Read the heaviest particle now: after a resample every weight is 1/N.
+        best_index = int(np.argmax(weights))
+
+        ## resample if N_eff is below the threshold
+        resampled = self._maybe_resample(weights, n_eff)
+
+        return StepInfo(n_eff=n_eff, resampled=resampled,
+                        n_fallback=n_fallback, timings=timings,
+                        best_index=best_index)
+
+
+    def _normalize(self):
+        """Normalize the particle weights and compute the effective sample size.
+
+        Returns:
+
+            weights : np.ndarray
+                The normalized weights of the particles.
+            n_eff : float
+                The effective sample size.
+        """
+        log_w = np.array([p.log_weight for p in self.particles], dtype=float)
+        log_w -= logsumexp(log_w)
+        for p, lw in zip(self.particles, log_w):
+            p.log_weight = float(lw)
+        weights = np.exp(log_w)
+        return weights, effective_sample_size(weights)
+
+    def _maybe_resample(self, weights, n_eff) -> bool:
+        """Resample the particle set if the diversity has collapsed.
+
+        Args:
+            weights: np.ndarray
+                The normalized particle weights.
+            n_eff: float
+                The effective sample size before resampling.
+
+        Returns:
+            bool: True when a resample step was performed, otherwise False.
+        """
+        cfg = self.cfg
+        n = len(self.particles)
+        due = cfg.resample_every_step or n_eff < cfg.resample_threshold * n
+        if not due:
+            return False
+
+        idx = systematic_resample(weights, self.rng)
+        ## Every survivor gets a full grid copy, including the ones selected
+        ## exactly once. This is the straightforward reading of the algorithm
+        ## and it is what makes a large particle set expensive.
+        self.particles = [
+            Particle(self.particles[i].pose.copy(), -np.log(n),
+                     self.particles[i].grid.copy())
+            for i in idx
+        ]
+        return True

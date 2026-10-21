@@ -1,0 +1,149 @@
+# Wall following until the loop closes. Task 4 of Lab 1.
+#
+# Proportional control on one number: distance to the wall on the chosen side. No
+# map, no plan, no global frame. Odometry is used only to notice the loop has
+# closed, never to steer.
+
+/wall_follower_node:
+  ros__parameters:
+    # Control period, seconds. Same rate and reason as the position controller: both
+    # nodes publish to /cmd_vel and there's no reason for them to disagree.
+    control_period: 0.05
+
+    # Largest distance error the proportional law acts on, metres. Bounds the turn
+    # rate the follower can ask for (at 0.5 m the hardest turn is 1.5*0.5 = 0.75
+    # rad/s, a controlled arc, not a pivot), and it's the error assumed when the side
+    # sector sees nothing at all, which happens for a second or two at an outside
+    # corner. Also sets where the proportional band ends -- beyond setpoint plus this,
+    # every distance produces the same command and the acquiring state takes over.
+    max_distance_error: 0.5
+
+    # Turn rate per radian of bearing error while acquiring a wall, 1/s. Used only in
+    # the acquiring state, to point the robot at the nearest wall before driving at
+    # it. This state exists because, from the middle of a room, every wall is beyond
+    # the proportional band: the capped error commands a constant turn at a constant
+    # speed, which is a circle that never reaches a wall.
+    acquire_turn_gain: 1.0
+
+    # Which side the wall is on, "right" or "left". Arbitrary, and depends only on
+    # which way the robot is pointing when it starts.
+    follow_side: right
+
+    # Distance to hold from the wall, metres. Inside the lidar's 0.12 m minimum by a
+    # wide margin, outside the 0.178 m footprint by more than double.
+    wall_follow_setpoint: 0.5
+
+    # Proportional gain on the distance error, rad/s per metre. Gentle on purpose: an
+    # undamped proportional wall follower oscillates, and the cure is a smaller gain
+    # before a derivative term.
+    k_p_wall: 1.2
+
+    # Proportional gain on the angle into the wall, rad/s per radian. Distance alone
+    # can't tell approaching from receding: holding the distance error constant
+    # commands a constant turn, and a constant turn at a constant speed is a circle
+    # tighter than the distance to the wall. Two beams fix the wall as a line, and a
+    # line has an angle -- this term steers on that angle, so the robot turns away
+    # while still heading at the wall rather than after the distance says so.
+    k_heading_wall: 1.0
+
+    # Angle between the two beams the wall fit uses, degrees, from the perpendicular
+    # toward the front. Wide enough that the two ranges differ by more than lidar
+    # noise near parallel, narrow enough that both beams still land on the same wall
+    # a robot length before a corner.
+    wall_beam_separation_deg: 40.0
+
+    # How far from the requested bearing the fit accepts a beam, degrees. A beam can
+    # drop out; the nearest valid neighbour costs a fraction of a degree instead of
+    # losing the measurement.
+    wall_beam_window_deg: 5.0
+
+    # Largest wall angle the fit will report, degrees. Beyond this the two beams have
+    # almost certainly hit two different surfaces -- a corner, which the front sector
+    # handles instead, or a convex obstacle the forward beam missed entirely.
+    #
+    # Hard ceiling: the fit is singular at 90 minus the beam separation, 50 degrees
+    # here, where the forward beam runs parallel to the wall and the forward range runs
+    # away to infinity. Anywhere near that angle a beam that sailed past a small round
+    # obstacle and landed on the far wall reads as a near wall raking away, and the
+    # follower steers into the obstacle on a confident, badly wrong number. The cause of
+    # the tight orbits around the 0.15 m pillars in turtlebot3_world: at a 0.5 m
+    # standoff the forward beam needs a 0.42 m radius to land on, so it always misses.
+    # 35 degrees keeps the forward range within about 3x the perpendicular one. The node
+    # caps this at 0.8 of the singular angle regardless, so editing it cannot bring the
+    # failure back.
+    max_wall_angle_deg: 35.0
+
+    # Forward speed while following, m/s. Below the 0.22 limit so the turn rate has
+    # room to act without the clamp distorting the commanded direction.
+    wall_follow_speed: 0.15
+
+    # Front clearance that triggers a corner, metres. Below this the node stops
+    # driving forward and turns in place.
+    front_stop_distance: 0.35
+
+    # Turn rate used while cornering, rad/s. Well inside the 2.84 limit -- a corner
+    # should be a controlled pivot the lidar can keep up with.
+    corner_turn_rate: 0.5
+
+    # Sectors of the scan the node reads, degrees, from straight ahead, positive to
+    # the left (the ROS convention). Side sector is centred on the wall bearing;
+    # front sector decides a corner.
+    side_sector_width_deg: 60.0
+    front_sector_width_deg: 60.0
+
+    # Loop closure: with no map, the only available evidence is odometry returning to
+    # where it started.
+    #
+    # Tolerance, metres. This is the gate that decides when to stop, which is not the
+    # same number as the lap error the report quotes -- that one is measured and logged
+    # separately (error_to_start), so loosening this does not flatter the result.
+    #
+    # 0.2 m is the tighter, more flattering choice and it is what the sim wants, but it
+    # is measured on raw wheel odometry after a 14 m lap, and wheel odometry drifts. In
+    # the offline harness, over 12 start headings: with drift-free odometry 0.2 m closes
+    # 12 of 12, but at a realistic 2 percent yaw and linear scale error it closes 8 of
+    # 12 -- a third of the time the robot laps the room forever because odometry says it
+    # came back 0.25 m out when it physically came back 0.1 m out. 0.3 m closes 12 of 12
+    # at every drift level tested. Set it back to 0.2 if the lab spec demands the gate
+    # itself be 0.2; the logged error is the number that actually answers the task.
+    loop_close_tolerance: 0.3
+    # Distance the robot has to travel before loop closure is tested at all, metres.
+    # Without it, the test fires on tick one, since the robot starts within tolerance
+    # of its own start pose. The lap is measured from where wall following began, not
+    # from where the node started, since the robot spawns mid-room and the perimeter
+    # doesn't pass through the middle.
+    loop_min_distance: 2.0
+
+    # How long the follower has to hold the setpoint distance *and* run parallel to the
+    # wall before the lap reference is taken, seconds, and how far off parallel still
+    # counts, degrees. The loop test measures against this pose, so it has to be a pose
+    # on the track the robot settles into and will pass again. A robot switched on
+    # pointing into the room sits at the setpoint distance for a moment while it swings
+    # round to face along the wall: right distance, wrong heading, and a lap referenced
+    # there comes back tens of degrees out and is rejected after a lap it really did
+    # complete. Requiring the wall fit as well is what supplies the heading -- distance
+    # on its own cannot see it.
+    lap_settle_seconds: 0.6
+    lap_settle_angle_deg: 15.0
+    # How close to the setpoint counts as settled, metres. Its own number rather than
+    # the loop tolerance below: one parameter deciding both where the lap starts and
+    # when it closes makes the two move together, so loosening the closing gate quietly
+    # moves the reference it is measured against and the result stops being monotonic.
+    lap_settle_distance: 0.15
+
+    # Heading tolerance for loop closure, degrees. A loop returns pointing roughly the
+    # way it left; an out-and-back along the same wall returns to the same place
+    # pointing the opposite way, and only this tolerance tells the two apart. Loose on
+    # purpose (the robot is following a wall, not repeating a pose) but tight enough
+    # to reject the 180 degrees an out-and-back gives.
+    loop_close_heading_deg: 45.0
+
+    # Stop the robot when the loop closes, rather than continuing. True gives a clean
+    # single lap in the recorded bag.
+    stop_on_loop_close: true
+
+    # Odometry staleness limit, seconds. Same reason and value as the controller.
+    odom_timeout: 0.5
+
+    # Frame written into the TwistStamped header.
+    cmd_frame_id: base_link

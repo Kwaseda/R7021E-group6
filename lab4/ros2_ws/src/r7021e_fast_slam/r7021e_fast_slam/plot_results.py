@@ -69,6 +69,63 @@ def plot_maps(runs, labels, out):
     return _save(fig, out)
 
 
+def plot_hall_maps(runs, labels, out):
+    """Compare hall-run maps, odometry and estimates with limits around each maze."""
+    plt = _plt()
+    from matplotlib.colors import ListedColormap
+
+    cmap = ListedColormap(['#808080', '#ffffff', '#242424'])
+    fig, axes = plt.subplots(1, len(runs), figsize=(6 * len(runs), 5.2),
+                             squeeze=False)
+    fig.subplots_adjust(wspace=0.28, top=0.80, bottom=0.15,
+                        left=0.045, right=0.985)
+
+    for ax, run, label in zip(axes[0], runs, labels):
+        log_odds = run['map_log_odds']
+        image = np.zeros(log_odds.shape, dtype=np.uint8)
+        image[log_odds < 0.0] = 1
+        image[log_odds > 0.0] = 2
+        rows, cols = np.where(log_odds != 0.0)
+        if rows.size == 0:
+            raise ValueError('hall map has no observed cells')
+        res = float(run['map_resolution'])
+        ox, oy = run['map_origin']
+        crop = (slice(rows.min(), rows.max() + 1),
+                slice(cols.min(), cols.max() + 1))
+        image = image[crop]
+        extent = [ox + cols.min() * res, ox + (cols.max() + 1) * res,
+                  oy + rows.min() * res, oy + (rows.max() + 1) * res]
+        ax.imshow(image, origin='lower', extent=extent, cmap=cmap,
+                  interpolation='nearest', vmin=0, vmax=2)
+        ax.plot(run['odom'][:, 0], run['odom'][:, 1], 'b:', lw=1.2,
+                label='wheel odometry')
+        ax.plot(run['est'][:, 0], run['est'][:, 1], color='red', lw=1.0,
+                label='FS2 estimate')
+        ax.scatter(run['est'][0, 0], run['est'][0, 1], color='green',
+                   s=35, zorder=3, label='start')
+
+        x_min = min(extent[0], float(run['odom'][:, 0].min()),
+                    float(run['est'][:, 0].min()))
+        x_max = max(extent[1], float(run['odom'][:, 0].max()),
+                    float(run['est'][:, 0].max()))
+        y_min = min(extent[2], float(run['odom'][:, 1].min()),
+                    float(run['est'][:, 1].min()))
+        y_max = max(extent[3], float(run['odom'][:, 1].max()),
+                    float(run['est'][:, 1].max()))
+        pad = 0.18
+        ax.set_xlim(x_min - pad, x_max + pad)
+        ax.set_ylim(y_min - pad, y_max + pad)
+        ax.set_aspect('equal')
+        ax.set_xlabel('x [m]')
+        ax.set_ylabel('y [m]')
+        ax.set_title(label, pad=13, fontsize=10,
+                     bbox=dict(boxstyle='square,pad=0.45', facecolor='white',
+                               edgecolor='0.45', linewidth=0.8))
+        ax.legend(loc='lower right', fontsize=8)
+
+    return _save(fig, out)
+
+
 def plot_ate_vs_particles(runs, out):
     """Handout figure 2: ATE against N, one series
     per proposal, spread taken over seeds."""
@@ -173,7 +230,7 @@ def main(argv=None) -> int:
     ap.add_argument('--runs', nargs='+', required=True, help='.npz run logs')
     ap.add_argument('--out', default='figures', help='output directory')
     ap.add_argument('--figure', required=True,
-                    choices=['maps', 'ate', 'neff', 'timing'])
+                    choices=['maps', 'hall-maps', 'ate', 'neff', 'timing'])
     ap.add_argument('--labels', nargs='*', default=None)
     args = ap.parse_args(argv)
 
@@ -183,6 +240,8 @@ def main(argv=None) -> int:
 
     if args.figure == 'maps':
         plot_maps(runs, labels, out_dir / 'maps.png')
+    elif args.figure == 'hall-maps':
+        plot_hall_maps(runs, labels, out_dir / 'hall_maps.png')
     elif args.figure == 'ate':
         plot_ate_vs_particles(runs, out_dir / 'ate_vs_particles.png')
     elif args.figure == 'neff':
